@@ -1,5 +1,5 @@
 # fufan-chat-api
-<<<<<<< HEAD
+
 fufan-chat项目的后端服务，负责处理业务逻辑、数据存储和API接口的提供。采用稳健的后端技术，确保服务的稳定性和可扩展性。
 
 ## 版本：v1.0
@@ -49,6 +49,3 @@ Content-Type: application/json
     "max_tokens": 2048
 }
 ```
-=======
-基于RAG的私有知识库问答系统
->>>>>>> f90d81addd27be9355239a43bf4662d4621f3963

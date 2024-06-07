@@ -26,7 +26,6 @@ llm_chain = prompt | llm
 question = "北京和上海两座城市有什么不同？"
 
 if __name__ == '__main__':
-
     reponse = llm_chain.invoke(question)
     print(reponse)
 

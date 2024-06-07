@@ -33,13 +33,15 @@ def document():
 
 
 if __name__ == '__main__':
+
+    # FastAPI CLI官方Docs:https://fastapi.tiangolo.com/fastapi-cli/
+
     # 第一种启动方式：
     # 如需启动，在终端 输入命令 ：
     #    fastapi dev fastapi_basics.py  （命令 fastapi dev 读取您的 main.py 文件，检测其中的 FastAPI 应用程序，并使用 Uvicorn 启动服务器。）
     # - http://127.0.0.1:8000/docs
     
-    # 第二种启动方式：
-    # pip install uvicorn
+    # 第二种启动方式， 需要先安装：pip install uvicorn
     import uvicorn
     uvicorn.run(app, host='192.168.110.131', port=8000)
     

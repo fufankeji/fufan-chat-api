@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on 2024-05-30 16:04
 
-@author: @木羽Cheney
-@description: 定义对话函数
-"""
 
 from fastapi import Body, HTTPException
 from typing import List, Union, Optional
@@ -16,25 +11,27 @@ from langchain_community.llms.chatglm3 import ChatGLM3
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import PromptTemplate
 
+# 日志包
+from loguru import logger
 
-def chat(query: str = Body("", description="用户输入"),
-               history: Union[int, List] = Body([],description="历史对话信息",),
-               stream: bool = Body(False, description="流式输出"),
-               temperature: float = Body(0.8, description="LLM 采样温度", ge=0.0, le=2.0),
-               max_tokens: Optional[int] = Body(None, description="限制LLM生成Token数量，默认None代表模型最大值"),
-               ):
+
+def chat(query: str = Body("", description="用户的输入"),
+         model_name: str = Body("chatglm3-6b", description="基座模型的名称"),
+         temperature: float = Body(0.8, description="大模型参数：采样温度", ge=0.0, le=2.0),
+         max_tokens: Optional[int] = Body(None, description="大模型参数：最大输入Token限制"),
+         ):
     """
-    # 大模型对话交互接口的执行逻辑
     :param query: 用户输入的问题
-    :param conversation_id: 对话框的id，用来标识当前会话记录
-    :param history: 对话的历史信息
-    :param stream: 是否在前端采用流式输出
     :param model_name: 使用哪个大模型作为后端服务
     :param temperature: 采样温度
     :param max_tokens: 最大输入Token限制
-    :return:
+    :return:  大模型的回复结果
     """
 
+    logger.info("Received query: {}", query)
+    logger.info("Model name: {}", model_name)
+    logger.info("Temperature: {}", temperature)
+    logger.info("Max tokens: {}", max_tokens)
 
     # 使用LangChain调用ChatGLM3-6B服务
     try:
@@ -46,11 +43,9 @@ def chat(query: str = Body("", description="用户输入"),
 
         llm = ChatGLM3(
             endpoint_url=endpoint_url,
-            history=history,
-            stream=stream,
+            model_name=model_name,
             temperature=temperature,
             max_tokens=max_tokens,
-            top_p=0.9,
         )
 
         llm_chain = prompt | llm
@@ -67,4 +62,3 @@ def chat(query: str = Body("", description="用户输入"),
     except Exception as e:
         # 捕获所有其他异常并返回500响应
         raise HTTPException(status_code=500, detail="Internal Server Error: " + str(e))
-

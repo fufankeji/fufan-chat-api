@@ -43,10 +43,9 @@ fufan-chat项目的后端服务，负责处理业务逻辑、数据存储和API�
 POST http://192.168.110.131:8000/api/chat
 Content-Type: application/json
 {
-    "query": "你好，请你详细的向我介绍一下什么是机器学习？",
-    "history": [],
-    "stream": false,
-    "temperature": 0.8,
-    "max_tokens": 2048
+    "query":"你好，请你介绍一下你自己",
+    "model_name":"chatglm3-6b",
+    "temperature":0.8,
+    "max_tokens":4096
 }
 ```

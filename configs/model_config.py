@@ -1,8 +1,11 @@
+
+
+
 TEMPERATURE = 0.8
 #
-# LLM_MODELS = ["chatglm3-6b", "zhipu-api"]
+LLM_MODELS = ["zhipu-api"]
 
-LLM_MODELS = ["chatglm3-6b", "zhipu-api"]
+# LLM_MODELS = ["chatglm3-6b", "zhipu-api"]
 
 MODEL_PATH = {
     # 这里定义 本机服务器上存储的大模型权重存储路径
@@ -26,7 +29,7 @@ ONLINE_LLM_MODEL = {
 
     # 智谱清言的在线API服务
     "zhipu-api": {
-        "api_key": "",
+        "api_key": "086a38e9141410d76e393ec52105c83b.7vBwRS4srgxpMRXU",
         "version": "glm-4",
         "provider": "ChatGLMWorker",
     },
@@ -45,4 +48,5 @@ ONLINE_LLM_MODEL = {
 
 
 
-
+# 选用的 Embedding 名称
+EMBEDDING_MODEL = "bge-large-zh-v1.5"

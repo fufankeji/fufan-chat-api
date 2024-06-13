@@ -10,6 +10,7 @@ class UserModel(Base):
     # 你可以添加更多用户相关的字段，如邮箱、电话等
 
     conversations = relationship('ConversationModel', back_populates='user')
+    knowledge_bases = relationship('KnowledgeBaseModel', back_populates='user', cascade='all, delete-orphan')  # 更新关系
 
     def __repr__(self):
         return f"<User(id='{self.id}', username='{self.username}')>"

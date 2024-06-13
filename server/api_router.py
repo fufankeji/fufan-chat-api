@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on 2024-05-30 15:45
 
-@author: @木羽Cheney
-@description: FastAPI  API 路由
-"""
 
 
 from typing import Union
@@ -36,13 +31,36 @@ def create_app(run_mode: str = None):
     return app
 
 
-def mount_app_routes(app: FastAPI, run_mode: str = None):
+
+def mount_knowledge_routes(app: FastAPI):
+    """
+    这里定义基于RAG的知识库对话接口
+    """
+    from server.chat.knowledge_base_chat import knowledge_base_chat
+
+    app.post("api/chat/knowledge_base_chat",
+             tags=["Chat"],
+             summary="与知识库对话")(knowledge_base_chat)
+
+
+
+def mount_app_routes(app: FastAPI):
+    """
+    这里定义通用领域问答对话的接口
+    """
     
     # 大模型对话接口
     app.post("/api/chat",
              tags=["Chat"],
              summary="大模型对话交互接口",
              )(chat)
+
+    # 知识库相关接口
+    mount_knowledge_routes(app)
+
+
+
+
 
 def run_api(host, port, **kwargs):
     if kwargs.get("ssl_keyfile") and kwargs.get("ssl_certfile"):

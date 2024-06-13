@@ -282,6 +282,15 @@ def get_httpx_client(
 
 
 
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     # 测试本地model的config加载参数
     # ans = get_model_worker_config("chatglm3-6b")

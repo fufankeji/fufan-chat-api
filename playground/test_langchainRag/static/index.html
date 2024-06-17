@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Stream</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #output {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 10px;
+            height: 200px;
+            overflow-y: scroll;
+            white-space: pre-wrap; /* To ensure line breaks are respected */
+        }
+        #context {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 10px;
+            height: 200px;
+            overflow-y: scroll;
+            white-space: pre-wrap; /* To ensure line breaks are respected */
+        }
+        #reformulated {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 10px;
+            height: 100px;
+            overflow-y: scroll;
+            white-space: pre-wrap; /* To ensure line breaks are respected */
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Ask a Question</h1>
+        <form id="questionForm" class="mb-4">
+            <div class="form-group">
+                <label for="question">Question:</label>
+                <input type="text" class="form-control" id="question" name="question" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+
+        Reformulated Question:
+        <div id="reformulated" class="border rounded p-3"></div>
+
+        Answer:
+        <div id="output" class="border rounded p-3"></div>
+
+        Context:
+        <div id="context" class="border rounded p-3"></div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        document.getElementById('questionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const question = document.getElementById('question').value;
+            const outputDiv = document.getElementById('output');
+            const contextDiv = document.getElementById('context');
+            const reformulatedDiv = document.getElementById('reformulated');
+            outputDiv.innerHTML = ''; // Clear previous output
+            contextDiv.innerHTML = ''; // Clear previous context
+            reformulatedDiv.innerHTML = ''; // Clear previous reformulated question
+
+            const url = `/chat_stream/${encodeURIComponent(question)}`;
+
+            const eventSource = new EventSource(url);
+
+            eventSource.onmessage = function(event) {
+                try {
+                    if (event.data.trim()) { // Check if the data is not empty
+                        const data = JSON.parse(event.data);
+                        if (data.context) {
+                            // Display context data directly
+                            const contextData = data.context.map(item => item.page_content).join('<br><br>');
+                            contextDiv.innerHTML = contextData;
+                            contextDiv.scrollTop = contextDiv.scrollHeight; // Scroll to bottom
+                        }
+                        if (data.reformulated) {
+                            // Append reformulated question to reformulatedDiv
+                            reformulatedDiv.innerHTML += data.reformulated;
+                            reformulatedDiv.scrollTop = reformulatedDiv.scrollHeight; // Scroll to bottom
+                        }
+                        if (data.data) {
+                            // Append regular data to outputDiv
+                            outputDiv.innerHTML += data.data;
+                            outputDiv.scrollTop = outputDiv.scrollHeight; // Scroll to bottom
+                        }
+                    }
+                } catch (error) {
+                    outputDiv.innerHTML += "\nAn error occurred: " + error.message;
+                }
+            };
+
+            eventSource.onerror = function() {
+                if (eventSource.readyState === EventSource.CLOSED) {
+                    // Do nothing
+                } else if (eventSource.readyState === EventSource.CONNECTING) {
+                    // Do nothing
+                } else {
+                    outputDiv.innerHTML += "\nAn error occurred while streaming.";
+                }
+                eventSource.close();
+            };
+        });
+    </script>
+</body>
+</html>

@@ -35,6 +35,9 @@ chat = ChatZhipuAI(
 LangChain中关于 文本加载器的集成：
  - 原生实现的：https://python.langchain.com/v0.2/docs/how_to/#document-loaders
  - 外部集成的：https://python.langchain.com/v0.2/docs/integrations/document_loaders/
+ 
+bs4：是 Beautiful Soup 4，一个用于从 HTML 和 XML 文件中提取数据的 Python 库。它可以在这种情况下用于解析作为源检索的网页。
+WebBaseLoader： langchain_community.document_loaders 中的一个组件，用于从基于 Web 的源加载文档。
 """
 
 loader = WebBaseLoader(
@@ -165,6 +168,9 @@ def format_docs(docs):
 3. 格式化检索的内容：然后， format_docs 函数获取这些检索到的文档，并将它们格式化为单个字符串，每个文档内容由双换行符分隔。此格式化字符串提供了一个连贯的上下文，其中封装了回答查询所需的所有相关信息。
 4. 生成答案：此格式化上下文字符串与查询一起被输入到 glm-4 模型中。该模型使用提供的上下文和查询的细节，根据检索到的信息生成上下文相关且准确的响应。
 5. 输出解析：最后， ChatZhipu 模型生成的响应由 StrOutputParser 进行解析，将模型的输出转换为干净的、用户可读的格式。
+
+
+RunnableParallel 可以并发执行多个任务，而 RunnablePassthrough 用于需要顺序执行而不需修改的任务。
 """
 
 rag_chain = (

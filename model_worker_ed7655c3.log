@@ -1,5 +1,0 @@
-2024-06-13 13:21:08 | INFO | model_worker | Register to controller
-2024-06-13 13:21:53 | INFO | model_worker | Send heart beat. Models: ['zhipu-api']. Semaphore: Semaphore(value=5, locked=False). call_ct: 0. worker_id: ed7655c3. 
-2024-06-13 13:22:38 | INFO | model_worker | Send heart beat. Models: ['zhipu-api']. Semaphore: Semaphore(value=5, locked=False). call_ct: 0. worker_id: ed7655c3. 
-2024-06-13 13:23:23 | INFO | model_worker | Send heart beat. Models: ['zhipu-api']. Semaphore: Semaphore(value=5, locked=False). call_ct: 0. worker_id: ed7655c3. 
-2024-06-13 13:24:08 | INFO | model_worker | Send heart beat. Models: ['zhipu-api']. Semaphore: Semaphore(value=5, locked=False). call_ct: 0. worker_id: ed7655c3. 

@@ -35,19 +35,18 @@ load_dotenv()
 
 # Step 2. 构建一个能够利用历史消息和最新的用户问题的子链
 """
-为了使应用程序能够处理涉及先前交互的问题， 需要先建立一个流程（称为子链），该子链旨在每当引用过去的讨论时重新表述问题，具体来看：
+为了使应用程序能够处理涉及先前交互的问题， 需要先建立一个流程（称为子链），
+该子链旨在每当引用过去的讨论时重新表述问题，具体来看：
 - 在提示结构中合并了一个名为“chat_history”的变量，它充当历史消息的占位符。通过使用“chat_history”输入键，我们可以将以前的消息列表无缝地注入到提示中。
 - 这些消息战略性地放置在系统响应之后和用户提出的最新问题之前，以确保上下文得到维护。
 """
 
-# create_history_aware_retriever 函数旨在接受输入和“chat_history”的键，用于创建集成聊天历史记录以进行上下文感知处理的检索器。
-# 官方文档：https://python.langchain.com/v0.1/docs/modules/chains/
-from langchain.chains import create_history_aware_retriever
+
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 
-
 # 此提示告诉模型接收聊天历史记录和用户的最新问题，然后重新表述问题，以便可以独立于聊天历史记录来理解问题。明确指示模型不要回答问题，而是在必要时重新表述问题。
+
 contextualize_q_system_prompt = """Given a chat history and the latest user question \
 which might reference context in the chat history, formulate a standalone question \
 which can be understood without the chat history. Do NOT answer the question, \
@@ -140,6 +139,9 @@ retriever = chroma_store.as_retriever()
 
 
 # Step 10. 设置历史信息感知检索器：
+# create_history_aware_retriever 函数旨在接受输入和“chat_history”的键，用于创建集成聊天历史记录以进行上下文感知处理的检索器。
+# 官方文档：https://python.langchain.com/v0.1/docs/modules/chains/
+from langchain.chains import create_history_aware_retriever
 """
 如果历史记录存在，它会构建一个有效组合提示、大型语言模型 (LLM) 和结构化输出解析器 ( StrOutputParser ) 的序列，后跟检索器。此顺序可确保最新问题在累积的历史数据中得到体现。
 """
@@ -160,21 +162,11 @@ def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
 
 
-# Step 12. vectorstore 被转换为一个检索器，能够根据查询获取最相关的文本片段。
-rag_chain = (
-    {"context": retriever | format_docs, "question": RunnablePassthrough()}
-    | prompt
-    | chat
-    | StrOutputParser()
-)
-
-
 
 from langchain.chains import create_retrieval_chain # 此函数用于创建将检索功能与处理函数或模型集成的链。
-from langchain.chains.combine_documents import create_stuff_documents_chain   # 此函数用于创建一个将文档处理与其他流程相结合的链，通常涉及文档检索和在问答等任务中的使用。
 
 
-# Step 13. 定义 QA 系统的提示模板，指定系统应如何根据检索到的上下文响应输入。
+# Step 12. 定义 QA 系统的提示模板，指定系统应如何根据检索到的上下文响应输入。
 # 该字符串设置语言模型的指令，指示它使用提供的上下文来简洁地回答问题。如果答案未知，则指示模型明确说明这一点。
 qa_system_prompt = """You are an assistant for question-answering tasks. \  
 Use the following pieces of retrieved context to answer the question. \
@@ -189,13 +181,14 @@ qa_prompt = ChatPromptTemplate.from_messages(
         ("human", "{input}"),
     ]
 )
+# 此函数用于创建一个将文档处理与其他流程相结合的链，通常涉及文档检索和在问答等任务中的使用。
+from langchain.chains.combine_documents import create_stuff_documents_chain
 
-
-# Step 12. 构建问答链：question_answer_chain 是使用 create_stuff_documents_chain 函数创建的，该函数利用语言模型 ( llm ) 和定义的提示 ( qa_prompt )。
+# Step 13 构建问答链：question_answer_chain 是使用 create_stuff_documents_chain 函数创建的，该函数利用语言模型 ( llm ) 和定义的提示 ( qa_prompt )。
 # 官方文档链接：https://python.langchain.com/v0.1/docs/modules/chains/
 question_answer_chain = create_stuff_documents_chain(chat, qa_prompt)
 
-# Step 13. 组装 RAG 链条：该链代表完整的工作流程，其中历史感知检索器首先处理查询以合并任何相关的历史上下文，然后由 question_answer_chain 处理处理后的查询以生成最终答案。
+# Step 14. 组装 RAG 链条：该链代表完整的工作流程，其中历史感知检索器首先处理查询以合并任何相关的历史上下文，然后由 question_answer_chain 处理处理后的查询以生成最终答案。
 rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
 
 
@@ -208,7 +201,7 @@ chat_history = []
 # 第一个问题和响应：定义一个问题，并使用该问题和当前（空）聊天历史记录调用 RAG 链。
 question = "What is Task Decomposition?"
 ai_msg_1 = rag_chain.invoke({"input": question, "chat_history": chat_history})
-print("First ans: %s" % ai_msg_1["answer"])
+# print("First ans: %s" % ai_msg_1["answer"])
 
 # 然后，用户的问题和 AI 生成的答案分别作为 HumanMessage 实例和响应对象添加到聊天历史记录中。
 chat_history.extend([HumanMessage(content=question), ai_msg_1["answer"]])
@@ -218,7 +211,7 @@ second_question = "What are common ways of doing it?"
 ai_msg_2 = rag_chain.invoke({"input": second_question, "chat_history": chat_history})
 
 # RAG 链再次被调用，这次是第二个问题和更新的聊天历史记录，使其在生成响应时能够考虑之前的交互。
-print("Second ans: %s " % ai_msg_2["answer"])
+# print("Second ans: %s " % ai_msg_2["answer"])
 
 # Step 14. 此命令指示 vectorstore 删除其保存的整个数据集合。这里的集合是指所有文档（文本片段）及其相应的已被索引并存储在向量存储中的向量表示的集合。
 chroma_store.delete_collection()

@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """
-在LangChain中使用GLM-4 实现基于 Chroma 向量数据库的RAG完整过程。
+在LangChain中使用 GLM-4 实现基于 Chroma 向量数据库的RAG完整过程。
 """
 
-# 1. 在控制台先安装 pip install --upgrade langchain langchain-community langchainhub httpx httpx-sse PyJWT langchain-chroma bs4 python-dotenv
+# 1. 在控制台先安装 pip install --upgrade langchain langchain-community
+# langchainhub httpx httpx-sse PyJWT langchain-chroma bs4 python-dotenv
 
 import bs4
 from langchain import hub
@@ -48,6 +49,9 @@ loader = WebBaseLoader(
         )
     ),
 )
+
+# LangChain 规范下统一的 Document 对象
+# API Docs：https://api.python.langchain.com/en/latest/documents/langchain_core.documents.base.Document.html#langchain_core.documents.base.Document
 docs = loader.load()
 
 
@@ -56,22 +60,26 @@ docs = loader.load()
 LangChain中关于文档切分（Text splitters）：
 - 原生实现的：https://python.langchain.com/v0.2/docs/how_to/#text-splitters
 - 文档链接：https://python.langchain.com/v0.1/docs/modules/data_connection/document_transformers/
+- 源码：https://api.python.langchain.com/en/latest/_modules/langchain_text_splitters/base.html#TextSplitter
 """
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
 splits = text_splitter.split_documents(docs)
 
+# 直观展示文档切分的一个可视化页面：https://chunkviz.up.railway.app/
 # splits 是一个列表，其中每个元素也是一个列表，表示一个文档的分割结果
 # for doc_index, doc_splits in enumerate(splits):
 #     print(f"Document {doc_index + 1}:")  # 显示文档编号
 #     for split_index, split_text in enumerate(doc_splits):
 #         print(f"  Split {split_index + 1}: {split_text[:50]}...")  # 打印每个分段的前50个字符
 #     print("\n" + "-"*60 + "\n")  # 在每个文档之间加入分隔线，增加可读性
-
-
+# #
+# #
 # Step 4. 对每个块，构建Embeddings。 智谱的 GLM Embedding 在线模型：https://open.bigmodel.cn/dev/api#text_embedding
 # embeddings = []
 #
 # from zhipuai import ZhipuAI
+#
+# #GLM 4 官方调用说明：https://open.bigmodel.cn/dev/api#vector
 #
 # client = ZhipuAI()
 #
@@ -94,8 +102,8 @@ splits = text_splitter.split_documents(docs)
 # # # 打印嵌入向量
 # for i, embedding in enumerate(embeddings):
 #     print(f"Embedding {i + 1}: {embedding[:3]}...")  # 仅展示前10个值以示例
-
-
+#
+# #
 # step 5. Chroma 使用 GLM 4 的 Embedding 模型 提供的嵌入从这些块创建向量存储，从而促进高效检索。
 class EmbeddingGenerator:
     def __init__(self, model_name):
@@ -121,7 +129,7 @@ class EmbeddingGenerator:
             return response.data[0].embedding
         return [0] * 1024  # 如果获取嵌入失败，返回零向量
 
-# GLM 4 官方调用说明：https://open.bigmodel.cn/dev/api#vector
+
 embedding_generator = EmbeddingGenerator(model_name="embedding-2")
 
 # 文本列表
@@ -145,13 +153,14 @@ IDs = chroma_store.add_texts(texts=texts)
 # vectorstore 被转换为一个检索器，能够根据查询获取最相关的文本片段。
 # 自定义函数 format_docs 用于适当地格式化这些片段。
 # RAG 链集成了检索、提示工程（通过 hub.pull ）和初始化语言模型 ( llm ) 来处理查询并生成响应，最后使用 StrOutputParser 。
-
 # 使用 Chroma VectorStore 创建检索器
 # 官方文档：https://python.langchain.com/v0.2/docs/how_to/vectorstore_retriever/
+# 源码：https://api.python.langchain.com/en/latest/vectorstores/langchain_core.vectorstores.VectorStore.html#langchain_core.vectorstores.VectorStore.as_retriever
 retriever = chroma_store.as_retriever()
 
-# 这里假设 'hub.pull' 是从某处获取提示的方法
+# 这里从 'hub.pull' 是从某处获取提示的方法
 prompt = hub.pull("rlm/rag-prompt")
+
 
 # 自定义函数 format_docs 用于适当地格式化这些片段。
 def format_docs(docs):
@@ -173,6 +182,7 @@ def format_docs(docs):
 RunnableParallel 可以并发执行多个任务，而 RunnablePassthrough 用于需要顺序执行而不需修改的任务。
 """
 
+#
 rag_chain = (
     {"context": retriever | format_docs, "question": RunnablePassthrough()}
     | prompt

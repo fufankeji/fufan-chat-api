@@ -10,6 +10,9 @@ from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 
+"""
+官方文档：https://docs.sqlalchemy.org/en/20/dialects/mysql.html
+"""
 
 # 用于创建一个基类，该基类将为后续定义的所有模型类提供 SQLAlchemy ORM 功能的基础。
 Base = declarative_base()

@@ -34,7 +34,6 @@ def generate_token(apikey: str, exp_seconds: int):
         headers={"alg": "HS256", "sign_type": "SIGN"},
     )
 
-
 class ChatGLMWorker(ApiModelWorker):
     DEFAULT_EMBED_MODEL = "embedding-2"
 

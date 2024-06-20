@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, JSON, ForeignKey, func
+from sqlalchemy import Column, Integer, String, DateTime, JSON, ForeignKey, func, CHAR
 from sqlalchemy.orm import relationship
 from server.db.base import Base
 
@@ -8,8 +8,8 @@ class MessageModel(Base):
     聊天记录模型，表示会话中的一条聊天记录
     """
     __tablename__ = 'message'
-    id = Column(String(32), primary_key=True, comment='聊天记录ID')
-    conversation_id = Column(String(32), ForeignKey('conversation.id'), comment='会话ID')
+    id = Column(CHAR(36), primary_key=True, comment='聊天记录ID')  # 修改这里，使用 CHAR(36)
+    conversation_id = Column(CHAR(36), ForeignKey('conversation.id'), comment='会话ID')
 
     conversation = relationship('ConversationModel', back_populates='messages')
 

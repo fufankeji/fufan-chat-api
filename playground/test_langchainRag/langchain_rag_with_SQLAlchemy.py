@@ -130,7 +130,7 @@ def save_all_sessions():
     from langchain_core.messages import HumanMessage
     from langchain_core.messages import AIMessage
 
-    print(store)
+
     for session_id, chat_history in store.items():
         for message in chat_history.messages:
             # 检查 message 是否为字典类型
@@ -197,7 +197,6 @@ class EmbeddingGenerator:
 
 
 if __name__ == '__main__':
-
 
     # Step 1. 定义模型示例
     chat = ChatZhipuAI(

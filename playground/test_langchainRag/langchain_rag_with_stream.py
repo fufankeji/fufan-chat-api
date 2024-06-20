@@ -126,7 +126,8 @@ chat = ChatZhipuAI(
 """
 RunnableParallel 可以并发执行多个任务，而 RunnablePassthrough 用于需要顺序执行而不需修改的任务。
 
-rag_chain_from_docs 和 rag_chain_with_source ：这些构造定义了使用 AI 模型检索文档和生成响应的数据流和执行流。它们实现了上下文检索和响应生成的集成，确保在生成答案时有效地跟踪和使用源。
+rag_chain_from_docs 和 rag_chain_with_source ：这些构造定义了使用 AI 模型检索文档和生成响应的数据流和执行流。
+它们实现了上下文检索和响应生成的集成，确保在生成答案时有效地跟踪和使用源。
 """
 # 此处用于将格式化字符串传递到下一个阶段。
 rag_chain_from_docs = (
@@ -141,26 +142,29 @@ rag_chain_with_source = RunnableParallel(
     {"context": retriever, "question": RunnablePassthrough()}
 ).assign(answer=rag_chain_from_docs)
 
+#
+# for chunk in rag_chain_with_source.stream("What is Task Decomposition"):
+#     print(chunk)
+#
+#
+# # 添加一些逻辑来编译返回的流：
+# output = {}
+# curr_key = None
+# for chunk in rag_chain_with_source.stream("What is Task Decomposition"):
+#     for key in chunk:
+#         if key not in output:
+#             output[key] = chunk[key]
+#         else:
+#             output[key] += chunk[key]
+#
+#         # 当前键不等于前一个处理的键（curr_key），说明正在开始一个新的数据类型或部分的输出。这时，会在新的一行开始打印，并输出键和相应的值。
+#         if key != curr_key:
+#             print(f"\n\n{key}: {chunk[key]}", end="", flush=True)
+#         # 如果当前键与前一个键相同，表明还在处理同一类型的数据，继综输出当前块的内容，而不换行。
+#         else:
+#             print(chunk[key], end="", flush=True)
+#         curr_key = key
 
-for chunk in rag_chain_with_source.stream("What is Task Decomposition"):
-    print(chunk)
-
-
-# 添加一些逻辑来编译返回的流：
-output = {}
-curr_key = None
-for chunk in rag_chain_with_source.stream("What is Task Decomposition"):
-    for key in chunk:
-        if key not in output:
-            output[key] = chunk[key]
-        else:
-            output[key] += chunk[key]
-        if key != curr_key:
-            print(f"\n\n{key}: {chunk[key]}", end="", flush=True)
-        else:
-            print(chunk[key], end="", flush=True)
-        curr_key = key
-print(output)
 
 
 """
@@ -251,9 +255,9 @@ import asyncio
 async def stream_responses():
     async for chunk in rag_chain.astream_events(
         {"question": second_question, "chat_history": chat_history},
-        include_tags=["contextualize_q_system_prompt"],    # Filter to events with the "contextualize_q_system_prompt" tag.
-        include_names=["StrOutputParser"],                 # Filter to include events from "StrOutputParser" components.
-        include_types=["on_parser_end"],                   # Filter for events triggered when parsing ends.
+        include_tags=["contextualize_q_system_prompt"],    # 将事件过滤为带有 "contextualize_q_system_prompt" 标记的事件。该标签与处理问题重新表述的链部分相关联，确保仅传输与该特定任务相关的事件。
+        include_names=["StrOutputParser"],                 # 过滤事件以包含来自名为 "StrOutputParser" 的组件的事件
+        include_types=["on_parser_end"],                   # 过滤解析结束时触发的事件（ "on_parser_end" ），表示数据解析步骤的完成。
         version="v1",
     ):
         print(chunk)
@@ -264,4 +268,3 @@ async def stream_responses():
 """
 asyncio.run(stream_responses())
 
-    

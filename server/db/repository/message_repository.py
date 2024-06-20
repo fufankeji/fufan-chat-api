@@ -38,7 +38,7 @@ async def add_message_to_db(session,
 
     # 要判断是否存在会话的ID
     if not message_id:
-        message_id = uuid.uuid4().hex
+        message_id = str(uuid.uuid4())
 
     # 创建MessageModel实例
     m = MessageModel(id=message_id,
@@ -55,12 +55,6 @@ async def add_message_to_db(session,
     # 异步提交
     await session.commit()
     return m.id
-
-
-
-
-
-
 
 
 @with_async_session

@@ -17,12 +17,14 @@ from typing import (
 import logging
 import asyncio
 import httpx
+import pydantic
+from pydantic import BaseModel
 
 # 加载模型配置信息
-from configs import (LLM_MODELS, LLM_DEVICE,
+from configs import (LLM_MODELS, LLM_DEVICE,MODEL_PATH,MODEL_ROOT_PATH,
                         HTTPX_DEFAULT_TIMEOUT,
                      MODEL_PATH, ONLINE_LLM_MODEL, logger, log_verbose,
-                     FSCHAT_MODEL_WORKERS)
+                     FSCHAT_MODEL_WORKERS, EMBEDDING_DEVICE)
 
 
 # 获取Embedding 模型
@@ -283,12 +285,160 @@ def get_httpx_client(
 
 
 
+def get_model_path(model_name: str, type: str = None) -> Optional[str]:
+    if type in MODEL_PATH:
+        paths = MODEL_PATH[type]
+    else:
+        paths = {}
+        for v in MODEL_PATH.values():
+            paths.update(v)
+    if model_name == "bge-large-zh-v1.5":
+        return "/home/00_rag/model/AI-ModelScope/bge-large-zh-v1___5"
+
+    if path_str := paths.get(model_name):  # 以 "chatglm-6b": "THUDM/chatglm-6b-new" 为例，以下都是支持的路径
+        path = Path(path_str)
+        if path.is_dir():  # 任意绝对路径
+            return str(path)
+
+        root_path = Path(MODEL_ROOT_PATH)
+        if root_path.is_dir():
+            path = root_path / model_name
+            if path.is_dir():  # use key, {MODEL_ROOT_PATH}/chatglm-6b
+                return str(path)
+            path = root_path / path_str
+            if path.is_dir():  # use value, {MODEL_ROOT_PATH}/THUDM/chatglm-6b-new
+                return str(path)
+            path = root_path / path_str.split("/")[-1]
+            if path.is_dir():  # use value split by "/", {MODEL_ROOT_PATH}/chatglm-6b-new
+                return str(path)
+        return path_str  # THUDM/chatglm06b
 
 
 
+class BaseResponse(BaseModel):
+    code: int = pydantic.Field(200, description="API status code")
+    msg: str = pydantic.Field("success", description="API status message")
+    data: Any = pydantic.Field(None, description="API data")
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "code": 200,
+                "msg": "success",
+            }
+        }
 
 
+def run_in_thread_pool(
+        func: Callable,
+        params: List[Dict] = [],
+) -> Generator:
+    '''
+    在线程池中批量运行任务，并将运行结果以生成器的形式返回。
+    请确保任务中的所有操作是线程安全的，任务函数请全部使用关键字参数。
+    '''
+    tasks = []
+    with ThreadPoolExecutor() as pool:
+        for kwargs in params:
+            thread = pool.submit(func, **kwargs)
+            tasks.append(thread)
 
+        for obj in as_completed(tasks):
+            yield obj.result()
+
+
+def list_embed_models() -> List[str]:
+    '''
+    get names of configured embedding models
+    '''
+    return list(MODEL_PATH["embed_model"])
+
+def list_online_embed_models() -> List[str]:
+    from server import model_workers
+
+    ret = []
+    for k, v in list_config_llm_models()["online"].items():
+        if provider := v.get("provider"):
+            worker_class = getattr(model_workers, provider, None)
+            if worker_class is not None and worker_class.can_embedding():
+                ret.append(k)
+    return ret
+
+def list_config_llm_models() -> Dict[str, Dict]:
+    '''
+    get configured llm models with different types.
+    return {config_type: {model_name: config}, ...}
+    '''
+    workers = FSCHAT_MODEL_WORKERS.copy()
+    workers.pop("default", None)
+
+    return {
+        "local": MODEL_PATH["local_model"].copy(),
+        "online": ONLINE_LLM_MODEL.copy(),
+        "worker": workers,
+    }
+
+class ListResponse(BaseResponse):
+    data: List[str] = pydantic.Field(..., description="List of names")
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "code": 200,
+                "msg": "success",
+                "data": ["doc1.docx", "doc2.pdf", "doc3.txt"],
+            }
+        }
+
+
+def embedding_device(device: str = None) -> Literal["cuda", "mps", "cpu"]:
+    device = device or EMBEDDING_DEVICE
+    if device not in ["cuda", "mps", "cpu"]:
+        device = detect_device()
+    return device
+
+
+def detect_device() -> Literal["cuda", "mps", "cpu"]:
+    try:
+        import torch
+        if torch.cuda.is_available():
+            return "cuda"
+        if torch.backends.mps.is_available():
+            return "mps"
+    except:
+        pass
+    return "cpu"
+
+
+def load_local_embeddings(model: str = None, device: str = embedding_device()):
+    '''
+    从缓存中加载embeddings，可以避免多线程时竞争加载。
+    '''
+    from server.knowledge_base.kb_cache.base import embeddings_pool
+    from configs import EMBEDDING_MODEL
+
+    model = model or EMBEDDING_MODEL
+    return embeddings_pool.load_embeddings(model=model, device=device)
+
+
+def torch_gc():
+    try:
+        import torch
+        if torch.cuda.is_available():
+            # with torch.cuda.device(DEVICE):
+            torch.cuda.empty_cache()
+            torch.cuda.ipc_collect()
+        elif torch.backends.mps.is_available():
+            try:
+                from torch.mps import empty_cache
+                empty_cache()
+            except Exception as e:
+                msg = ("如果您使用的是 macOS 建议将 pytorch 版本升级至 2.0.0 或更高版本，"
+                       "以支持及时清理 torch 产生的内存占用。")
+                logger.error(f'{e.__class__.__name__}: {msg}',
+                             exc_info=e if log_verbose else None)
+    except Exception:
+        ...
 
 
 if __name__ == '__main__':

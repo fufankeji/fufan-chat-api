@@ -1,15 +1,16 @@
+
 from sqlalchemy import Column, Integer, String, DateTime, JSON, func, ForeignKey
 
 from sqlalchemy.orm import relationship
 from server.db.base import Base
-
+from sqlalchemy.dialects.mysql import CHAR
 
 class ConversationModel(Base):
     """
     会话模型，表示用户的一个聊天会话
     """
     __tablename__ = 'conversation'
-    id = Column(String(32), primary_key=True, comment='会话ID')
+    id = Column(CHAR(36), primary_key=True, default=lambda: str(uuid.uuid4()), comment='会话ID')  # 使用 CHAR(36) 并将 UUID 转换为字符串
     user_id = Column(String(32), ForeignKey('user.id'), comment='用户ID')
 
     name = Column(String(50), comment='对话框名称')

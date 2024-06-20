@@ -1,0 +1,4 @@
+2024-06-20 13:41:26 | ERROR | stderr | Traceback (most recent call last):
+2024-06-20 13:41:26 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/playground/test_fastchat/online_model_interface.py", line 9, in <module>
+2024-06-20 13:41:26 | ERROR | stderr |     from httpx_sse import EventSource
+2024-06-20 13:41:26 | ERROR | stderr | ModuleNotFoundError: No module named 'httpx_sse'

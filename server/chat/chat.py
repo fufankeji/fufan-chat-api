@@ -58,6 +58,7 @@ async def chat(query: str = Body(..., description="用户输入", examples=["你
     :return:
     """
 
+    # 官方Docs：https://github.com/sysid/sse-starlette
     async def chat_iterator() -> AsyncIterable[str]:
         nonlocal history, max_tokens
         callback = AsyncIteratorCallbackHandler()
@@ -86,13 +87,6 @@ async def chat(query: str = Body(..., description="用户输入", examples=["你
         if isinstance(max_tokens, int) and max_tokens <= 0:
             max_tokens = None
 
-        model = get_ChatOpenAI(
-            model_name=model_name,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            callbacks=callbacks,
-        )
-
         if history:  # 优先使用前端传入的历史消息
             pass
         elif conversation_id and history_len > 0:  # 前端要求从数据库取历史消息
@@ -106,6 +100,14 @@ async def chat(query: str = Body(..., description="用户输入", examples=["你
 
         else:
             pass
+
+        model = get_ChatOpenAI(
+            model_name=model_name,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            callbacks=callbacks,
+        )
+
 
         chain = LLMChain(prompt=chat_prompt, llm=model, memory=memory)
 

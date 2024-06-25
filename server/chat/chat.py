@@ -59,6 +59,8 @@ async def chat(query: str = Body(..., description="用户输入", examples=["你
     """
 
     # 官方Docs：https://github.com/sysid/sse-starlette
+    #  Server-Sent Events (SSE) 相关联。SSE 是一种服务器推技术，允许服务器通过HTTP连接向浏览器或其他客户端推送信息。
+    #  与WebSocket相比，SSE专门设计用于一对多的通信，其中服务器向多个客户端发送更新。
     async def chat_iterator() -> AsyncIterable[str]:
         nonlocal history, max_tokens
         callback = AsyncIteratorCallbackHandler()
@@ -87,6 +89,15 @@ async def chat(query: str = Body(..., description="用户输入", examples=["你
         if isinstance(max_tokens, int) and max_tokens <= 0:
             max_tokens = None
 
+
+        model = get_ChatOpenAI(
+            model_name=model_name,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            callbacks=callbacks,
+        )
+
+
         if history:  # 优先使用前端传入的历史消息
             pass
         elif conversation_id and history_len > 0:  # 前端要求从数据库取历史消息
@@ -101,12 +112,6 @@ async def chat(query: str = Body(..., description="用户输入", examples=["你
         else:
             pass
 
-        model = get_ChatOpenAI(
-            model_name=model_name,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            callbacks=callbacks,
-        )
 
 
         chain = LLMChain(prompt=chat_prompt, llm=model, memory=memory)

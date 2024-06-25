@@ -372,8 +372,11 @@ def start_main_server():
     signal.signal(signal.SIGINT, handler("SIGINT"))
     signal.signal(signal.SIGTERM, handler("SIGTERM"))
 
+    # https://docs.python.org/zh-cn/3/library/multiprocessing.html#contexts-and-start-methods
     mp.set_start_method("spawn")
     manager = mp.Manager()
+
+    # https://docs.python.org/zh-cn/3/library/multiprocessing.html#pipes-and-queues
     queue = manager.Queue()
     args, parser = parse_args()
 
@@ -567,6 +570,7 @@ def start_main_server():
 
 if __name__ == '__main__':
 
+    # 运行一个异步事件循环，启动一个主服务器
     if sys.version_info < (3, 10):
         loop = asyncio.get_event_loop()
     else:

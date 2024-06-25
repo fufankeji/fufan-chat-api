@@ -1,6 +1,6 @@
 import operator
 from abc import ABC, abstractmethod
-
+from document_loaders.pdfloader import UnstructuredLightPipeline
 import os
 from pathlib import Path
 import numpy as np
@@ -178,12 +178,12 @@ class KBService(ABC):
     def count_files(self):
         return count_files_from_db(self.kb_name)
 
-    def search_docs(self,
+    async def search_docs(self,
                     query: str,
                     top_k: int = VECTOR_SEARCH_TOP_K,
                     score_threshold: float = SCORE_THRESHOLD,
                     ) ->List[Document]:
-        docs = self.do_search(query, top_k, score_threshold)
+        docs = await self.do_search(query, top_k, score_threshold)
         return docs
 
     def get_doc_by_ids(self, ids: List[str]) -> List[Document]:

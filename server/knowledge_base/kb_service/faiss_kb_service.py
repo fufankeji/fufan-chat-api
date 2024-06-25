@@ -14,9 +14,9 @@ class FaissKBService(KBService):
     """
      FaissKBService 是一个继承自 KBService 的类，用于管理和操作使用 FAISS 的知识库服务。
      """
-    vs_path: str     # 向量存储的文件路径。
-    kb_path: str     # 知识库文件的路径。
-    vector_name: str = None   # 向量名称，默认为 None，可以在初始化时设置。
+    vs_path: str  # 向量存储的文件路径。
+    kb_path: str  # 知识库文件的路径。
+    vector_name: str = None  # 向量名称，默认为 None，可以在初始化时设置。
 
     def vs_type(self) -> str:
         """
@@ -41,8 +41,9 @@ class FaissKBService(KBService):
         加载向量存储。
         """
         return await kb_faiss_pool.load_vector_store(kb_name=self.kb_name,
-                                               vector_name=self.vector_name,
-                                               embed_model=self.embed_model)
+                                                     vector_name=self.vector_name,
+                                                     embed_model=self.embed_model)
+
     def save_vector_store(self):
         """
         保存向量存储。
@@ -101,11 +102,11 @@ class FaissKBService(KBService):
         except Exception:
             ...
 
-    def do_search(self,
-                  query: str,
-                  top_k: int,
-                  score_threshold: float = SCORE_THRESHOLD,
-                  ) -> List[Tuple[Document, float]]:
+    async def do_search(self,
+                        query: str,
+                        top_k: int,
+                        score_threshold: float = SCORE_THRESHOLD,
+                        ) -> List[Tuple[Document, float]]:
         """
         搜索与查询最相似的文档。
 
@@ -117,16 +118,21 @@ class FaissKBService(KBService):
         返回：
         List[Tuple[Document, float]]: 与查询最相似的文档及其分数的列表。
         """
+        # 实例化一个 Embedding 实例，用来将用户Query转化成 Embedding后再进行查询
         embed_func = EmbeddingsFunAdapter(self.embed_model)
-        embeddings = embed_func.embed_query(query)
-        with self.load_vector_store().acquire() as vs:
+        # 获取问题的Embedding
+        embeddings = await embed_func.aembed_query(query)
+
+        vector_store = await self.load_vector_store()
+
+        with vector_store.acquire() as vs:
             docs = vs.similarity_search_with_score_by_vector(embeddings, k=top_k, score_threshold=score_threshold)
         return docs
 
     async def do_add_doc(self,
-                   docs: List[Document],
-                   **kwargs,
-                   ) -> List[Dict]:
+                         docs: List[Document],
+                         **kwargs,
+                         ) -> List[Dict]:
         """
         添加文档到向量存储。
 
@@ -138,13 +144,12 @@ class FaissKBService(KBService):
         List[Dict]: 添加的文档信息。
         """
 
-        data = self._docs_to_embeddings(docs) # 将向量化单独出来可以减少向量库的锁定时间
-   
+        data = self._docs_to_embeddings(docs)  # 将向量化单独出来可以减少向量库的锁定时间
+
         # 使用 await 来获取异步函数的结果
         vector_store = await self.load_vector_store()
 
         with vector_store.acquire() as vs:
-
             # https://api.python.langchain.com/en/latest/_modules/langchain_community/vectorstores/faiss.html#FAISS
             # 接收文本和嵌入向量的对，并将它们存储在一个向量存储中，并返回添加文本后的唯一 ID 列表
             ids = vs.add_embeddings(text_embeddings=zip(data["texts"], data["embeddings"]),
@@ -158,8 +163,8 @@ class FaissKBService(KBService):
         return doc_infos
 
     async def do_delete_doc(self,
-                      kb_file: KnowledgeFile,
-                      **kwargs):
+                            kb_file: KnowledgeFile,
+                            **kwargs):
         """
         删除指定文件名的文档。
 
@@ -213,17 +218,35 @@ class FaissKBService(KBService):
         else:
             return False
 
+
 # 主调用代码需要被包装在一个异步函数中
 async def main():
-    # 创建一个 FaissKBService 对象
+    # 创建一个 FaissKBService 对象, default 向量数据库的Collecting Name
     faissService = FaissKBService("test")
     print(f"faiss_kb_service: {faissService}")
+
+    from server.knowledge_base.kb_service.base import KBServiceFactory
+    kb = await KBServiceFactory.get_service_by_name("test")
+
+    # 如果想要使用的向量数据库的collecting name 不存在，则进行创建
+    if kb is None:
+        from server.db.repository.knowledge_base_repository import add_kb_to_db
+
+        # 先在Mysql中创建向量数据库的基本信息
+        await add_kb_to_db(kb_name="test",
+                           kb_info="test",
+                           vs_type="faiss",
+                           embed_model="bge-large-zh-v1.5",
+                           user_id="admin")
+
     # 调用 add_doc 方法添加一个名为 "README.md" 的文桗，确保使用 await
     await faissService.add_doc(KnowledgeFile("README.md", "test"))
 
-    print(faissService.search_docs("如何启动api服务"))
-if __name__ == '__main__':
-    # 创建一个 FaissKBService 对象
-    import asyncio
+    # 根据输入进行检索
+    search_ans = await faissService.search_docs(query="RAG增强可以使用的框架？")
+    print(search_ans)
 
+
+if __name__ == '__main__':
+    import asyncio
     asyncio.run(main())

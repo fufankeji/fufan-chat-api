@@ -24,6 +24,7 @@ from server.utils import embedding_device
 
 
 async def knowledge_base_chat(query: str = Body(..., description="用户输入", examples=["你好"]),
+                              user_id: str = Body("", description="用户ID"),
                               knowledge_base_name: str = Body(..., description="知识库名称", examples=["samples"]),
                               top_k: int = Body(VECTOR_SEARCH_TOP_K, description="匹配向量数"),
                               score_threshold: float = Body(
@@ -56,6 +57,7 @@ async def knowledge_base_chat(query: str = Body(..., description="用户输入",
                               ):
     # 提取向量数据库的实例
     kb = await KBServiceFactory.get_service_by_name(knowledge_base_name)  # default @ bge-large-zh-v1.5
+    print(f"kb:{kb}")
 
     if kb is None:
         return BaseResponse(code=404, msg=f"未找到知识库 {knowledge_base_name}")
@@ -86,68 +88,68 @@ async def knowledge_base_chat(query: str = Body(..., description="用户输入",
 
         print("-----------------------------")
         print(f"query: {query}")
-        docs = await run_in_threadpool(search_docs,
-                                       query=query,
+
+        docs = await search_docs(query=query,
                                        knowledge_base_name=knowledge_base_name,
                                        top_k=top_k,
                                        score_threshold=score_threshold)
+        print(docs)
+        # 加入reranker
+        if USE_RERANKER:
+            reranker_model_path = get_model_path(RERANKER_MODEL)
+            reranker_model = LangchainReranker(top_n=top_k,
+                                            device=embedding_device(),
+                                            max_length=RERANKER_MAX_LENGTH,
+                                            model_name_or_path=reranker_model_path
+                                            )
+            print("-------------before rerank-----------------")
+            print(docs)
+            docs = reranker_model.compress_documents(documents=docs,
+                                                     query=query)
+            print("------------after rerank------------------")
+            print(docs)
+        context = "\n".join([doc.page_content for doc in docs])
 
-        # # 加入reranker
-        # if USE_RERANKER:
-        #     reranker_model_path = get_model_path(RERANKER_MODEL)
-        #     reranker_model = LangchainReranker(top_n=top_k,
-        #                                     device=embedding_device(),
-        #                                     max_length=RERANKER_MAX_LENGTH,
-        #                                     model_name_or_path=reranker_model_path
-        #                                     )
-        #     print("-------------before rerank-----------------")
-        #     print(docs)
-        #     docs = reranker_model.compress_documents(documents=docs,
-        #                                              query=query)
-        #     print("------------after rerank------------------")
-        #     print(docs)
-        # context = "\n".join([doc.page_content for doc in docs])
-        #
-        # if len(docs) == 0:  # 如果没有找到相关文档，使用empty模板
-        #     prompt_template = get_prompt_template("knowledge_base_chat", "empty")
-        # else:
-        #     prompt_template = get_prompt_template("knowledge_base_chat", prompt_name)
-        # input_msg = History(role="user", content=prompt_template).to_msg_template(False)
-        # chat_prompt = ChatPromptTemplate.from_messages(
-        #     [i.to_msg_template() for i in history] + [input_msg])
-        #
-        # chain = LLMChain(prompt=chat_prompt, llm=model)
-        #
-        # # Begin a task that runs in the background.
-        # task = asyncio.create_task(wrap_done(
-        #     chain.acall({"context": context, "question": query}),
-        #     callback.done),
-        # )
-        #
-        # source_documents = []
-        # for inum, doc in enumerate(docs):
-        #     filename = doc.metadata.get("source")
-        #     parameters = urlencode({"knowledge_base_name": knowledge_base_name, "file_name": filename})
-        #     base_url = request.base_url
-        #     url = f"{base_url}knowledge_base/download_doc?" + parameters
-        #     text = f"""出处 [{inum + 1}] [{filename}]({url}) \n\n{doc.page_content}\n\n"""
-        #     source_documents.append(text)
-        #
-        # if len(source_documents) == 0:  # 没有找到相关文档
-        #     source_documents.append(f"<span style='color:red'>未找到相关文档,该回答为大模型自身能力解答！</span>")
-        #
-        # if stream:
-        #     async for token in callback.aiter():
-        #         # Use server-sent-events to stream the response
-        #         yield json.dumps({"answer": token}, ensure_ascii=False)
-        #     yield json.dumps({"docs": source_documents}, ensure_ascii=False)
-        # else:
-        #     answer = ""
-        #     async for token in callback.aiter():
-        #         answer += token
-        #     yield json.dumps({"answer": answer,
-        #                       "docs": source_documents},
-        #                      ensure_ascii=False)
-        # await task
+        if len(docs) == 0:  # 如果没有找到相关文档，使用empty模板
+            prompt_template = get_prompt_template("knowledge_base_chat", "empty")
+        else:
+            prompt_template = get_prompt_template("knowledge_base_chat", prompt_name)
+        input_msg = History(role="user", content=prompt_template).to_msg_template(False)
+        chat_prompt = ChatPromptTemplate.from_messages(
+            [i.to_msg_template() for i in history] + [input_msg])
+
+        chain = LLMChain(prompt=chat_prompt, llm=model)
+
+        # Begin a task that runs in the background.
+        task = asyncio.create_task(wrap_done(
+            chain.acall({"context": context, "question": query}),
+            callback.done),
+        )
+
+        source_documents = []
+        for inum, doc in enumerate(docs):
+            filename = doc.metadata.get("source")
+            parameters = urlencode({"knowledge_base_name": knowledge_base_name, "file_name": filename})
+            base_url = request.base_url
+            url = f"{base_url}knowledge_base/download_doc?" + parameters
+            text = f"""出处 [{inum + 1}] [{filename}]({url}) \n\n{doc.page_content}\n\n"""
+            source_documents.append(text)
+
+        if len(source_documents) == 0:  # 没有找到相关文档
+            source_documents.append(f"<span style='color:red'>未找到相关文档,该回答为大模型自身能力解答！</span>")
+
+        if stream:
+            async for token in callback.aiter():
+                # Use server-sent-events to stream the response
+                yield json.dumps({"answer": token}, ensure_ascii=False)
+            yield json.dumps({"docs": source_documents}, ensure_ascii=False)
+        else:
+            answer = ""
+            async for token in callback.aiter():
+                answer += token
+            yield json.dumps({"answer": answer,
+                              "docs": source_documents},
+                             ensure_ascii=False)
+        await task
 
     return EventSourceResponse(knowledge_base_chat_iterator(query, top_k, history,model_name,prompt_name))

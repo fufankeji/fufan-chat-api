@@ -19,7 +19,7 @@ from server.knowledge_base.model.kb_document_model import DocumentWithVSId
 from typing import List, Dict
 
 
-def search_docs(
+async def search_docs(
         query: str = Body("", description="用户输入", examples=["你好"]),
         knowledge_base_name: str = Body(..., description="知识库名称", examples=["samples"]),
         top_k: int = Body(VECTOR_SEARCH_TOP_K, description="匹配向量数"),
@@ -31,12 +31,15 @@ def search_docs(
         file_name: str = Body("", description="文件名称，支持 sql 通配符"),
         metadata: dict = Body({}, description="根据 metadata 进行过滤，仅支持一级键"),
 ) -> List[DocumentWithVSId]:
-    kb = KBServiceFactory.get_service_by_name(knowledge_base_name)
+
+    kb = await KBServiceFactory.get_service_by_name(knowledge_base_name)
+
     data = []
     if kb is not None:
         if query:
-            docs = kb.search_docs(query, top_k, score_threshold)
+            docs = await kb.search_docs(query)
             data = [DocumentWithVSId(**x[0].dict(), score=x[1], id=x[0].metadata.get("id")) for x in docs]
+
         elif file_name or metadata:
             data = kb.list_docs(file_name=file_name, metadata=metadata)
             for d in data:

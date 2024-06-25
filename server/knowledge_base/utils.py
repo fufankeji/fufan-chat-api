@@ -92,7 +92,7 @@ LOADER_DICT = {
                "UnstructuredMarkdownLoader": ['.md'],
                "JSONLoader": [".json"],
                "JSONLinesLoader": [".jsonl"],
-               "RapidOCRPDFLoader": [".pdf"],
+               "UnstructuredLightPipeline": [".pdf"],
                }
 
 SUPPORTED_EXTS = [ext for sublist in LOADER_DICT.values() for ext in sublist]
@@ -144,8 +144,7 @@ def get_loader(loader_name: str, file_path: str, loader_kwargs: Dict = None):
     loader_kwargs = loader_kwargs or {}
     try:
         # 根据 loader_name 导入相应的文档加载器模块， 这是使用 自定义的，优先 ！
-        if loader_name in ["RapidOCRPDFLoader", "RapidOCRLoader", "FilteredCSVLoader",
-                           "RapidOCRDocLoader", "RapidOCRPPTLoader"]:
+        if loader_name in ["UnstructuredLightPipeline"]:
             document_loaders_module = importlib.import_module('document_loaders')
         else:
             document_loaders_module = importlib.import_module('langchain_community.document_loaders')
@@ -158,9 +157,6 @@ def get_loader(loader_name: str, file_path: str, loader_kwargs: Dict = None):
                      exc_info=e if log_verbose else None)
         document_loaders_module = importlib.import_module('langchain_community.document_loaders')
         DocumentLoader = getattr(document_loaders_module, "UnstructuredFileLoader")
-
-    if loader_name == "UnstructuredFileLoader":
-        loader_kwargs.setdefault("autodetect_encoding", True)
 
     loader = DocumentLoader(file_path, **loader_kwargs)
     return loader

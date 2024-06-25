@@ -37,7 +37,7 @@ def create_app(run_mode: str = None):
 
 
 from server.verify.utils import create_conversation, get_user_conversations, get_conversation_messages, ConversationResponse, MessageResponse
-# from server.chat.knowledge_base_chat import knowledge_base_chat
+from server.chat.knowledge_base_chat import knowledge_base_chat
 
 
 def mount_app_routes(app: FastAPI):
@@ -64,10 +64,10 @@ def mount_app_routes(app: FastAPI):
              summary="获取指定用户的会话列表",
              )(get_user_conversations)
 
-    # # # 通用知识库问答接口
-    # app.post("/api/chat/knowledge_base_chat",
-    #          tags=["Chat"],
-    #          summary="与知识库对话")(knowledge_base_chat)
+    # # 通用知识库问答接口
+    app.post("/api/chat/knowledge_base_chat",
+             tags=["Chat"],
+             summary="与知识库对话")(knowledge_base_chat)
 
     # 获取会话消息列表接口
     app.get("/api/conversations/{conversation_id}/messages",

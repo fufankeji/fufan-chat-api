@@ -2,10 +2,10 @@
 MODEL_ROOT_PATH = ""
 
 TEMPERATURE = 0.8
-#
-LLM_MODELS = ["zhipu-api"]
 
-# LLM_MODELS = ["chatglm3-6b", "zhipu-api"]
+# LLM_MODELS = ["zhipu-api"]
+
+LLM_MODELS = ["chatglm3-6b", "zhipu-api"]
 # LLM_MODELS = ["chatglm3-6b"]
 MODEL_PATH = {
     # 这里定义 本机服务器上存储的大模型权重存储路径

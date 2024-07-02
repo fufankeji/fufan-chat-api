@@ -373,12 +373,18 @@ class KBServiceFactory:
         return KBServiceFactory.get_service("default", SupportedVSType.DEFAULT)
 
 
-def get_kb_details() -> List[Dict]:
+async def get_kb_details() -> List[Dict]:
+    """
+    判断知识库 是 来源于 本地文件夹，还是数据库中
+    """
     kbs_in_folder = list_kbs_from_folder()
-    kbs_in_db = KBService.list_kbs()
+    kbs_in_db = await KBService.list_kbs()
     result = {}
-
     for kb in kbs_in_folder:
+        """
+        创建一个字典并填充初步的知识库详情（如名称、文件类型等）
+        并标记该知识库存在于文件夹中（"in_folder": True）但不在数据库中（"in_db": False）。
+        """
         result[kb] = {
             "kb_name": kb,
             "vs_type": "",
@@ -391,7 +397,13 @@ def get_kb_details() -> List[Dict]:
         }
 
     for kb in kbs_in_db:
-        kb_detail = get_kb_detail(kb)
+        """
+        遍历 kbs_in_db 中的每个知识库名称，使用 get_kb_detail 函数获取更详细的信息。
+        如果获取到详细信息，就标记这个知识库存在于数据库中（"in_db": True）。
+        接着检查这个知识库是否已经在 result 字典中存在（即它同时存在于文件夹和数据库中）。
+        如果是，更新已存在的条目。如果不是，将其标记为不在文件夹中（"in_folder": False）并添加到结果字典中。
+        """
+        kb_detail = await get_kb_detail(kb)
         if kb_detail:
             kb_detail["in_db"] = True
             if kb in result:
@@ -404,7 +416,6 @@ def get_kb_details() -> List[Dict]:
     for i, v in enumerate(result.values()):
         v['No'] = i + 1
         data.append(v)
-
     return data
 
 

@@ -1,0 +1,1 @@
+from fufanrag.prompt.base_prompt import *

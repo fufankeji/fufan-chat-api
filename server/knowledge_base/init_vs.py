@@ -123,8 +123,6 @@ async def test_query():
     print(search_ans)
 
 
-
-
 if __name__ == '__main__':
     asyncio.run(sequential_execution())
     # 测试

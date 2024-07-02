@@ -5,6 +5,9 @@ from fastapi import Body, Request
 from sse_starlette.sse import EventSourceResponse
 from fastapi.concurrency import run_in_threadpool
 from configs import (LLM_MODELS,
+                     USE_RERANKER,
+                     RERANKER_MODEL,
+                     RERANKER_MAX_LENGTH,
                      VECTOR_SEARCH_TOP_K,
                      SCORE_THRESHOLD,
                      TEMPERATURE)
@@ -28,6 +31,8 @@ from server.memory.conversation_db_buffer_memory import ConversationBufferDBMemo
 from server.callback_handler.conversation_callback_handler import ConversationCallbackHandler
 from langchain.prompts import PromptTemplate
 from server.knowledge_base.kb_doc_api import search_docs
+from server.reranker.reranker import LangchainReranker
+
 
 async def knowledge_base_chat(query: str = Body(..., description="用户输入", examples=["你好"]),
                               user_id: str = Body("", description="用户ID"),
@@ -80,7 +85,6 @@ async def knowledge_base_chat(query: str = Body(..., description="用户输入",
         callback = AsyncIteratorCallbackHandler()
 
         callbacks = [callback]
-        memory = None
 
         # 构造一个新的Message_ID记录
         message_id = await add_message_to_db(user_id=user_id,
@@ -107,9 +111,21 @@ async def knowledge_base_chat(query: str = Body(..., description="用户输入",
         )
 
         docs = await search_docs(query=query,
-                                       knowledge_base_name=knowledge_base_name,
-                                       top_k=top_k,
-                                       score_threshold=score_threshold)
+                                 knowledge_base_name=knowledge_base_name,
+                                 top_k=top_k,
+                                 score_threshold=score_threshold)
+
+        # 加入reranker
+        if USE_RERANKER:
+            reranker_model_path = get_model_path(RERANKER_MODEL)
+            reranker_model = LangchainReranker(top_n=1,
+                                               device=embedding_device(),
+                                               max_length=RERANKER_MAX_LENGTH,
+                                               model_name_or_path=reranker_model_path
+                                               )
+
+            docs = reranker_model.compress_documents(documents=docs,
+                                                     query=query)
 
         context = "\n".join([doc.page_content for doc in docs])
 
@@ -122,17 +138,8 @@ async def knowledge_base_chat(query: str = Body(..., description="用户输入",
         chat_prompt = ChatPromptTemplate.from_messages(
             [i.to_msg_template() for i in history] + [input_msg])
 
-        # if conversation_id and history_len > 0:
-        #     chat_prompt = PromptTemplate.from_template(prompt_template)
-        #     # 根据conversation_id 获取message 列表进而拼凑 memory
-        #     memory = ConversationBufferDBMemory(conversation_id=conversation_id,
-        #                                         llm=model,
-        #                                         message_limit=history_len)
-
-        # chain = LLMChain(prompt=chat_prompt, llm=model, memory=memory)
         chain = LLMChain(prompt=chat_prompt, llm=model)
 
-        # Begin a task that runs in the background.
         task = asyncio.create_task(wrap_done(
             chain.acall({"context": context, "question": query}),
             callback.done),

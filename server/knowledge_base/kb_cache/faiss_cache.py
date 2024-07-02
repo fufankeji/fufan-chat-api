@@ -149,7 +149,6 @@ class KBFaissPool(_FaissPool):
           返回：
           ThreadSafeFaiss: 线程安全的 FAISS 向量存储。
           """
-        print("我现在进入到KBFaissPool 中啦  ！！！！！！！！！！！！！！！！！！！！！ ")
         self.atomic.acquire()
         vector_name = vector_name or embed_model
         cache = self.get((kb_name, vector_name)) # 用元组比拼接字符串好一些

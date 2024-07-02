@@ -8,7 +8,6 @@ password = "snowball950123"
 
 SQLALCHEMY_DATABASE_URI = f"mysql+asyncmy://{username}:{password}@{hostname}/{database_name}?charset=utf8mb4"
 
-
 # 默认使用的知识库
 DEFAULT_KNOWLEDGE_BASE = ""
 
@@ -18,7 +17,7 @@ DEFAULT_VS_TYPE = "faiss"
 VECTOR_SEARCH_TOP_K = 3
 
 SCORE_THRESHOLD = 1.0
-
+MAX_TOKENS = 2048
 # 缓存向量库数量（针对FAISS）
 CACHED_VS_NUM = 1
 
@@ -43,13 +42,10 @@ SCORE_THRESHOLD = 1.0
 # 然后将文本与往上一级的标题进行拼合，实现文本信息的增强。
 ZH_TITLE_ENHANCE = False
 
-
 # 知识库默认存储路径
 KB_ROOT_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "knowledge_base")
 if not os.path.exists(KB_ROOT_PATH):
     os.mkdir(KB_ROOT_PATH)
-
-
 
 # 可选向量库类型及对应配置
 kbs_config = {
@@ -68,7 +64,7 @@ kbs_config = {
         "user": "",
         "password": "",
         "secure": True,
-        },
+    },
     "pg": {
         "connection_uri": "postgresql://postgres:postgres@127.0.0.1:5432/langchain_chatchat",
     },
@@ -80,9 +76,9 @@ kbs_config = {
         "user": "",
         "password": ""
     },
-    "milvus_kwargs":{
-        "search_params":{"metric_type": "L2"}, #在此处增加search_params
-        "index_params":{"metric_type": "L2","index_type": "HNSW"} # 在此处增加index_params
+    "milvus_kwargs": {
+        "search_params": {"metric_type": "L2"},  # 在此处增加search_params
+        "index_params": {"metric_type": "L2", "index_type": "HNSW"}  # 在此处增加index_params
     },
     "chromadb": {}
 }
@@ -90,7 +86,7 @@ kbs_config = {
 # TextSplitter配置项，如果你不明白其中的含义，就不要修改。
 text_splitter_dict = {
     "ChineseRecursiveTextSplitter": {
-        "source": "huggingface",   # 选择tiktoken则使用openai的方法
+        "source": "huggingface",  # 选择tiktoken则使用openai的方法
         "tokenizer_name_or_path": "",
     },
     "SpacyTextSplitter": {
@@ -117,7 +113,6 @@ TEXT_SPLITTER_NAME = "ChineseRecursiveTextSplitter"
 
 # Embedding模型定制词语的词表文件
 EMBEDDING_KEYWORD_FILE = "embedding_keywords.txt"
-
 
 # 每个知识库的初始化介绍，用于在初始化知识库时显示和Agent调用，没写则没有介绍，不会被Agent调用。
 KB_INFO = {

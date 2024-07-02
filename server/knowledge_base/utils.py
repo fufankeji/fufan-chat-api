@@ -330,6 +330,7 @@ class KnowledgeFile:
     ):
         if self.splited_docs is None or refresh:
             docs = self.file2docs()
+
             self.splited_docs = self.docs2texts(docs=docs,
                                                 zh_title_enhance=zh_title_enhance,
                                                 refresh=refresh,

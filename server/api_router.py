@@ -35,16 +35,18 @@ def create_app(run_mode: str = None):
     return app
 
 
-
-from server.verify.utils import create_conversation, get_user_conversations, get_conversation_messages, ConversationResponse, MessageResponse
+from server.verify.utils import create_conversation, get_user_conversations, get_conversation_messages, \
+    ConversationResponse, MessageResponse
 from server.chat.knowledge_base_chat import knowledge_base_chat
+from server.chat.agent_chat import agent_chat
+from server.chat.search_engine_chat import search_engine_chat
 
 
 def mount_app_routes(app: FastAPI):
     """
     这里定义通用领域问答对话的接口
     """
-    
+
     # 大模型对话接口
     app.post("/api/chat",
              tags=["Chat"],
@@ -59,23 +61,32 @@ def mount_app_routes(app: FastAPI):
 
     # 获取用户会话列表接口
     app.get("/api/users/{user_id}/conversations",  # 确保路径正确表示用户ID的参数化
-             response_model=List[ConversationResponse],  # 使用正确的响应模型
-             tags=["Users"],
-             summary="获取指定用户的会话列表",
-             )(get_user_conversations)
+            response_model=List[ConversationResponse],  # 使用正确的响应模型
+            tags=["Users"],
+            summary="获取指定用户的会话列表",
+            )(get_user_conversations)
+
+    # 获取会话消息列表接口
+    app.get("/api/conversations/{conversation_id}/messages",
+            response_model=List[MessageResponse],  # 使用正确的响应模型
+            tags=["Messages"],
+            summary="获取指定会话的消息列表",
+            )(get_conversation_messages)
 
     # # 通用知识库问答接口
     app.post("/api/chat/knowledge_base_chat",
              tags=["Chat"],
              summary="与知识库对话")(knowledge_base_chat)
 
-    # 获取会话消息列表接口
-    app.get("/api/conversations/{conversation_id}/messages",
-             response_model=List[MessageResponse],  # 使用正确的响应模型
-             tags=["Messages"],
-             summary="获取指定会话的消息列表",
-             )(get_conversation_messages)
+    app.post("/api/chat/agent_chat",
+             tags=["Chat"],
+             summary="与agent对话")(agent_chat)
 
+
+    app.post("/chat/search_engine_chat",
+             tags=["Chat"],
+             summary="与搜索引擎对话",
+             )(search_engine_chat)
 
 
 def run_api(host, port, **kwargs):
@@ -90,10 +101,7 @@ def run_api(host, port, **kwargs):
         uvicorn.run(app, host=host, port=port)
 
 
-
-
 if __name__ == '__main__':
-    
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", type=str, default="192.168.110.131")
     parser.add_argument("--port", type=int, default=8000)
@@ -110,4 +118,3 @@ if __name__ == '__main__':
             ssl_keyfile=args.ssl_keyfile,
             ssl_certfile=args.ssl_certfile,
             )
-    

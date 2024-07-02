@@ -29,8 +29,14 @@ async def add_kb_to_db(session, kb_name, kb_info, vs_type, embed_model, user_id)
 
 @with_async_session
 async def list_kbs_from_db(session, min_file_count: int = -1):
-    kbs = session.query(KnowledgeBaseModel.kb_name).filter(KnowledgeBaseModel.file_count > min_file_count).all()
-    kbs = [kb[0] for kb in kbs]
+    # 过滤条件，用于指定返回的知识库所包含的文件数量下限，默认值为 -1，意味着默认情况下会返回所有知识库的名称，不论其文件数量如何。
+    result = await session.execute(
+        select(KnowledgeBaseModel.kb_name)
+        .where(KnowledgeBaseModel.file_count > min_file_count)
+    )
+
+    # 提取向量数据库的名称
+    kbs = [kb[0] for kb in result.scalars().all()]
     return kbs
 
 

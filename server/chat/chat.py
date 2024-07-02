@@ -25,6 +25,7 @@ from server.callback_handler.conversation_callback_handler import ConversationCa
 from langchain.prompts import PromptTemplate
 from server.verify.check_user import check_user
 
+
 async def chat(query: str = Body(..., description="用户输入", examples=["你好"]),
                user_id: str = Body("", description="用户ID"),
                conversation_id: str = Body("", description="对话框ID"),
@@ -89,14 +90,12 @@ async def chat(query: str = Body(..., description="用户输入", examples=["你
         if isinstance(max_tokens, int) and max_tokens <= 0:
             max_tokens = None
 
-
         model = get_ChatOpenAI(
             model_name=model_name,
             temperature=temperature,
             max_tokens=max_tokens,
             callbacks=callbacks,
         )
-
 
         if history:  # 优先使用前端传入的历史消息
             pass
@@ -111,8 +110,6 @@ async def chat(query: str = Body(..., description="用户输入", examples=["你
 
         else:
             pass
-
-
 
         chain = LLMChain(prompt=chat_prompt, llm=model, memory=memory)
 

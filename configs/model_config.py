@@ -3,9 +3,9 @@ MODEL_ROOT_PATH = ""
 
 TEMPERATURE = 0.8
 
-LLM_MODELS = ["zhipu-api"]
+# LLM_MODELS = ["zhipu-api"]
 
-# LLM_MODELS = ["chatglm3-6b", "zhipu-api"]
+LLM_MODELS = ["chatglm3-6b", "zhipu-api"]
 # LLM_MODELS = ["chatglm3-6b"]
 
 RERANKER_MODEL = "bge-reranker-large"

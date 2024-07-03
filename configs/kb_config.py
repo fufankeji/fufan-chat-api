@@ -52,7 +52,7 @@ kbs_config = {
     "faiss": {
     },
     "milvus": {
-        "host": "127.0.0.1",
+        "host": "192.168.110.131",
         "port": "19530",
         "user": "",
         "password": "",

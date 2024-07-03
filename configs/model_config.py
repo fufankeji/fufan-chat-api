@@ -93,7 +93,7 @@ EMBEDDING_DEVICE = "auto"
 SEARCH_ENGINE_TOP_K = 3
 
 URL="https://google.serper.dev/search"
-SERPER_API_KEY=""
+SERPER_API_KEY="c8da0155b57b159becfdbf4767aef63306ae4619"
 
 ZILLIZ_URI="https://in03-053b56bef5db18e.api.gcp-us-west1.zillizcloud.com"
 ZILLIZ_TOKEN=""

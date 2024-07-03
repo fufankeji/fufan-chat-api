@@ -50,7 +50,7 @@ def build_document(search_results):
     return documents
 
 
-def reranking(query, search_results, top_k=3):
+def reranking(query, search_results, top_k=1):
 
     results = []
     for item in search_results:
@@ -62,15 +62,9 @@ def reranking(query, search_results, top_k=3):
 
     documents = build_document(search_results=results)
 
-    text_splitter = RecursiveCharacterTextSplitter(["\n\n", "\n", ".", " "],
-                                                   chunk_size=300,
-                                                   chunk_overlap=50)
-
-    splitted_docs = text_splitter.split_documents(documents)
-
     normal = NormalizedLevenshtein()
-    for x in splitted_docs:
+    for x in documents:
         x.metadata["score"] = normal.similarity(query, x.page_content)
-    splitted_docs.sort(key=lambda x: x.metadata["score"], reverse=True)
+    documents.sort(key=lambda x: x.metadata["score"], reverse=True)
 
-    return splitted_docs[:top_k]
+    return documents[:top_k]

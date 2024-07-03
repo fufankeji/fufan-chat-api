@@ -82,8 +82,7 @@ def mount_app_routes(app: FastAPI):
              tags=["Chat"],
              summary="与agent对话")(agent_chat)
 
-
-    app.post("/chat/search_engine_chat",
+    app.post("/api/chat/search_engine_chat",
              tags=["Chat"],
              summary="与搜索引擎对话",
              )(search_engine_chat)

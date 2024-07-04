@@ -12,7 +12,6 @@ from server.knowledge_base.kb_service.base import KBService, SupportedVSType, Em
 from server.knowledge_base.utils import KnowledgeFile
 
 
-
 class MilvusKBService(KBService):
     """
     该类继承自KBService, 用于提供Milvus向量数据库服务
@@ -110,10 +109,10 @@ class MilvusKBService(KBService):
             for k, v in doc.metadata.items():
                 doc.metadata[k] = str(v)
             # 确保每个Milvus字段都存在于文档的元数据中，如果不存在则设置为空字符串
-            for field in self.milvus.fields:
-                doc.metadata.setdefault(field, "")
-            doc.metadata.pop(self.milvus._text_field, None)
-            doc.metadata.pop(self.milvus._vector_field, None)
+            # for field in self.milvus.fields:
+            #     doc.metadata.setdefault(field, "")
+            # doc.metadata.pop(self.milvus._text_field, None)
+            # doc.metadata.pop(self.milvus._vector_field, None)
 
         # 这里是 milvus 实例继承自 LangChain的 VectorStore 基类 中的 add_documents 方法
         # https://api.python.langchain.com/en/v0.1/_modules/langchain_core/vectorstores.html#VectorStore
@@ -126,7 +125,6 @@ class MilvusKBService(KBService):
         if self.milvus.col:
             self.milvus.col.delete(expr=f'pk in {id_list}')
 
-        # Issue 2846, for windows
         # if self.milvus.col:
         #     file_path = kb_file.filepath.replace("\\", "\\\\")
         #     file_name = os.path.basename(file_path)
@@ -142,29 +140,26 @@ class MilvusKBService(KBService):
 
 # 主调用代码需要被包装在一个异步函数中
 async def main():
-
-    # 创建一个 milvus 对象, default 向量数据库的Collecting Name
-    milvusService = MilvusKBService("test")
+    # 创建一个 milvus 对象, 用于测试milvus的连通性
+    milvusService = MilvusKBService("milvus_test")
     print(f"milvus_kb_service: {milvusService}")
 
     from server.knowledge_base.kb_service.base import KBServiceFactory
-    kb = await KBServiceFactory.get_service_by_name("test")
+    kb = await KBServiceFactory.get_service_by_name("milvus_test")
 
     # 如果想要使用的向量数据库的collecting name 不存在，则进行创建
     if kb is None:
         from server.db.repository.knowledge_base_repository import add_kb_to_db
 
         # 先在Mysql中创建向量数据库的基本信息
-        await add_kb_to_db(kb_name="test",
+        await add_kb_to_db(kb_name="milvus_test",
                            kb_info="milvus",
                            vs_type="milvus",
                            embed_model="bge-large-zh-v1.5",
                            user_id="admin")
 
-
-
     # 调用 add_doc 方法添加一个名为 "README.md" 的文桗，确保使用 await
-    await milvusService.add_doc(KnowledgeFile("README.md", "test"))
+    await milvusService.add_doc(KnowledgeFile("README.md", "milvus_test"))
     # 根据输入进行检索
     search_ans = await milvusService.search_docs(query="RAG增强可以使用的框架？")
     print(search_ans)
@@ -172,4 +167,5 @@ async def main():
 
 if __name__ == '__main__':
     import asyncio
+
     asyncio.run(main())

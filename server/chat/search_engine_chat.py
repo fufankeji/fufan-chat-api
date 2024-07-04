@@ -1,4 +1,3 @@
-
 from langchain.chains import LLMChain
 from langchain.callbacks import AsyncIteratorCallbackHandler
 
@@ -34,8 +33,14 @@ from server.knowledge_base.kb_service.base import KBServiceFactory
 from server.knowledge_base.kb_service.milvus_kb_service import MilvusKBService
 from text_splitter.chinese_recursive_text_splitter import ChineseRecursiveTextSplitter
 
+
 async def search_engine_chat(query: str = Body(..., description="用户输入", examples=["你好"]),
-                             top_k: int = Body(SEARCH_ENGINE_TOP_K, description="检索结果数量"),
+                             user_id: str = Body("", description="用户ID"),
+                             conversation_id: str = Body("", description="对话框ID"),
+                             conversation_name: str = Body("", description="对话框名称"),
+                             knowledge_base_name: str = Body(..., description="知识库名称", examples=["samples"]),
+                             retrival_top_k: int = Body(VECTOR_SEARCH_TOP_K, description="匹配向量数"),
+                             search_top_k: int = Body(SEARCH_ENGINE_TOP_K, description="检索结果数量"),
                              history: List[History] = Body([],
                                                            description="历史对话",
                                                            examples=[[
@@ -52,11 +57,8 @@ async def search_engine_chat(query: str = Body(..., description="用户输入", 
                              prompt_name: str = Body("default",
                                                      description="使用的prompt模板名称(在configs/prompt_config.py中配置)"),
                              ):
-
-    history = [History.from_data(h) for h in history]
-
     async def search_engine_chat_iterator(query: str,
-                                          top_k: int,
+                                          search_top_k: int,
                                           history: Optional[List[History]],
                                           model_name: str = LLM_MODELS[0],
                                           prompt_name: str = prompt_name,
@@ -73,8 +75,8 @@ async def search_engine_chat(query: str = Body(..., description="用户输入", 
             callbacks=[callback],
         )
 
-        # 根据用户输入的问题，执行联网检索，返回tok k 个相关的链接
-        search_results = await search(query, top_k)
+        # 根据用户输入的问题，调用SerperAPI执行联网检索，返回search_top_k个相关的链接
+        search_results = await search(query, search_top_k)
 
         # 对检索到的网址链接，通过计算 query 和 每个网站的简介，进一步做 rerank，提取最相关的一个网址
         rerank_results = reranking(query, search_results)
@@ -87,9 +89,9 @@ async def search_engine_chat(query: str = Body(..., description="用户输入", 
 
         # 添加文档到 milvus 服务
         await milvusService.do_add_doc(docs=detail_results)
-        
-        search_retriever = await milvusService.search_docs(query, top_k=3)
-        
+
+        search_retriever = await milvusService.search_docs(query, top_k=retrival_top_k)
+
         context = "\n".join([doc[0].page_content for doc in search_retriever])
 
         if len(search_retriever) == 0:  # 如果没有找到相关文档，使用empty模板
@@ -111,16 +113,15 @@ async def search_engine_chat(query: str = Body(..., description="用户输入", 
         retriever_documents = []
         for inum, doc_tuple in enumerate(search_retriever):
             doc, _ = doc_tuple  # 每个元组的结构是 (Document对象, 相似度得分)
-            text = f"""出处 [{inum + 1}] \n\n{doc.page_content}\n\n"""
+            text = f"""向量检索 [{inum + 1}] \n\n{doc.page_content}\n\n"""
             retriever_documents.append(text)
 
         search_documents = []
         for inum, doc in enumerate(search_results):
             url = doc['link']
             snippet = doc['snippet']
-            text = f"""出处 [{inum + 1}] ({url})\n\n{snippet}\n\n"""
+            text = f"""联网检索 [{inum + 1}] ({url})\n\n{snippet}\n\n"""
             search_documents.append(text)
-
 
         if stream:
             async for token in callback.aiter():
@@ -132,11 +133,12 @@ async def search_engine_chat(query: str = Body(..., description="用户输入", 
             answer = ""
             async for token in callback.aiter():
                 answer += token
-            yield json.dumps({"answer": answer, "docs": retriever_documents, "search": search_documents}, ensure_ascii=False)
+            yield json.dumps({"answer": answer, "docs": retriever_documents, "search": search_documents},
+                             ensure_ascii=False)
         await task
 
     return EventSourceResponse(search_engine_chat_iterator(query=query,
-                                                           top_k=top_k,
+                                                           search_top_k=search_top_k,
                                                            history=history,
                                                            model_name=model_name,
                                                            prompt_name=prompt_name),

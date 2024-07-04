@@ -1,0 +1,4 @@
+2024-07-04 14:01:36 | INFO | model_worker | Loading the model ['chatglm3-6b'] on worker 99e9b54a ...
+2024-07-04 14:01:47 | INFO | model_worker | Register to controller
+2024-07-04 14:02:32 | INFO | model_worker | Send heart beat. Models: ['chatglm3-6b']. Semaphore: None. call_ct: 0. worker_id: 99e9b54a. 
+2024-07-04 14:03:17 | INFO | model_worker | Send heart beat. Models: ['chatglm3-6b']. Semaphore: Semaphore(value=5, locked=False). call_ct: 1. worker_id: 99e9b54a. 

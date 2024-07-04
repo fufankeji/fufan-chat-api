@@ -9,6 +9,8 @@ import uuid
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from strsimpy.normalized_levenshtein import NormalizedLevenshtein
+from configs.model_config import SEARCH_RERANK_TOP_K
+
 
 def md5(data: str):
     _md5 = hashlib.md5()
@@ -32,8 +34,6 @@ def build_document(search_results):
             uuid = md5(result["link"])
 
         text = result["snippet"]
-        if "content" in result and len(result["content"]) > len(result["snippet"]):
-            text = result["content"]
 
         document = Document(
             page_content=text,
@@ -50,21 +50,17 @@ def build_document(search_results):
     return documents
 
 
-def reranking(query, search_results, top_k=1):
+def reranking(query, search_results, top_k=SEARCH_RERANK_TOP_K):
+    # 将第一轮联网检索得到的网页信息构建成Document对象
+    documents = build_document(search_results=search_results)
 
-    results = []
-    for item in search_results:
-        # 为每个搜索结果生成 UUID（MD5 哈希）
-        item["uuid"] = hashlib.md5(item["link"].encode()).hexdigest()
-        # 初始化搜索结果的得分
-        item["score"] = 0.00
-        results.append(item)
-
-    documents = build_document(search_results=results)
-
+    # 计算query 与 每一个检索到的网页的snippet的文本相似性，判断其网页是否与当前的query高度相关
     normal = NormalizedLevenshtein()
     for x in documents:
         x.metadata["score"] = normal.similarity(query, x.page_content)
+
+    # 降序排序
     documents.sort(key=lambda x: x.metadata["score"], reverse=True)
 
-    return documents[:top_k]
+    # 返回最相关的 top_k 个网页信息数据
+    return documents[:SEARCH_RERANK_TOP_K]

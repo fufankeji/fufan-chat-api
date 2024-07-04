@@ -14,6 +14,7 @@ from html2text import HTML2Text
 import re
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+
 class History(BaseModel):
     """
     对话历史
@@ -56,19 +57,27 @@ class History(BaseModel):
 
 
 async def search(query, num, locale=''):
+    """
+    定义一个异步函数，用于发起Serper API的实时 Google Search
+    """
+    # 初始化参数字典，包含搜索查询词和返回结果的数量
     params = {
-        "q": query,
-        "num": num
+        "q": query,  # 搜索查询词
+        "num": num  # 请求返回的结果数量
     }
 
+    # 如果提供了地区设置，则添加到参数字典中
     if locale:
-        params["hl"] = locale
+        params["hl"] = locale  # 'hl'参数用于指定搜索结果的语言环境
 
     try:
+        # 使用异步方式调用get_search_results函数，传入参数字典
         # 确保get_search_results是异步函数
         search_results = await get_search_results(params=params)
-        return search_results
+        return search_results  # 返回搜索结果
     except Exception as e:
+
+        # 如果搜索过程中出现异常，打印错误信息并重新抛出异常
         print(f"search failed: {e}")
         raise e
 
@@ -113,12 +122,6 @@ async def fetch_url(session, url):
             response.encoding = 'utf-8'  # 设置响应的编码，通常不需要手动设置，aiohttp 会自动处理
             html = await response.text()  # 等待响应体被完全读取
             return html
-    except aiohttp.ClientResponseError as e:
-        print(f"客户端响应错误 {url}: {e.status}")
-    except aiohttp.ClientConnectionError as e:
-        print(f"连接错误 {url}: {e}")
-    except aiohttp.TimeoutError as e:
-        print(f"请求超时 {url}")
     except Exception as e:
         print(f"请求 URL 失败 {url}: {e}")
     return ""
@@ -152,12 +155,26 @@ async def fetch_markdown(session, url):
 
 async def batch_fetch_urls(urls):
     try:
-        async with aiohttp.ClientSession() as session:
+        # 设置超时时间，例如总超时10秒，连接超时2秒
+        timeout = aiohttp.ClientTimeout(total=10, connect=1)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
             tasks = [fetch_markdown(session, url) for url in urls]
-            results = await asyncio.gather(*tasks, return_exceptions=False)
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            # 处理结果，忽略连接超时的请求
+            final_results = []
+            for result in results:
+                if isinstance(result, asyncio.TimeoutError):
+                    # 如果是超时错误，不做任何处理（可以在这里记录日志或增加计数器）
+                    continue
+                elif isinstance(result, Exception):
+                    # TODO
+                    pass
+                else:
+                    # 正常的响应结果
+                    final_results.append(result)
 
-            return results
-    except aiohttp.ClientResponseError as e:
+            return final_results
+    except Exception as e:
         print(f"批量获取 url 失败: {e}")
         return []
 
@@ -169,8 +186,7 @@ async def fetch_details(search_results):
     try:
         details = await batch_fetch_urls(urls)
     except Exception as e:
-        # 如果批量获取失败，打印错误信息并抛出异常
-        print(f"fetch details failed: {e}")
+        # 如果批量获取失败，抛出异常
         raise e
 
     # details 填充为(url, content)元组列表

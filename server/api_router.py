@@ -38,7 +38,6 @@ def create_app(run_mode: str = None):
 from server.verify.utils import create_conversation, get_user_conversations, get_conversation_messages, \
     ConversationResponse, MessageResponse
 from server.chat.knowledge_base_chat import knowledge_base_chat
-from server.chat.agent_chat import agent_chat
 from server.chat.search_engine_chat import search_engine_chat
 
 
@@ -77,10 +76,6 @@ def mount_app_routes(app: FastAPI):
     app.post("/api/chat/knowledge_base_chat",
              tags=["Chat"],
              summary="与知识库对话")(knowledge_base_chat)
-
-    app.post("/api/chat/agent_chat",
-             tags=["Chat"],
-             summary="与agent对话")(agent_chat)
 
     app.post("/api/chat/search_engine_chat",
              tags=["Chat"],

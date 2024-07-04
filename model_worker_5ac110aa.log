@@ -1,0 +1,4 @@
+2024-07-04 15:59:37 | INFO | model_worker | Register to controller
+2024-07-04 16:00:22 | INFO | model_worker | Send heart beat. Models: ['zhipu-api']. Semaphore: Semaphore(value=5, locked=False). call_ct: 0. worker_id: 5ac110aa. 
+2024-07-04 16:01:07 | INFO | model_worker | Send heart beat. Models: ['zhipu-api']. Semaphore: Semaphore(value=5, locked=False). call_ct: 0. worker_id: 5ac110aa. 
+2024-07-04 16:01:52 | INFO | model_worker | Send heart beat. Models: ['zhipu-api']. Semaphore: Semaphore(value=5, locked=False). call_ct: 0. worker_id: 5ac110aa. 

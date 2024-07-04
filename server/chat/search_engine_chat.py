@@ -32,6 +32,11 @@ from server.reranker.search_reranker import reranking
 from server.knowledge_base.kb_service.base import KBServiceFactory
 from server.knowledge_base.kb_service.milvus_kb_service import MilvusKBService
 from text_splitter.chinese_recursive_text_splitter import ChineseRecursiveTextSplitter
+from server.db.repository.message_repository import add_message_to_db
+from server.memory.conversation_db_buffer_memory import ConversationBufferDBMemory
+from server.callback_handler.conversation_callback_handler import ConversationCallbackHandler
+from langchain.prompts import PromptTemplate
+from server.verify.check_user import check_user
 
 
 async def search_engine_chat(query: str = Body(..., description="用户输入", examples=["你好"]),
@@ -65,14 +70,32 @@ async def search_engine_chat(query: str = Body(..., description="用户输入", 
                                           ) -> AsyncIterable[str]:
         nonlocal max_tokens
         callback = AsyncIteratorCallbackHandler()
+        callbacks = [callback]
         if isinstance(max_tokens, int) and max_tokens <= 0:
             max_tokens = None
+
+        # 进行用户校验
+        await check_user(user_id)
+
+        # 构造一个新的Message_ID记录
+        message_id = await add_message_to_db(user_id=user_id,
+                                             conversation_id=conversation_id,
+                                             conversation_name=conversation_name,
+                                             prompt_name=prompt_name,
+                                             query=query
+                                             )
+
+        conversation_callback = ConversationCallbackHandler(conversation_id=conversation_id,
+                                                            message_id=message_id,
+                                                            chat_type=prompt_name,
+                                                            query=query)
+        callbacks.append(conversation_callback)
 
         model = get_ChatOpenAI(
             model_name=model_name,
             temperature=temperature,
             max_tokens=max_tokens,
-            callbacks=[callback],
+            callbacks=callbacks,
         )
 
         # 根据用户输入的问题，调用SerperAPI执行联网检索，返回search_top_k个相关的链接
@@ -126,14 +149,14 @@ async def search_engine_chat(query: str = Body(..., description="用户输入", 
         if stream:
             async for token in callback.aiter():
                 # Use server-sent-events to stream the response
-                yield json.dumps({"answer": token}, ensure_ascii=False)
+                yield json.dumps({"text": token}, ensure_ascii=False)
             yield json.dumps({"docs": retriever_documents}, ensure_ascii=False)
             yield json.dumps({"search": search_documents}, ensure_ascii=False)
         else:
             answer = ""
             async for token in callback.aiter():
                 answer += token
-            yield json.dumps({"answer": answer, "docs": retriever_documents, "search": search_documents},
+            yield json.dumps({"text": answer, "docs": retriever_documents, "search": search_documents},
                              ensure_ascii=False)
         await task
 

@@ -108,7 +108,7 @@ class MilvusKBService(KBService):
             # 遍历文档的元数据字典，将每个值转换为字符串类型
             for k, v in doc.metadata.items():
                 doc.metadata[k] = str(v)
-            # 确保每个Milvus字段都存在于文档的元数据中，如果不存在则设置为空字符串
+            # # 确保每个Milvus字段都存在于文档的元数据中，如果不存在则设置为空字符串
             # for field in self.milvus.fields:
             #     doc.metadata.setdefault(field, "")
             # doc.metadata.pop(self.milvus._text_field, None)

@@ -39,7 +39,7 @@ from server.verify.utils import create_conversation, get_user_conversations, get
     ConversationResponse, MessageResponse
 from server.chat.knowledge_base_chat import knowledge_base_chat
 from server.chat.search_engine_chat import search_engine_chat
-
+from server.chat.recommendation_chat import recommend_base_chat
 
 def mount_app_routes(app: FastAPI):
     """
@@ -81,6 +81,11 @@ def mount_app_routes(app: FastAPI):
              tags=["Chat"],
              summary="与搜索引擎对话",
              )(search_engine_chat)
+
+    app.post("/api/chat/recommend_chat",
+             tags=["Chat"],
+             summary="推荐",
+             )(recommend_base_chat)
 
 
 def run_api(host, port, **kwargs):

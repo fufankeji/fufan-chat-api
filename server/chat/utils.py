@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from langchain.prompts.chat import ChatMessagePromptTemplate
 from configs import logger
-from typing import List, Tuple, Dict, Union
+from typing import List, Tuple, Dict, Union, Any
 import aiohttp
 import os
 import hashlib
@@ -13,7 +13,13 @@ import re
 from html2text import HTML2Text
 import re
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from server.memory.conversation_db_buffer_memory import ConversationBufferDBMemory
+from server.db.repository.message_repository import filter_message
+from langchain.schema import get_buffer_string, BaseMessage, HumanMessage, AIMessage
+from langchain.chains import LLMChain
 
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.prompts import PromptTemplate
 
 class History(BaseModel):
     """
@@ -203,3 +209,59 @@ async def fetch_details(search_results):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=700, chunk_overlap=100)
     chunks = text_splitter.split_documents(search_results)
     return chunks
+
+
+async def get_conversation_history(conversation_id: str, limit=3) -> List[Any]:
+    """
+    异步获取对话历史，并转化为交互消息格式。
+
+    :param conversation_id: 对话的唯一标识符
+    :return: 一个包含 HumanMessage 和 AIMessage 的列表
+    """
+    # 异步获取消息记录，限制为最近的3条
+    messages = await filter_message(conversation_id=conversation_id, limit=limit)
+    # 将消息记录按时间倒序转为正序
+    messages = list(reversed(messages))
+
+    # 创建空列表以存储格式化后的聊天消息
+    chat_messages: List[Any] = []
+    # 遍历消息，将每个消息分别封装为 HumanMessage 和 AIMessage
+    for message in messages:
+        chat_messages.append(HumanMessage(content=message.query))
+        chat_messages.append(AIMessage(content=message.response))
+
+    return chat_messages
+
+
+async def generate_user_profile_and_extract_info(chat_messages: List[str], user_profile_prompt: str, model) -> Dict[str, List[str]]:
+    """
+    异步生成用户画像并从中提取课程和模块信息。
+
+    :param chat_messages: 聊天历史消息列表
+    :param user_profile_prompt: 用于生成用户画像的提示
+    :param model: 已实例化的模型对象
+    :return: 包含课程和模块名称的字典
+    """
+    # 创建聊天提示模板
+    prompt_template = ChatPromptTemplate.from_messages([
+        ("user", user_profile_prompt),
+    ])
+
+    # 创建链式模型
+    user_profile_chain = LLMChain(prompt=prompt_template, llm=model)
+
+    # 异步生成用户画像
+    user_profile_result = user_profile_chain.invoke({"chat_history": chat_messages})
+    user_profile = user_profile_result["text"]
+
+    # 定义正则表达式并提取课程与模块信息
+    def extract_course_and_module(text: str) -> Dict[str, List[str]]:
+        course_pattern = r"\[Course\]\s+-\s+(.+)"
+        module_name_pattern = r"\[ModuleName\]\s+-\s+(.+)"
+        courses = re.findall(course_pattern, text)
+        module_names = re.findall(module_name_pattern, text)
+        return {"Course": courses, "ModuleName": module_names}
+
+    # 提取信息并返回
+    return extract_course_and_module(user_profile)
+

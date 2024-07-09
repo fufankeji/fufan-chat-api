@@ -75,7 +75,7 @@ async def search_engine_chat(query: str = Body(..., description="用户输入", 
             max_tokens = None
 
         # 进行用户校验
-        await check_user(user_id)
+        # await check_user(user_id)
 
         # 构造一个新的Message_ID记录
         message_id = await add_message_to_db(user_id=user_id,

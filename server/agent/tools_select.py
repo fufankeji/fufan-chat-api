@@ -3,10 +3,10 @@ from server.agent.tools import *
 
 tools = [
     Tool.from_function(
-        func=search_knowledgebase_complex,
-        name="search_knowledgebase_complex",
-        description="读取本地知识库，获取GLM4 的相关信息",
-        args_schema=KnowledgeSearchInput,
+        func=duckgosearch,
+        name="DuckDuckGoSearch",
+        description="useful for when you need to search the internet for information",
+        args_schema=DuckGoSearchInput,
     ),
 
 ]

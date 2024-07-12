@@ -1,0 +1,4411 @@
+ModuleID,Course,Title,URL,ModuleName,Tags,Content
+e1b911cd-3042-47fa-8762-3fbef69c4998,开源大模型课件,['Ch.4 在 Ubuntu 22.04 系统下部署运行 ChatGLM3-6B 模型'],Ch 4 Ubuntu 22.04下本地化部署ChatGLM3-6B模型.pdf,本地部署开源大模型,Ch.4 在 Ubuntu 22.04 系统下部署运行 ChatGLM3-6B 模型,"## Ch.4 在 Ubuntu 22.04 系统下部署运行 ChatGLM3-6B 模型
+
+大模型部署整体来看并不复杂，且官方一般都会提供标准的模型部署流程，但很多人在部署过程中会遇
+
+到各种各样的问题，很难成功部署，主要是因为这个过程会涉及非常多依赖库的安装和更新及根据本地的
+
+安装情况，需要适时的调整代码逻辑。除此之外也有一定的硬件要求，总的来说还是具有一定的部署和使用
+
+门槛。因此本期课程，我们特地详细整理了一份 ChatGLM3-6B 模型的部署流程教程，供大家参考和学习。
+
+**操作系统要求**
+
+首先看系统要求。目前开源的大模型都支持在 Windows 、 Linux 和 Mac 上部署运行。但在应用开发领域
+
+中， Linux 系统通常被优先选择而不是 Windows ，主要原因是 Linux 系统具有强大的包管理系统（如 apt,
+
+yum, pacman ），允许开发者轻松安装、更新和管理软件包，这比 Windows 操作系统上的软件安装和管理
+
+更加方便快捷。同时 Linux 系统与多种编程语言和开发工具的兼容性较好，尤其是一些开源工具，仅支持在
+
+Linux 系统上使用。整体来看，在应用运行方面对硬件的要求较低，且在处理多任务时表现出色，所以被广泛
+
+认为是一个非常稳定和可靠的系统，特别是对于服务器和长时间运行的应用。
+
+Linux 操作系统有许多不同的发行版，每种发行版都有其特定的特点和用途，如 CentOS 、 Ubuntu 和
+
+Debian 等。 CentOS 是一种企业级的 Linux 发行版，以稳定性和安全性著称。它是 RHEL （ Red Hat
+
+Enterprise Linux ）的免费替代品，与 RHEL 完全兼容，适用于服务器和企业环境。而 Ubuntu ，是最受欢迎
+
+的 Linux 发行版之一，其优势就是对用户友好和很强的易用性，其图形化界面都适合大部分人的习惯。
+
+所以，在实践大模型时，强烈建议大家使用 Ubuntu 系统。同时，本教程也是针对 Ubuntu 22.04 桌面版
+
+系统来进行 ChatGLM3-6B 模型的部署和运行的。
+
+**硬件配置要求**
+
+其次，关于硬件的需求， ChatGLM3-6B 支持 GPU 运行（需要英伟达显卡）、 CPU 运行以及 Apple M 系列
+
+芯片运行。其中 GPU 运行需要至少 6GB 以上显存（ 4Bit 精度运行模式下），而 CPU 运行则需要至少 32G 的内
+
+存。而由于 Apple M 系列芯片是统一内存架构，因此最少需要 13G 内存即可运行。其中 CPU 运行模式下内存
+
+占用过大且运行效率较低，因此我们也强调过， GPU 模式部署才能有效的进行大模型的学习实践。
+
+在本教程中，我们将重点讲解如何配置 GPU 环境来部署运行 ChatGLM3-6B 模型。
+
+基于上述两方面的原因，我们在前两期内容也分别详细地介绍了如何根据大模型的官方配置需求来选择
+
+最合适的硬件环境，及如何部署一个纯净的 Ubuntu 22.04 双系统。本期内容就在这样的环境基础上，安装必
+
+要的大模型运行依赖环境，并实际部署、运行及使用 ChatGLM3-6B 模型。
+
+在开始之前，请大家确定当前使用的硬件环境满足 ChatGLM3-6B 模型本地化运行的官方最低配置需求：
+
+如果配置满足需求，接下来我们就一步一步执行本地化部署 ChatGLM3-6B 模型。本期内容将首先介绍
+
+ChatGLM3-6B 模型在 Ubuntu 22.04 系统下单显卡部署流程，更加专业的 Linux 多卡部署模式，我们将在下一
+
+期课程中进行详细介绍
+
+
+-----"
+6f40a1b3-2d6a-421a-82ab-f6b5a59ad5a8,开源大模型课件,['Ch.4 在 Ubuntu 22.04 系统下部署运行 ChatGLM3-6B 模型'],Ch 4 Ubuntu 22.04下本地化部署ChatGLM3-6B模型.pdf,一、 Ubuntu 系统初始化配置,"1.1 更换国内软件源, 1.2 系统软件更新, 1.3 设置英文目录路径, 1.5 配置 VPN","如果跟随上一期视频安装完 Ubuntu 双系统后，当前的环境是一个比较纯净的系统，首先建议大家做的操
+
+作是进行系统的软件更新。这种更新涉及安全补丁、软件更新、之前版本中的错误和问题修复和依赖包的更
+
+新，一方面是可以提升系统的安全性，另一方面更重要的也是，更新可以确保所有依赖项都是最新和相互兼
+
+容的。虽然不做更新系统仍然可以运行，但我们强烈建议先执行这一操作。
+
+## 1.1 更换国内软件源
+
+Ubuntu 的软件源服务器在境外，所以会导致下载速度很慢，甚至有时无法使用，所以建议在进行软件更
+
+新前，将软件源更改为国内的镜像网站。
+
+**Step 1.** **备份软件源配置文件**
+
+进入 `/ect/apt` 路径，找到软件源配置文件 “sources.list”, 将其源文件做个备份，以免修改后出现问题
+
+可以及时回退。命令如下：
+```
+ cd /ect/apt
+ sudo cp sources.list sources.list.backup
+
+```
+**Step 2.** **安装** **vim** **编辑器**
+
+Ubuntu 默认自带的 vi 是一个非常基础的文本编辑器，而 vim （ Vi IMproved ）是 vi 的扩展版本，提供
+
+了语法高亮、代码折叠、多级撤销 / 重做、自动命令、宏记录和播放等高级编辑功能。先执行如下命令进行安
+
+装：
+```
+ sudo apt install vim
+
+```
+**Step 3.** **使用** **vim** **编辑器修改软件源配置文件**
+
+Ubuntu 的国内镜像源非常多，比较有代表性的有清华源、中科大源、阿里源、网易源，以下是它们的网
+
+址：
+
+
+-----
+
+```
+ 中科大源： http://mirrors.ustc.edu.cn/help/ubuntu.html
+ 阿里源： https://developer.aliyun.com/mirror/ubuntu ?
+ spm = a2c6h.13651102.0.0.3e221b11xgh2AI
+ 网易源： http://mirrors.163.com/.help/ubuntu.html
+
+```
+我们这里使用中科大源。使用 Vim 编辑器进入后，按 ""i"" 键插入内容，将如下内容复制进去：
+```
+ deb https://mirrors.ustc.edu.cn/ubuntu/ focal main restricted universe multiverse
+ deb https://mirrors.ustc.edu.cn/ubuntu/ focal-updates main restricted universe
+ multiverse
+ deb https://mirrors.ustc.edu.cn/ubuntu/ focal-backports main restricted universe
+ multiverse
+ deb https://mirrors.ustc.edu.cn/ubuntu/ focal-security main restricted universe
+ multiverse
+
+```
+写入内容后，先按 `ESC` ，然后输入 `:wq!` 后保存写入并退出。
+
+## 1.2 系统软件更新
+
+更新完软件源后，我们执行系统的软件更新。
+
+**Step 1.** **打开** **“** **终端** **” ->** **输入** sudo apt update **命令，先更新软件包列表**
+
+在这里，如果大家看到的 URL 前缀已经变成了刚才设置的软件源（中科大），就说明上一步更改国内镜
+
+像源成功了，否则请返回上一步检查执行的操作哪里出现了纰漏。
+
+
+-----
+
+## 1.3 设置英文目录路径
+
+上一期视频中在 Ubuntu 的双系统安装过程中，我们建议大家选择的语言是 “English” ，主要还是因为英
+
+文的路径在使用命令行进行路径切换时不会产生字符编码的问题。而如果有小伙伴选择了中文安装，强烈建
+
+议大家要将路径名称更改成英文，如果直接使用的是英文安装的，可以跳过这一步骤。
+
+**Step 1.** **如果大家当前的路径是这样的，说明就是中文的**
+
+**Step 2.** **打开终端，快捷键** Ctrl + Alt + T
+
+依次输入如下命令：
+```
+ export LANG = en_US  # 设置当前会话的语言环境变量为英文
+ xdg-user-dirs-gtk-update  # xdg-user-dirs 是一个管理用户目录（如 “ 文档 ” 、 “ 音乐 ” 、 “ 图片 ” 等）的
+ 工具，用于更新用户目录的 GTK+ 版本
+
+```
+**Step 3.** **跳出对话框询问是否将目录转化为英文路径**
+
+
+-----
+
+**Step 4.** **如果没有弹出，需要重新生成** **user-dirs.locale** **文件**
+
+`user-dirs.locale` 主要作用是存储关于用户目录（如 “ 文档 ” 、 “ 下载 ” 、 “ 音乐 ” 、 “ 图片 ” 等）的本地化
+
+（语言和地区）设置，如果这个文件中的语言设置为英语，那么用户目录将使用英文名称（如 Documents,
+
+Downloads ），如果设置为中文，则这些目录可能会显示为中文名称（如 文档, 下载）。依次输入如下命
+
+令：
+```
+ # 先生成 user-dirs.locale 文件，
+ echo 'en_US' > ~/.config/user-dirs.locale
+ # 再重新设置语言
+ export LANG = en_US
+ xdg-user-dirs-gtk-update
+
+```
+**Step 5.** **更改成功后，如下所示**
+
+此时相关目录名称已经变更。（实际上是删除原中文名目录再新建英文名目录，如果中文名称的目录中
+
+有文件 则会被保留下来 如 “ 图片 ” 和 “Pictures” ）
+
+
+-----
+
+安装 Chrome 浏览器很有必要，对于开发来说，其优势还是在于与 Google 的其他服务（如 Gmail 、
+
+Google Drive 和 Google 搜索）紧密集成，且展程序生态系统丰富，提供了大量的扩展程序。除此之外，后
+
+面我们需要配置 VPN 、启用 ChatGLM3-6B 时采用基于 Gradio 的 Web 端等操作，都需要用到浏览器。其安装
+
+过程相较于 Windwos 操作系统稍有复杂。具体安装过程如下：
+
+**Step 1.** **先找到** **Ubuntu** **的默认安装的浏览器**
+
+**Step 2.** **进入谷歌浏览器官网：** **[https://www.google.com/intl/zh-CN/chrome/](https://www.google.com/intl/zh-CN/chrome/)**
+
+**Step 3.** **下载** **Chrome** **浏览器的** **“deb”** **后缀文件**
+
+Ubuntu 使用 .deb 包格式的原因与其底层架构和历史有关。 Ubuntu 是基于 Debian 操作系统的，而
+
+Debian 使用 .deb 包格式来管理和分发软件。 .deb 文件中包含了软件程序的文件、脚本以及安装该软件所需
+
+的其他信息。这种格式支持复杂的安装场景，包括依赖关系处理、预先和事后脚本执行等。
+
+下载的文件，默认是存放在 `/home/Downloads` 中的。
+
+**Step 4.** **进入终端，执行安装**
+
+Ubuntu 使用 DPKG 包管理系统来安装、删除和管理 .deb 包，提供了一种稳定和灵活的方式来管理系
+
+统中的软件。
+
+
+-----
+
+**Step 5.** **验证安装**
+
+当安装完成后，可以在左下角的程序管理页面，找到对应的应用图标。
+
+## 1.5 配置 VPN
+
+在 Linux 系统上科学上网方式有很多，一般使用的软件，都支持在各平台上使用。大家根据个人的使用
+
+情况，按照其软件说明进行配置即可，一般都会有比较详细的说明。这里需要配置 VPN 的原因主要是后面下
+
+载 Chatglm3-6B 的模型权重时需要用到。我个人使用的 Pigcha 加速器，大家可以参考一下配置过程。
+
+**Step 1.** **进入官网：** **[https://www.pigcha.com.hk/](https://www.pigcha.com.hk/)**
+
+**Step 2.** **选择** **Linux** **版本的软件进行下载**
+
+**St** **3** **使用** d k i **的方式安装** **d b** **的包**
+
+
+-----
+
+安装完成，即可找到该加速器的快捷方式，可以直接打开使用。
+
+**Step 4.** **按需输入购买的账户和密码**
+
+**Step 5.** **验证网络的连通性**
+
+进如果开启加速器后可以访问到 Google 的资源，说明代理可以正常使用。"
+4e0dbed8-e59f-4e2b-b2b4-6c3439db42e3,开源大模型课件,['Ch.4 在 Ubuntu 22.04 系统下部署运行 ChatGLM3-6B 模型'],Ch 4 Ubuntu 22.04下本地化部署ChatGLM3-6B模型.pdf,二、配置大模型运行环境,"2.2 如何理解 CUDA, 2.3 安装 Anaconda 环境","关于大模型的运行环境，安装显卡驱动显然是首先要做的事情。我们需要确保可以正常的将大模型部署
+
+在 GPU 上，这也是大家比较容易出现问题的环节，比如安装过程中因各种环境问题导致安装不成功，缺依赖
+
+包的问题等，总会遇到莫名奇妙的报错导致这第一步就把人的心态搞崩。
+
+
+-----
+
+显卡驱动是软件，它可以允许操作系统和其他软件与显卡硬件进行交互。对于 NVIDIA 的 GPU ，这些驱
+
+动是由 NVIDIA 提供的，安装以后，在该系统上就可以来使用 GPU 的功能，比如图形渲染，显卡驱动会激活
+
+GPU ，使其能够处理图形和视频任务。在 Ubuntu 系统下安装显卡驱动，主要有两种方式：
+
+方法一：使用官方的 NVIDIA 驱动进行手动安装，这种方式比较稳定、靠谱，但可能会遇到很多问题；
+
+方法二：使用系统自带的 “ 软件和更新 ” 程序 -  附加驱动更新，这种方法需要联网，但是非常简单，很难出
+
+现问题；（我们推荐大家先使用这种方法）
+
+无论使用哪种方法，前置的操作都是一样的，包括安装依赖包和禁用默认的显卡驱动，具体执行过程如
+
+下：
+
+**Step 1.** **安装依赖包**
+
+在终端依次执行完如下命令：
+```
+ sudo apt install gcc
+ sudo apt install g ++
+ sudo apt install make
+ sudo apt-get install libprotobuf-dev libleveldb-dev libsnappy-dev libopencv-dev
+ libhdf5-serial-dev protobuf-compiler
+ sudo apt-get install --no-install-recommends libboost-all-dev 
+ sudo apt-get install libopenblas-dev liblapack-dev libatlas-base-dev 
+ sudo apt-get install libgflags-dev libgoogle-glog-dev liblmdb-dev
+
+```
+**Step 2.** **禁用** **Ubuntu** **默认的显卡驱动**
+
+Ubuntu 默认安装了开源显卡驱动 Nouveau ，用于 NVIDIA 显卡。这些驱动通常用来支持基本的桌面图
+
+形需求，如 2D 和一些轻度的 3D 渲染。但对于我们的高性能显卡，需要安装专有的驱动来获得更高性能或
+
+特定功能的支持。所以，在安装前，需要将默认安装的 Nouveau 驱动禁用。
+
+用 vim 编辑器打开黑名单配置文件 :
+
+在文件末尾添加如下代码，输入 “:wq” 后保存退出。
+
+
+-----
+
+**Step 4.** **使用** **Ubuntu** **自带的更新软件安装** **NVIDIA** **（强烈建议使用这种方式）**
+
+**Step 5.** **选择驱动**
+
+直接选择对应的显卡驱动就好。如果没有，检查一下网络连接情况，如果联网了还没有，可能是显卡不
+
+支持、版本较低等情况，只能手动安装。
+
+**Step 6.** **进行用户认证**
+
+
+-----
+
+**Step 8.** **验证驱动是否安装成功**
+
+输入 `nvidia-smi` 命令，如果能正确的输出当前环境下的 GPU 信息，则说明驱动安装成功。
+
+**如果采用手动安装**
+
+如果有的小伙伴的电脑无法直接使用 Ubuntu 自带的更新软件安装 NVIDIA 的显卡驱动，则需要按照如下
+
+过程来执行安装步骤：
+
+先进入 NVIDIA 的官网，选择最适合自己显卡型号的驱动： https://www.nvidia.cn/Download/index.asp
+
+x?lang=cn
+
+选择好显卡驱动和适用平台后，点击下载。
+
+下载完成后，对该驱动添加执行权限，否则无法进入安装页面。
+
+
+-----
+
+在安装之前，需要关闭图形化界面，需要判断你目前的 ubuntu 系统的图像化界面管理器是 gdm3 （默
+
+认）或是其它。 gdm3 或 lightdm 负责登录界面和用户会话的初始化，是系统启动进程的一部分，用于用户
+
+登录和启动图形用户界面 (GUI) 会话。其中 gdm3 是安装 Ubuntu 系统时默认安装的，而 lightdm 可以选择性
+
+安装，它是一个更轻量级的显示管理器。
+
+关闭的原因是因为显示管理器（如 gdm3 、 lightdm ）控制着图形界面，包括使用显卡驱动来显示内容。
+
+在这些图形界面运行时尝试安装或更新显卡驱动可能会导致冲突，因为驱动程序文件可能正在被系统使用。
+
+所以我们需要进入命令行模式来安装显卡驱动。
+
+如果之前执行过 `sudo apt install lightdm` ，就说明当前环境下已经使用 lightdm 代替了 gdm3 ，此
+
+时需要如下命令关闭：
+```
+ sudo service lightdm stop
+
+```
+否则就是默认的 gdm3 ，这样关闭：
+```
+ sudo /etc/init.d/gdm3 stop
+
+```
+关闭后，进入命令行模式。最简单的方法是使用 telinit 命令更改为运行级别 3 。执行以下 linux 命令后，显
+
+示服务器将停止。
+```
+ bash sudo telinit 3
+
+```
+通过 `Ctrl+Alt+F3` `（` `F1-F6` `）` 快捷键打开终端，先登录然后输入下面命令 :
+```
+ # 删除已安装的显卡驱动
+ sudo apt-get remove --purge nvidia*
+ cd Downloads
+ sudo ./NVIDIA-Linux-x86_64-430.26.run –no-opengl-files –no-x-check
+
+```
+随后进入安装界面，依次选择 “Continue” --> 不安装 32 位兼容库 ( 选择 no) --> 不运行 x 配置 ( 选择 no) 即
+
+可。最后输入 “reboot” 命令重启主机。重新进入图形化界面，在终端输入 “nvidia-smi” 命令即可。
+
+
+-----
+
+## 2.2 如何理解 CUDA
+
+有一个误区，就是安装完驱动后，通过 `nvidia-smi` 命令可以看到 Cuda 版本，本机显示版本为 “CUDA
+
+Version ： 12.2” ，很多人以为已经安装了 CUDA 12.2 版本，但实质上，这指的是显卡驱动兼容的 CUDA 版
+
+本。意味着我们当前的系统驱动支持的 CUDA 最高版本是 12.2 。安装更高版本的 CUDA 可能会导致不兼容
+
+的问题。
+
+需要明确的概念：显卡驱动可以使计算机系统能够识别和使用显卡，但这与安装 CUDA 是两个不同的过
+
+程。 CUDA （ Compute Unified Device Architecture ）是 NVIDIA 开发的一个平台，允许开发者使用特定的
+
+NVIDIA GPU 进行通用计算。它主要用于那些需要大量并行处理的计算密集型任务，如深度学习、科学计
+
+算、图形处理等。如果我们的应用程序或开发工作需要利用 GPU 的并行计算能力，那么 CUDA 是非常关键
+
+的。但如果只是进行常规使用，比如网页浏览、办公软件使用或轻度的图形处理，那么安装标准的显卡驱动
+
+就足够了，无需单独安装 CUDA 。对我们要做大模型实践的需求来看， CUDA 一定是要安装的。
+
+CUDA 提供了两种主要的编程接口： CUDA Runtime API 和 CUDA Driver API 。
+
+CUDA Runtime API 是一种更高级别的抽象，旨在简化编程过程，它自动处理很多底层细节。大多数
+
+CUDA 程序员使用 Runtime API ，因为它更易于使用。
+
+CUDA Driver API 提供了更细粒度的控制，允许直接与 CUDA 驱动交互。它通常用于需要精细控制的高
+
+级应用。
+
+而要安装 CUDA ，其实就是在安装 CUDA Toolkit ， 其版本决定了我们可以使用的 CUDA Runtime API 和
+
+CUDA Driver API 的版本，当安装 CUDA Toolkit 时会安装一系列工具和库，用于开发和运行 CUDA 加速的
+
+应用程序。这包括了 CUDA 编译器（ nvcc ）、 CUDA 库和 API ，以及其他用于支持 CUDA 编程的工具。如果
+
+安装好 CUDA Toolkit ，就可以开发和运行使用 CUDA 的程序了。
+
+当我们运行 CUDA 应用程序时，通常是在使用与安装的 CUDA Toolkit 版本相对应的 Runtime API 。这
+
+可以通过 `nvcc -V` 命令查询 :
+
+
+-----
+
+可以看到，默认是并没有安装的。可以直接通过提示的命令进行安装。
+
+通过 `apt install nvidia-cuda-toolkit` 安装的是 Ubuntu 仓库中可用的 CUDA Toolkit 版本，这可
+
+能不是最新的，也可能不是特定需要的版本。主要用于本地 CUDA 开发（如果想直接编写 CUDA 程序或编译
+
+CUDA 代码）。
+
+如果想安装指定版本的 CUDA-Toolkit ，如何操作呢？
+
+需要进入 NVIDIA 官网： [https://developer.nvidia.com/cuda-toolkit-archive](https://developer.nvidia.com/cuda-toolkit-archive) ，找到需要下载的 Cuda 版
+
+本。
+
+根据当前情况依次选择操作系统、版本等。
+
+最后根据当前官方给出的代码，在终端执行即可安装。
+
+
+-----
+
+但其实，通常不需要预先手动安装 CUDA ，因为我们目前使用的 PyTorch 等框架在安装过程会处理这些
+
+依赖。当我们通过 Conda/pip 等方式安装 PyTorch 时会指定的 CUDA 版本，该 CUDA 版本就会与当前的
+
+Pytorch 版本相兼容，预编译并打包了与 CUDA 版本相对应的二进制文件和库。所以除非有特定的需求或要
+
+进行 CUDA 级别的开发，才可能需要手动安装 CUDA Toolkit 。
+
+## 2.3 安装 Anaconda 环境
+
+Anaconda 是一个为科学计算设计的发行版，适用于数据科学、机器学习、科学计算和工程领域。它会
+
+提供大量预安装的科学计算和数据科学相关的库，且提供了 Conda 这样一个包管理器，用来安装、管理和升
+
+级包，同时也可以创建隔离的环境以避免版本和依赖冲突。相较于单独安装 Python ，对初学者更友好，尤其
+
+是对于不熟悉 Python 和包管理的用户。
+
+运行大模型需要 Python 环境。所以我们这里选择使用 Anaconda 来构造和管理 Python 环境。
+
+**Step 1.** **进入** **Anaconda** **官网：** **[https://www.anaconda.com/download](https://www.anaconda.com/download)**
+
+**Step 2.** **下载安装程序**
+
+Anaconda 官网会根据系统版本自动下载对应的安装程序。
+
+**Step 3.** **进入终端，执行安装**
+
+找到安装包的下载位置，执行如下命令：
+```
+ bash Anaconda3-2023.09.0-Linux-x86_64.sh
+
+```
+
+-----
+
+在此处输入 “yes”, 然后按 “Enter” 键使用 Anaconda 的默认安装位置（ /home/${account}/anaconda3 ）。
+
+**Step 4.** **等待安装完成**
+
+**Step 5.** **验证安装情况**
+
+安装完成后，会在对应的安装目录中出现 `anaconda3` 文件夹。
+
+
+-----
+
+**Step 6.** **配置环境变量**
+
+在终端的命令行修改配置文件：
+```
+ vim ~/.bashrc
+
+```
+在打开的配置文件末尾添加 export PATH= {Anaconda3 的实际安装路径 } ，配置完成后，按 :wq! 保存并
+
+退出。
+```
+ # 我的 anaconda3 的安装路径是 /home/muyu/anaconda3
+ export PATH = /home/muyu/anaconda3/bin: $PATH
+
+```
+使用如下命令使环境变量的修改立即生效。
+
+**Step 7.** **启动** **Anaconda**
+
+配置好环境变量后，在终端输入 `anaconda-navigator` 即可打开 Anaconda ，和 Windows 操作系统下的
+
+操作就基本一致了。
+
+
+-----"
+3c83239b-72f3-4e55-a272-09c8aea5c988,开源大模型课件,['Ch.4 在 Ubuntu 22.04 系统下部署运行 ChatGLM3-6B 模型'],Ch 4 Ubuntu 22.04下本地化部署ChatGLM3-6B模型.pdf,三、 ChatGLM3-6B 介绍与快速入门,,"ChatGLM3 是智谱 AI 和清华大学 KEG 实验室在 2023 年 10 月 27 日联合发布的新一代对话预训练模型。
+
+ChatGLM3-6B 是 ChatGLM3 系列中的开源模型，免费下载，免费的商业化使用。
+
+该模型在保留了前两代模型对话流畅、部署门槛低等众多优秀特性的基础上， ChatGLM3-6B 引入了如
+
+下特性： [ChatGLM 3 GitHub](https://github.com/THUDM/ChatGLM3)
+
+1. **更强大的基础模型：** ChatGLM3-6B 的基础模型 ChatGLM3-6B-Base 采用了更多样的训练数据、更充
+
+分的训练步数和更合理的训练策略。在语义、数学、推理、代码、知识等不同角度的数据集上测评显
+
+示，在 44 个中英文公开数据集测试中处于国内模型的第一位。 **ChatGLM3-6B-Base** **具有在** **10B** **以下的**
+
+**基础模型中最强的性能** 。
+
+2. **更完整的功能支持：** ChatGLM3-6B 采用了全新设计的 [Prompt](https://github.com/THUDM/ChatGLM3/blob/main/PROMPT.md) 格式 ，除正常的多轮对话外。同时原生
+
+支持 [工具调用](https://github.com/THUDM/ChatGLM3/blob/main/tool_using/README.md) （ Function Call ）、代码执行（ Code Interpreter ）和 Agent 任务等复杂场景。
+
+3. **更全面的开源序列：** 除了对话模型 [ChatGLM3-6B](https://huggingface.co/THUDM/chatglm3-6b) 外，还开源了基础模型 [ChatGLM3-6B-Base](https://huggingface.co/THUDM/chatglm3-6b-base) 、长文
+
+本对话模型 [ChatGLM3-6B-32K](https://huggingface.co/THUDM/chatglm3-6b-32k) 。以上所有权重对学术研究 **完全开放** ，在填写 [问卷](https://open.bigmodel.cn/mla/form) 进行登记后 **亦允许免**
+
+**费商业使用** 。
+
+性能层面， ChatGLM3-6B 在 10B 范围内性能最强，推理能力直逼 GPT-3.5 ；功能层面， ChatGLM3-6B 重
+
+磅更新多模态功能、代码解释器功能、联网功能以及 Agent 优化功能四项核心功能，全线逼近 GPT-4 ！
+
+
+-----
+
+AI Agent （人工智能代理）是一个能够自主执行任务或达成目标的系统或程序，能够围绕复杂问题进行
+
+任务拆解，规划多步执行步骤；能够实时围绕自动编写的代码进行 debug ；能够根据人类意见反馈修改答
+
+案，实时积累修改对话，并进行阶段性微调等等，具有很强的决策和执行能力。那 ChatGLM3-6B 模型开放的
+
+Function calling 能力，是大语言模型推理能力和复杂问题处理能力的核心体现，是本次 ChatGLM 3 模型最为
+
+核心的功能迭代，也是 ChatGLM 3 模型性能提升的有力证明。
+
+相关的信息获取方途径
+
+官方网站： [https://www.zhipuai.cn/](https://www.zhipuai.cn/)
+
+智谱清言： [https://chatglm.cn](https://chatglm.cn/)
+
+API 开放平台： [https://bigmodel.cn/](https://bigmodel.cn/)
+
+Github 仓库： [https://github.com/THUDM](https://github.com/THUDM)
+
+开源模型列表：
+
+
+
+
+
+|模型|介绍|上下 文 token 数|代码链接|模型权重下 载链接|
+|---|---|---|---|---|
+
+
+-----
+
+**模型权重下**
+
+**载链接**
+
+
+**模型** **介绍**
+
+
+**代码链接**
+
+
+**token**
+
+
+
+|Col1|Col2|数|Col4|Col5|
+|---|---|---|---|---|
+|ChatGLM3- 6B|第三代 ChatGLM 对话**模型。 **ChatGLM3-6B 采用了全新设计的 Prompt 格式，除正常的多轮对话外。 同时原生支持工具调用（Function Call）、代码执行（Code Interpreter）和 Agent 任务等复杂场 景。|8K|Huggingface | 魔搭社区 | 始智社区 | Swanhub | 启智社区 )|[ChatGLM3] (https://gith ub.com/TH UDM/Chat GLM3|
+|ChatGLM3- 6B-base|第三代ChatGLM**基座模型。 **ChatGLM3-6B-Base 采用了更多样 的训练数据、更充分的训练步数和更合 理的训练策略。在语义、数学、推理、 代码、知识等不同角度的数据集上测评 显示，ChatGLM3-6B-Base 具有在 10B 以下的基础模型中最强的性能。|8K|Huggingface | 魔搭社区 | 始智社区 | Swanhub | 启智社区||
+|ChatGLM3- 6B-32k|第三代ChatGLM长上下文对话模型。 在ChatGLM3-6B的基础上进一步强化 了对于长文本的理解能力，能够更好的 处理最多32K长度的上下文。|32K|Huggingface | 魔搭社区 | 始智社区 | Swanhub | 启智社区||"
+21987096-690b-4be6-ac23-8fe485e07522,开源大模型课件,['Ch.4 在 Ubuntu 22.04 系统下部署运行 ChatGLM3-6B 模型'],Ch 4 Ubuntu 22.04下本地化部署ChatGLM3-6B模型.pdf,四、 ChatGLM3-6B 私有化部署,,"对于部署 ChatGLM3-6B 来说，从官方说明上看，其规定了 Transformers 库版本应该 4.30.2 以及以上的
+
+版本 ， torch 库版本应为 2.0 及以上的版本， gradio 库版本应该为 3.x 的版本，以获得最佳的推理性能。所
+
+以为了保证 torch 的版本正确，建议大家严格按照官方文档的说明安装相应版本的依赖包。
+
+**Step 1.** **创建** **conda** **虚拟环境**
+
+Conda 创建虚拟环境的意义在于提供了一个隔离的、独立的环境，用于 Python 项目和其依赖包的管理。
+
+每个虚拟环境都有自己的 Python 运行时和一组库。这意味着我们可以在不同的环境中安装不同版本的库而互
+
+不影响。例如，可以在一个环境中使用 Python 3.8 ，而在另一个环境中使用 Python 3.9 。对于大模型来说，
+
+建议 Python 版本 3.10 以上。创建的方式也比较简单，使用以下命令创建一个新的虚拟环境：
+```
+ # myenv 是你想要给环境的名称， python=3.8 指定了要安装的 Python 版本。你可以根据需要选择不同的名称
+ 和 / 或 Python 版本。
+ conda create --n chatglm3_test python = 3 .11
+
+```
+
+-----
+
+创建虚拟环境后，需要激活它。使用以下命令来激活刚刚创建的环境。
+
+如果成功激活，可以看到在命令行的最前方的括号中，就标识了当前的虚拟环境（ chatglm3_test ），然
+
+后，按照官方的要求安装 torch 。
+
+**Step 2.** **查看当前驱动最高支持的** **CUDA** **版本**
+
+我们需要根据 CUDA 版本选择 Pytorch 框架，先看下当前的 CUDA 版本：
+
+**Step 3.** **在虚拟环境中安装** **Pytorch**
+
+进入 Pytorch 官网： [https://pytorch.org/get-started/previous-versions/](https://pytorch.org/get-started/previous-versions/)
+
+
+-----
+
+当前的电脑 CUDA 的最高版本要求是 12.2 ，所以需要找到 >=12.2 版本的 Pytorch 。
+
+直接复制对应的命令，进入终端执行即可。这实际上安装的是为 CUDA 12.1 优化的 PyTorch 版本。这
+
+个 PyTorch 版本预编译并打包了与 CUDA 12.1 版本相对应的二进制文件和库。
+
+**Step 4.** **安装** **Pytorch** **验证**
+
+待安装完成后，如果想要检查是否成功安装了 GPU 版本的 PyTorch ，可以通过几个简单的步骤在 Python
+
+环境中进行验证：
+```
+ import torch
+ print(torch.cuda.is_available())
+
+```
+如果输出是 True ，则表示 GPU 版本的 PyTorch 已经安装成功并且可以使用 CUDA ，如果输出是 False ，
+
+则表明没有安装 GPU 版本的 PyTorch ，或者 CUDA 环境没有正确配置，此时根据教程，重新检查自己的执行过
+
+程。
+
+
+-----
+
+台，它提供了版本控制和协作功能。
+
+要下载 ChatGLM3-6B 的项目文件，需要进入 ChatGLM3 的 Github ： https://github.com/THUDM/ChatG
+
+LM3
+
+在 GitHub 上将项目下载到本地通常有两种主要方式：克隆 (Clone) 和 下载 ZIP 压缩包。
+
+克隆 (Clone) 是使用 Git 命令行的方式。我们可以克隆仓库到本地计算机，从而创建仓库的一个完整副
+
+本。这样做的好处是我们可以跟踪远程仓库的所有更改，并且可以提交自己的更改。如果要克隆某一个仓
+
+库，可以使用如下命令：
+```
+ git clone <repository-url>  # 其中 <repository-url> 是 GitHub 仓库的 URL 。
+
+```
+推荐使用克隆 (Clone) 的方式。对于 ChatGLM3 这个项目来说，我们首先在 GitHub 上找到其仓库的
+
+URL 。
+
+在执行命令之前，先安装 git 软件包。
+
+然后创建一个存放 ChatGLM3-6B 项目文件的文件夹。
+
+
+-----
+
+如果克隆成功，本地应该会出现如下文件内容：
+
+除了直接通过 git clone 的方式拉取代码至本地，也可以直接下载压缩包。这是更简单的下载方式，不需
+
+要使用 Git ，适合那些不打算使用 Git 版本控制的用户。在 GitHub 仓库页面上，通常会有一个 “Download
+
+ZIP” 按钮，我们可以点击这个按钮下载仓库的当前状态的压缩包
+
+选择压缩包的下载路径。
+
+下载后，只需解压缩该文件即可访问项目文件。压缩包中存放的是 ChatGLM3 运行的一些项目文件。
+
+
+-----
+
+通过这种方式下载的项目文件，需要 xftp 这样的工具在上传到服务器使用。
+
+**Step 6.** **升级** **pip** **版本**
+
+pip 是 Python 的一个包管理器，用于安装和管理 Python 软件包。允许从 Python Package Index
+
+（ PyPI ）和其他索引中安装和管理第三方库和依赖。一般使用 pip 来安装、升级和删除 Python 软件包。除
+
+此之外， pip 自动处理 Python 软件包的依赖关系，确保所有必需的库都被安装。在 Python 环境中，尽管我
+
+们是使用 conda 来管理虚拟环境，但 conda 是兼容 pip 环境的，所以使用 pip 下载必要的包是完全可以的。
+
+我们建议在执行项目的依赖安装之前升级 pip 的版本，如果使用的是旧版本的 pip ，可能无法安装一些
+
+最新的包，或者可能无法正确解析依赖关系。升级 pip 很简单，只需要运行命令如下命令：
+```
+ python -m pip install --upgrade pip
+
+```
+**Step 7.** **使用** **pip** **安装** **ChatGLM** **运行的项目依赖**
+
+一般项目中都会提供 `requirements.txt` 这样一个文件，该文件包含了项目运行所必需的所有 Python
+
+包及其精确版本号。使用这个文件，可以确保在不同环境中安装相同版本的依赖，从而避免了因版本不一致
+
+导致的问题。我们可以借助这个文件，使用 pip 一次性安装所有必需的依赖，而不必逐个手动安装，大大提高
+
+效率。命令如下：
+```
+ pip install -r requirements.txt
+
+```
+
+-----
+
+经过 Step 5 的操作过程，我们下载到的只是 ChatGLM3-6B 的一些运行文件和项目代码，并不包含
+
+ChatGLM3-6B 这个模型。这里我们需要进入到 Hugging Face 下载。 Hugging Face 是一个丰富的模型库，
+
+开发者可以上传和共享他们训练好的机器学习模型。这些模型通常是经过大量数据训练的，并且很大，因此
+
+需要特殊的存储和托管服务。
+
+不同于 GitHub ， GitHub 仅仅是一个代码托管和版本控制平台，托管的是项目的源代码、文档和其他相
+
+关文件。同时对于托管文件的大小有限制，不适合存储大型文件，如训练好的机器学习模型。相反，
+
+Hugging Face 专门为此类大型文件设计，提供了更适合大型模型的存储和传输解决方案。
+
+下载路径如下：
+
+注：需要挂梯子才能进入。
+
+然后按照如下位置，找到对应的下载 URL 。
+
+复制此命令，进入到服务器的命令行准备执行。
+
+
+-----
+
+**Step 9.** **安装** **Git LFS**
+
+Git Large File Storage （ Git LFS ）是一种用于处理大文件的工具，在 Hugging Face 下载大模型时，通
+
+常需要安装 Git LFS ，主要的原因是： Git 本身并不擅长处理大型文件，因为在 Git 中，每次我们提交一个文
+
+件，它的完整内容都会被保存在 Git 仓库的历史记录中。但对于非常大的文件，这种方式会导致仓库变得庞
+
+大而且低效。而 Git LFS ， 就不会直接将它们的内容存储在仓库中。相反，它存储了一个轻量级的 “ 指针 ” 文
+
+件，它本身非常小，它包含了关于大型文件的信息（如其在服务器上的位置），但不包含文件的实际内容。
+
+当我们需要访问或下载这个大型文件时， Git LFS 会根据这个指针去下载真正的文件内容。
+
+实际的大文件存储在一个单独的服务器上，而不是在 Git 仓库的历史记录中。所以如果不安装 Git LFS
+
+而直接从 Hugging Face 或其他支持 LFS 的仓库下载大型文件，通常只会下载到一个包含指向实际文件的指
+
+针的小文件，而不是文件本身。
+
+所以，我们需要先安装 git-lfs 这个工具。命令如下：
+```
+ sudo apt-get install git-lfs
+
+```
+**Step 10.** **初始化** **Git LFS**
+
+安装完成后，需要初始化 Git LFS 。这一步是必要的，因为它会设置一些必要的钩子。 Git 钩子
+
+（ hooks ）是 Git 提供的一种强大的功能，允许在特定的重要动作（如提交、推送、合并等）发生时自动执
+
+行自定义脚本。这些钩子是在 Git 仓库的 `.git/hooks` 目录下的脚本，可以被配置为在特定的 Git 命令执行
+
+前后触发。钩子可以用于各种自动化任务，比如：
+
+1. **代码检查：** 在提交之前自动运行代码质量检查或测试，如果检查失败，可以阻止提交。
+
+2. **自动化消息：** 在提交或推送后发送通知或更新任务跟踪系统。
+
+3. **自动备份：** 在推送到远程仓库之前自动备份仓库。
+
+4. **代码风格格式化：** 自动格式化代码以符合团队的代码风格标准。
+
+而初始化 git lfs ，会设置一些在上传或下载大文件是必要的操作，如在提交之前检查是否有大文件被 Git
+
+正常跟踪，而不是通过 Git LFS 跟踪，从而防止大文件意外地加入到 Git 仓库中。（ pre-commit 钩子）或者
+
+
+-----
+
+**Step 11.** **使用** **Git LFS** **下载** **ChatGLM3-6B** **的模型权重**
+
+直接复制 Hugging Face 上提供的命令，在终端运行，等待下载完成即可。
+```
+ git clone https://huggingface.co/THUDM/chatglm3-6b
+
+```
+全部需要下载的模型文件如下：
+
+这里主要的 .bin 文件较大，会导致下载较慢。
+
+我们这里可以使用 wget 的方式加速下载，具体的执行过程如下：
+
+
+-----
+
+进入到具体的模型权重页面后，鼠标右键。
+
+选择复制链接地址。
+
+进入终端命令行页面，使用 `wget` 进行下载。按照此方式，依次执行完全部的大文件下载即可。虽然繁
+
+琐一点，但是下载速度非常快。根据网络情况，大家自行判断一下，有时候也会很慢，多尝试几次。
+
+除此之外，一种最简单的方式就是这类大的文件，直接通过浏览器下载到本地后，然后再移动到
+
+chatglm3-6b 这个文件夹中。这种方式最简单粗暴，且效率也很高。
+
+**Step 12.** **启动模型前，校验下载的文件**
+
+经过 Step1 在 Hugging Face 下载模型权重的操作后，当前的 Chatglm3-6B 模型的项目文件中会出现
+
+`chatglm3-6b` 这样一个新的文件。
+
+
+-----
+
+`chatglm3-6b` 中的文件内容如下，请确保不缺少文件。
+
+至此，我们就已经把 ChatGLM3-6B 模型部署运行前所需要的文件全部准备完毕。"
+8617c13b-9069-4d29-b8ac-8feb1a88a51e,开源大模型课件,['Ch.4 在 Ubuntu 22.04 系统下部署运行 ChatGLM3-6B 模型'],Ch 4 Ubuntu 22.04下本地化部署ChatGLM3-6B模型.pdf,五、运行 ChatGLM3-6B 模型的方式,"5.2 基于 Gradio 的 Web 端对话应用, 5.3 基于 Streamlit 的 Web 端对话应用, 5.4 在指定虚拟环境的 Jupyter Lab 中运行, 5.5 （重点） OpenAI 风格 API 调用方法","ChatGLM3-6B 提供了一些简单应用 Demo ，存放在供开发者尝试运行。这里我们由简到难依次对其进行
+
+介绍。
+
+
+-----
+
+这种方式可以为非技术用户提供一个脱离代码环境的对话方式。对于这种启动方式，官方提供的脚本名
+
+称是： cli_demo.py 。
+
+在启动前，我们仅需要进行一处简单的修改，因为我们已经把 ChatGLM3-6B 这个模型下载到了本地，所
+
+以需要修改一下模型的加载路径。
+
+修改完成后，直接使用 `python cli_demp.py` 即可启动，如果启动成功，就会开启交互式对话，如果输
+
+入 `stop` 可以退出该运行环境。
+
+## 5.2 基于 Gradio 的 Web 端对话应用
+
+基于网页端的对话是目前非常通用的大语言交互方式， ChatGLM3 官方项目组提供了两种 Web 端对话
+
+demo ，两个示例应用功能一致，只是采用了不同的 Web 框架进行开发。首先是基于 Gradio 的 Web 端对话
+
+应用 demo 。 Gradio 是一个 Python 库，用于快速创建用于演示机器学习模型的 Web 界面。开发者可以用几行
+
+代码为模型创建输入和输出接口，用户可以通过这些接口与模型进行交互。用户可以轻松地测试和使用机器
+
+学习模型，比如通过上传图片来测试图像识别模型，或者输入文本来测试自然语言处理模型。 Gradio 非常适
+
+合于快速原型设计和模型展示。
+
+对于这种启动方式，官方提供的脚本名称是： web_demo_gradio.py 。同样，我们只需要使用 vim 编辑
+
+器进入修改模型的加载路径，直接使用 python 启动即可。
+
+
+-----
+
+## 5.3 基于 Streamlit 的 Web 端对话应用
+
+ChatGLM3 官方提供的第二个 Web 对话应用 demo ，是一个基于 Streamlit 的 Web 应用。 Streamlit 是另一
+
+个用于创建数据科学和机器学习 Web 应用的 Python 库。它强调简单性和快速的开发流程，让开发者能够通过
+
+编写普通的 Python 脚本来创建互动式 Web 应用。 Streamlit 自动管理 UI 布局和状态，这样开发者就可以专注
+
+于数据和模型的逻辑。 Streamlit 应用通常用于数据分析、可视化、构建探索性数据分析工具等场景。
+
+对于这种启动方式，官方提供的脚本名称是： web_demo_streamlit.py 。同样，先使用 vim 编辑器修改
+
+模型的加载路径。
+
+启动命令略有不同，不再使用 `python` ，而是需要使用 `streamkit run` 的方式来启动。
+
+## 5.4 在指定虚拟环境的 Jupyter Lab 中运行
+
+我们在部署 Chatglm3-6B 模型之前，创建了一个 `chatglme3_test` 虚拟环境来支撑该模型的运行。除了
+
+在终端中使用命令行启动，同样可以在 Jupyter Lab 环境中启动这个模型。具体的执行过程如下：
+
+首先，在终端中找到需要加载的虚拟环境，使用如下命令可以查看当前系统中一共存在哪些虚拟环境：
+
+
+-----
+
+这里可以看到我们之前创建的 `chatglm3_test` 虚拟环境，需要使用如下命令进入该虚拟环境：
+```
+ # 这里的 `env_name` 就是需要进入的虚拟环境名称
+ conda activate `env_name`
+
+```
+在该环境中安装 `ipykernel` 软件包。这个软件包将允许 Jupyter Notebook 使用特定环境的 Python 版
+
+本。运行以下命令：
+```
+ conda install ipykernel
+
+```
+将该环境添加到 Jupyter Notebook 中。运行以下命令：
+```
+ # 这里的 env_name 替换成需要使用的虚拟环境名称
+ python -m ipykernel install --user --name = yenv_name --display name = ""Python(env_name)""
+
+```
+执行完上述过程后，在终端输入 `jupyter lab` 启动。
+
+
+-----
+
+打开后就可以看到，当前环境下我们已经可以使用新的虚拟环境创建 Notebook 。
+
+基本调用流程也比较简单，官方也给出了一个实例：
+
+只需要从 transformers 中加载 AutoTokenizer 和 AutoModel ，指定好模型的路径即可。 tokenizer 这个
+
+词大家应该不会很陌生，可以简单理解我们在之前使用 gpt 系列模型的时候，使用 tiktoken 库帮我们把输入的
+
+自然语言，也就是 prompt 按照一种特定的编码方式来切分成 token ，从而生成 API 调用的成本。但在
+
+Transform 中 tokenizer 要干的事会更多一些，它会把输入到大语言模型的文本，包在 tokenizer 中去做一些
+
+前置的预处理，会将自然语言文本转换为模型能够理解的格式，然后拆分为 tokens （如单词、字符或子词单
+
+位）等操作。
+
+
+-----
+
+型，所以如果我们没有下载 chatglm3-6b 模型的话，直接运行此代码也是可以的，只不过第一次加载会很
+
+慢，耐心等待即可，同时需要确保当前的网络是联通的（必要的情况下需要开梯子）。
+
+因为我们已经将 ChatGLM3-6B 的模型权重下载到本地了，所以此处可以直接指向我们下载的 Chatglm3
+6b 模型的存储路径来进行推理测试。
+
+对于其他参数来说， model 有一个 eval 模式，就是评估的方法，模型基本就是两个阶段的事，一个是训
+
+练，一个是推理，计算的量更大，它需要把输入的值做一个推理，如果是一个有监督的模型，那必然存在一
+
+个标签值，也叫真实值，这个值会跟模型推理的值做一个比较，这个过程是正向传播。差异如果很大，就说
+
+明这个模型的能力还远远不够，既然效果不好，就要调整参数来不断地修正，通过不断地求导，链式法则等
+
+方式进行反向传播。当模型训练好了，模型的参数就不会变了，形成一个静态的文件，可以下载下来，当我
+
+们使用的时候，就不需要这个反向传播的过程，只需要做正向的推理就好了，此处设置 model.eval() 就是说
+
+明这个过程。而 trust_remote_code=True 表示信任远程代码（如果有）， device='cuda' 表示将模型加载到
+
+CUDA 设备上以便使用 GPU 加速，这两个就很好理解了。
+
+## 5.5 （重点） OpenAI 风格 API 调用方法
+
+ChatGLM3-6B 模型提供了 OpenAI 风格的 API 调用方法。正如此前所说，在 OpenAI 几乎定义了整个前沿
+
+AI 应用开发标准的当下，提供一个 OpenAI 风格的 API 调用方法，毫无疑问可以让 ChatGLM3 模型无缝接入
+
+OpenAI 开发生态。所谓的 OpenAI 风格的 API 调用，指的是借助 OpenAI 库中的 ChatCompletion 函数进行
+
+ChatGLM3 模型调用。而现在，我们只需要在 model 参数上输入 chatglm3-6b ，即可调用 ChatGLM3 模型。调
+
+用 API 风格的统一，无疑也将大幅提高开发效率。
+
+而要执行 OpenAI 风格的 API 调用，则首先需要安装 openai 库，并提前运行 openai_api.py 脚本。具体执
+
+行流程如下 :
+
+首先需要注意： OpenAI 目前已将 openai 库更新至 1.x ，但目前 Chatglm3-6B 仍需要使用旧版本 0.28 。所
+
+
+-----
+
+如果想要使用 API 持续调用 Chatglm3-6b 模型，需要启动一个脚本，该脚本位于 `open_api_demo` 中。
+
+启动之前，需要安装 tiktoken 包，用于将文本分割成 tokens 。
+
+同时，需要降级 `typing_extensions` 依赖包，否则会报错。
+
+最后，还需要安装 `sentence_transformers` 依赖包，安装最新的即可。
+
+安装完成后，使用命令 `python openai_api.py` 启动，第一次启动会有点慢，耐心等待。
+
+
+-----
+
+启动成功后，在 Jupyter lab 上执行如下代码，进行 API 调用测试。
+
+如果上述代码出现如下报错的话，是因为开代理导致的，需要关闭，如果关闭后仍无法解决，重启电脑
+
+后才可重新运行。
+
+如果服务正常是可以得到模型的回复的。
+
+同时，在终端应用运行处，也可以看到 API 的实时调用情况。
+
+除此之外，大家还可以去测试 ChatGLM3-6B 的 Function Calling 等更高级的用法时的性能情况。我们推
+
+荐大家使用 OpenAI 风格的 API 调用方法是进行学习和尝试构造高级的 AI Agent ，同时积极参与国产大型模型
+
+的开源社区，共同增强国内在这一领域的实力和影响力。
+
+
+-----"
+83e39f4c-3eb3-4261-ac7b-3daff73c0b36,开源大模型课件,['Ch.5 在 Ubuntu 22.04 系统下 ChatGLM3-6B 高效微调实战'],Ch 5 在Ubuntu 22.04系统下ChatGLM3-6B高效微调实战.pdf,本地部署开源大模型,Ch.5 在 Ubuntu 22.04 系统下 ChatGLM3-6B 高效微调实战,"## Ch.5 在 Ubuntu 22.04 系统下 ChatGLM3-6B 高效微调实战
+
+无论是在单机单卡（一台机器上只有一块 GPU ）还是单机多卡（一台机器上有多块 GPU ）的硬件配置上
+
+启动 ChatGLM3-6B 模型，其前置环境配置和项目文件是相同的。如果大家对配置过程还不熟悉，建议参考我
+
+在上一期直播《在 Ubuntu 22.04 系统下部署运行 ChatGLM3-6B 模型》中的部署视频和详细课件。请按照以
+
+下步骤进行配置和验证，以确保顺利启动模型：
+
+1. 执行 Ubuntu 初始化配置：更改国内软件源 --> 软件包更新 -- > 设置英文目录 -- > 安装 Chrome 浏览器
+
+（非必要，但建议） -- > 配置 VPN ；
+
+2. 配置大模型运行环境：安装显卡驱动 -- > 安装 Anaconda 环境；
+
+完成初始配置后，大家需要根据自己实际使用的硬件环境，选择相应的部署和运行步骤：
+
+**单机单卡情况**
+
+参考《在 Ubuntu 22.04 系统下部署运行 ChatGLM3-6B 模型》课件，重点关注 `四、` `ChatGLM3-6B` `私有化部`
+
+`署` 和 `五、运行` `ChatGLM3-6B` `模型的方式` 章节。
+
+**单机多卡情况**
+
+先遵循本课件中为单机多卡情况提供的部署指南，执行多卡环境下 ChatGLM3-6B 模型的启动步骤。"
+07402674-5b19-4797-9b56-9da04b195bc3,开源大模型课件,['Ch.5 在 Ubuntu 22.04 系统下 ChatGLM3-6B 高效微调实战'],Ch 5 在Ubuntu 22.04系统下ChatGLM3-6B高效微调实战.pdf,1. 本地化部署 ChatGLM3-6B 模型,,"如果跟着上一期公开课及课件实践过单机单卡的操作流程，我们建议针对本期内容的单机多卡也设置 **创**
+
+**建一个新的虚拟环境。** 这样做可以有效避免版本冲突和依赖问题，确保多卡环境具备专门优化的、独立于单
+
+卡环境的配置，简化项目的维护和调试过程。
+
+在实际的生产开发中，一个独立项目对应一个单独的隔离环境是一个比较标准的做法，也建议大家以后
+
+在做项目开发的时候遵循。具体的部署流程如下：
+
+**Step 1.** **更新** **Conda**
+
+首先，打开命令行终端，检查 Conda 的版本，输入如下命令：
+```
+ conda --version
+
+```
+这条命令都会显示当前安装的 Conda 版本号。如果 Conda 已正确安装并正确设置在环境变量中，会正
+
+常输出 conda 的版本，如果收到类似于 “ 命令未找到 ” 的错误，则说明 Conda 没有被添加到环境变量中，或者
+
+根本没有安装 Conda 。在这种情况下，请查看《在 Ubuntu 22.04 系统下部署运行 ChatGLM3-6B 模型》中
+
+
+-----
+
+在更新过程中，系统会询问是否要继续进行，需要输入 `y` 来确认。使用 Conda 自身的更新命令执行更
+
+新：
+```
+ conda update conda
+
+```
+**Step 3.** **检查** **Conda** **更新情况**
+
+更新完成后，再次检查 Conda 的版本来确认更新是否成功。
+```
+ conda --version
+
+```
+**Step 4.** **使用** **Conda** **更新软件包**
+
+更新完 Conda 后，需要更新环境中的所有包，以确保所有软件包都是最新的。避免产生未知的依赖问
+
+题，使用以下命令来更新所有安装的包：
+```
+ conda update --all
+
+```
+**Step 5.** **使用** **Conda** **创建独立的隔离环境**
+
+创建一个新环境用于多卡部署启动 ChatGLM3-6B ，避免与现有环境中的包发生冲突。使用以下命令创建
+
+一个新环境（我这里设置的环境名为 `chatglm3_multi` ，大家根据需要更改虚拟环境的名称）：
+```
+ conda create --name chatglm3_multi python = 3 .11
+
+```
+
+-----
+
+**Step 6.** **进入隔离环境**
+
+创建完成后，使用 `conda activate` 进入该虚拟环境。
+
+除此之外，大家一定要注意：如果使用远程连接，关闭了当前终端，或者是重启了电脑等情况后，再次
+
+启动 ChatGLM3-6B 模型服务时，需要先进入这个虚拟环境。进入指定的虚拟环境方法如下：
+
+使用 `conda activate +` `指定虚拟环境名称` 的方式，进入该虚拟环境。如果命令行最前面已显示该虚拟
+
+环境，说明进入成功。
+
+**Step 7.** **在虚拟环境中安装** **Pytorch**
+
+在上一期视频中说过，安装 GPU 版本的 Pytorch 需要根据当前安装的显卡驱动最高可支持的 CUDA 版本来
+
+选择正确的 Pytorch 版本，所以先通过 `nvidia-smi` 命令查看一下：
+
+
+-----
+
+在我的这台机器上，最高可支持的 CUDA 版本是 12.0 ，需要根据此限制，进入 Pytorch 官网： https://pyt
+
+orch.org/get-started/previous-versions/ 选择合适的 Pytorch 版本。注：这里大家要根据自己的实际情况灵
+
+活的选择适合自己的 Pytorch 版本。
+
+直接复制安装命令，进入终端执行。
+
+**Step 8.** **检查** **Pytorch** **安装是否成功**
+
+安装完成后，务必检查是否成功安装了 GPU 版本的 PyTorch 。最简单的验证方法如下：
+```
+   import torch
+   print(torch.cuda.is_available())
+
+```
+如果输出是 True ，则表示 GPU 版本的 PyTorch 已经安装成功并且可以使用 CUDA ，如果输出是 False ，
+
+则表明没有安装 GPU 版本的 PyTorch ，或者 CUDA 环境没有正确配置，如果出现这种情况，请重新检查自己的
+
+安装过程，并确保此处可以正常加载 GPU 版本的 Pytorch ，否则后面的操作会无法执行。
+
+**Step 9.** **下载** **ChatGLM3-6B** **模型的项目文件**
+
+首先，创建一个文件夹来存储该项目文件。
+
+使用 git 工具在 Github 拉取 ChatGLM3-6B 模型的项目文件至本地。如果没有安装 git 的话，需要先安装
+
+git 命令如下：
+
+
+-----
+
+在 ChatGLM3-6B 的 GitHub 官网找到远程仓库的 url ： [https://github.com/THUDM/ChatGLM3](https://github.com/THUDM/ChatGLM3)
+
+使用安装好的 git 工具，将云端的 ChatGLM3-6B 模型的项目文件拉取到本地环境，执行如下命令：
+```
+ git clone https://github.com/THUDM/ChatGLM3.git
+
+```
+**Step 10.** **验证** **ChatGLM3-6B** **模型项目文件的完整性**
+
+等待下载完成，进入文件夹后验证项目文件的有效性。如执行过程正常的话，在本地会出现 `ChatGLM3`
+
+文件夹，进入该文件夹，所有的项目文件如下所示：
+
+
+-----
+
+**Step 11.** **安装** **ChatGLM3-6B** **模型项目运行环境的依赖**
+
+在项目文件中，有一个 `requirements.txt` 文件，其中包含了该项目所有的依赖项。该文件可以使用
+
+Python 的 pip 工具来一键执行安装，因此建议先需要升级 pip 包的版本，避免因 pip 版本较低导致产生依赖问
+
+题。
+```
+ python -m pip install --upgrade pip
+
+```
+升级完 pip 工具后，执行如下命令一次性安装启动 ChatGLM3-6B 模型的所有依赖包：
+```
+ pip install -r requirement.txt
+
+```
+**Step 12.** **下载** **ChatGLM3-6B** **模型的权重文件**
+
+经过 Step 9 的操作过程，我们下载到的只是 ChatGLM3-6B 的一些运行文件和项目代码，并不包含
+
+ChatGLM3-6B 这个模型的权重，还需要进入到 Hugging Face 官网进行下载。下载路径： https://github.co
+
+m/THUDM/ChatGLM3
+
+
+-----
+
+注：需要开科学上网才能进入 Hugging Face 官网执行下载，如果没有，可以选择进入 `ModelScope` 魔
+
+搭社区，按照教程执行下载。
+
+按照如下位置，找到对应的远程仓库的 URL 。
+
+复制此命令，进入到服务器的命令行准备执行。
+
+如果没有安装过 git-lfs 这个工具，需要先进行安装，安装命令如下：
+```
+ sudo apt-get install git-lfs
+
+```
+
+-----
+
+初始化 git lfs ，这是使用 git 拉取模型权重必要的操作，初始化命令如下：
+```
+ git lfs install
+
+```
+完成 git-lfs 的初始化后，直接复制 Hugging Face 上提供的命令，在终端运行，等待下载完成即可。
+```
+ git clone https://huggingface.co/THUDM/chatglm3-6b
+
+```
+等待下载完成后，在 `ChatGLM3` 目录下出现一个新的 `chatglm3-6b` 文件夹，里面存放的就是 ChatGLM3
+6B 模型的权重文件。
+
+全部文件如下所示：
+
+
+-----
+
+如果直接使用 git lfs 下载的速度过慢，建议直接下载权重文件至本地。一种最简单的方式就是这类大的文
+
+件，直接通过浏览器下载到本地后，然后再移动到 chatglm3-6b 这个文件夹中。这种方式最简单粗暴，且效
+
+率也很高。"
+8918753a-fc19-434f-b36d-0d0adb06d926,开源大模型课件,['Ch.5 在 Ubuntu 22.04 系统下 ChatGLM3-6B 高效微调实战'],Ch 5 在Ubuntu 22.04系统下ChatGLM3-6B高效微调实战.pdf,2. 单机多卡启动 ChatGLM3-6B 模型,"2.1 如何查看当前机器的 GPU 数量, 2.2 如何理解 GPU 性能参数, 2.3 单机多卡启动 ChatGLM3-6B 模型服务","单机多卡（多个 GPU ）环境相较于单机单卡（一个 GPU ），可以提供更高的计算能力，但同时也会存
+
+在更复杂的资源管理和更复杂的程序代码。比如我们需要考虑如何使所有的 GPU 的负载均衡，如果某个
+
+GPU 负载过重，而其他 GPU 空闲，这会导致资源浪费和性能瓶颈，除此之外，还要考虑每个 GPU 的内存不
+
+会被过度使用及模型训练过程中 GPU 之间的同步和通信。
+
+尽管如此，单机多卡或者多机多卡往往才是工业界实际使用的方式，单机单卡的瓶颈非常有限，所以这
+
+方面的内容还是非常有必要掌握的。而如果初次接触，我们需要做的就是：学会有效的使用简单的 GPU 监控
+
+工具来帮助配置一些重要的超参数，例如批大小（ batch size ），像出现 GPU 内存溢出（即显存不足）等情
+
+况，去考虑减小批大小等等。
+
+## 2.1 如何查看当前机器的 GPU 数量
+
+方式一： lspci 命令。这是最常用的方法之一，这个命令会显示与图形相关的设备信息，列出所有 PCI 设
+
+备，包括 GPU ，其执行命令如下：
+
+
+-----
+
+方式二：如果系统中安装的是 NVIDIA GPU 和驱动程序，最熟知且最直观的 `nvidia-smi` 命令。
+
+## 2.2 如何理解 GPU 性能参数
+
+参数很多，如何理解各个数值的意义及需要关注哪些信息呢？我们首先来看上半部分的输出：
+
+持续模式：耗能大，但是在新的 GPU 应用启动时，花费的时间更少，这里显示的是 off 的状态。
+
+性能状态：从 P0 到 P12 ， P0 表示最大性能， P12 表示状态最小性能。
+
+再来看下半部分的输出：
+
+
+-----
+
+方式也是在执行训练过程中最简单直观且比较常用的一种监测方式，执行命令如下：
+```
+ watch -n 1 nvidia-smi
+
+```
+`-n` 参数可以自己灵活调整，后面添加的数字就是以秒为单位执行一次刷新。
+
+## 2.3 单机多卡启动 ChatGLM3-6B 模型服务
+
+在 Linux 系统中想要在多 GPU 环境下启动一个应用服务，并且指定使用某些特定的 GPU ，主要有两种方
+
+式：
+
+1. **CUDA_VISIBLE_DEVICES** **环境变量**
+
+使用 `CUDA_VISIBLE_DEVICES` 环境变量是最常用的方法之一。这个环境变量可以控制哪些 GPU 对 CUDA
+
+程序可见。例如，如果系统有 4 个 GPU （编号为 0, 1, 2, 3 ），而你只想使用编号为 1 和 2 的 GPU ，那么可以在
+
+命令行中这样设置：
+```
+ CUDA_VISIBLE_DEVICES = 1,2 python your_script.py
+
+```
+这会让 `your_script.py` 只看到并使用编号为 1 和 2 的 GPU 。
+
+2. **修改程序代码**
+
+这种方式需要直接在代码中设置 CUDA 设备。例如，在 PyTorch 中，可以使用
+
+`torch.cuda.set_device()` 函数来指定使用哪个 GPU ，除此之外，某些框架或工具提供也可能提供相关的
+
+参数或环境变量来控制 GPU 的使用，但都需要修改相关的启动代码。
+
+选择哪种方法取决于具体需求和使用的框架或工具。通常， `CUDA_VISIBLE_DEVICES` 是最简单和最直接
+
+的方式，而且它不需要修改代码，这使得它在不同环境和不同应用程序之间非常灵活。如果有控制多个服务
+
+并且每个服务需要使用不同 GPU 的需求，那么需要根据具体情况结合使用。
+
+接下来我们依次尝试上述两种方式来启动 ChatGLM3-6B 模型服务。
+
+
+-----
+
+这里我们以命令行的交互方式来进行多卡启动测试。官方提供的脚本名称是： cli_demo.py 。
+
+在启动前，仅需要进行一处简单的修改，因为我们已经把 ChatGLM3-6B 这个模型下载到了本地，所以需
+
+要修改一下模型的加载路径。
+
+如果仅修改模型权重就执行启动，该过程会自动检测可用的 GPU 并将模型的不同部分映射到这些 GPU
+
+上。状态如下：
+
+这里输入 `Stop` 退出启动程序， GPU 资源就会立即被释放。
+
+默认启动会自动使用多块 GPU 的资源的原因 在于 `cli demo py` 这个 py 文件中的这行代码：
+
+
+-----
+
+参数 `device_map=""auto""`, 这个参数指示 transformers 库自动检测可用的 GPU 并将模型的不同部分映
+
+射到这些 GPU 上。如果机器上有多个 GPU ，模型会尝试在这些 GPU 上进行分布式处理。其通过分析各个
+
+GPU 的当前负载和能力来完成。负载均衡的目标是最大化所有 GPU 的利用率，避免任何一个 GPU 过载。
+
+可以通过如下代码，查看当前环境下的 GPU 情况：
+```
+ import torch
+ # 检查 CUDA 是否可用
+ cuda_available = torch.cuda.is_available()
+ print(f ""CUDA available: {cuda_available}"" )
+ # 列出所有可用的 GPU
+ if cuda_available:
+   num_gpus = torch.cuda.device_count()
+   print(f ""Number of GPUs available: {num_gpus}"" )
+    for i in range(num_gpus):
+     print(f ""GPU {i}: {torch.cuda.get_device_name(i)}"" )
+    # 获取当前默认 GPU
+   print(f ""Current CUDA device: {torch.cuda.current_device()}"" )
+ else :
+   print( ""No GPUs available."" )
+
+```
+可以把上述代码写在一个 .py 文件中，执行该文件后会输出当前机器上的 GPU 资源情况，方便我们对当前
+
+的资源情况有一个比较清晰的认知。
+
+如果想要指定使用某一块 GPU ，那么需要这样修改代码 `cli_demo.py` 中的代码：
+
+
+-----
+
+```
+ # 设置 GPU 设备
+ device = torch.device( 'cuda:0' if torch.cuda.is_available() else 'cpu' )
+ #model = AutoModel.from_pretrained(MODEL_PATH, trust_remote_code=True,
+ device_map=""auto"").eval()
+ model = AutoModel.from_pretrained(MODEL_PATH, trust_remote_code = True).eval()
+ # 将模型移到指定的 GPU
+ model = model.to(device)
+
+```
+修改后看下启动情况：
+
+**在代码程序中指定某几块** **GPU** **加载服务**
+
+更多数人的情况是：比如当前机器中有 4 块 GPU ，我们只想使用前两块 GPU 做此次任务的加载，该如何
+
+选择呢？这很常见，其问题主要在于：如果某块 GPU 已经处于满载运行当中，这时我们再使用四块默认同时
+
+运行的话大概率会提示 out of memory 报错，或者提示显卡不平衡 imblance 的 warning 警告。
+
+如果是想在代码中指定多块卡运行该服务，需要在代码中添加这两行代码：
+```
+ import os
+ os.environ[ ""CUDA_VISIBLE_DEVICES"" ] = ',' .join(map(str, [0,1]))
+
+```
+
+-----
+
+然后保存修改后，执行启动过程就可以了。
+
+**直接使用** **CUDA_VISIBLE_DEVICES** **环境变量启动**
+
+第二种方法就是设置 CUDA 设备环境变量。这个方法非常简单，且不涉及更改 Python 代码。只需要在运
+
+行 Python 脚本之前，在命令行中设置 CUDA_VISIBLE_DEVICES 环境变量。这个环境变量告诉 PyTorch 使
+
+用哪个 GPU 。例如，如果想使用第二块 GPU （ GPU 编号从 0 开始，因此第二块 GPU 是 1 ），就可以这样启
+
+动程序：
+
+如果想使用两块 GPU 启动，那么可以使用逗号（，）来进行分割。
+
+同时，在执行推理的过程中，其功率也会增长。
+
+
+-----"
+5999059d-f822-4e52-a011-01cb976413c7,开源大模型课件,['Ch.5 在 Ubuntu 22.04 系统下 ChatGLM3-6B 高效微调实战'],Ch 5 在Ubuntu 22.04系统下ChatGLM3-6B高效微调实战.pdf,3.ChatGLM3-6B 高效微调实践,"3.1 主流的高效微调方法介绍, 3.2 ChatGLM3-6B 模型的高效微调实践","在大模型掀起新一轮的 AI 热潮以来，目前的形式就是大语言模型（ LLM ）百花齐放，工业界用于生产的
+
+算法模型由原来是几万，几十万的参数，到现在上升到上十亿，上百亿的情况。在这种情况下，因为显卡资
+
+源的因素，预训练大模型基本是大公司或者高校才可以做的事情，小公司或个人只能对大模型进行微调后使
+
+用。
+
+以前我们比较熟悉的都是全量微调，这个微调过程是对原始模型的所有参数全部做一个调整。但对于
+
+LLM ，在消费级显卡上就做根本没有办法实现。所以目前对于大模型来说，主流的微调技术叫做高效微调，
+
+这种方式是通过微调大模型少量或者额外的一些参数，固定预训练模型（ LLM ）参数，以此来降低计算和存
+
+储成本，同时，还可以在一定程度上实现与全量参数微调相当的性能。
+
+## 3.1 主流的高效微调方法介绍
+
+**Freeze**
+
+Freeze 是冻结的意思， Freeze 方法指的是参数冻结，对原始模型的大部分参数进行冻结，仅训练少部分
+
+的参数，这样就可以大大减少显存的占用，从而完成对大模型的微调。特别是在 Bert 模型出来的时候，比较
+
+会常用到 Freeze 的这样一个微调方法，比如 Bert 有 12 层，我们把前 10 层冻结了，只训练后两层。这是一种比
+
+较简单微调方法，由于冻结的参数是大部分，微调的参数是少部分，因此在代码中只需要设置需要微调的层
+
+的参数即可，把不需要参加训练的层数 `requires_grad` 设置为 False ，不让其进行更新，从而达到冻结的这
+
+样一个效果。
+
+**Prefix-Tuning** **（** **2021** **年提出）**
+
+Prefix-Tuning 指的是在微调模型的过程中只优化加入的一小段可学习的向量 (virtual tokens) 作为
+
+Prefix ，而不需要优化整个模型的参数（训练的时候只更新 Prefix 部分的参数，而 PLM 中的其他部分参数固
+
+定）。
+
+Prefix-Tuning 论文地址： [https://arxiv.org/abs/2101.00190](https://arxiv.org/abs/2101.00190)
+
+Prefix-Tuning 代码地址： [https://github.com/XiangLi1999/PrefixTuning](https://github.com/XiangLi1999/PrefixTuning)
+
+传统的微调范式 Fine-turning 会利用预训练模型去对不同的下游任务进行微调，对每个任务都要保存一
+
+份微调后的模型权重。比如下图展示的三个不同任务的 Transformer 模型，分别用来做翻译、摘要和将格式
+
+转化（ table-to-text ）。每个任务都有自己的微调模型，这意味着模型的所有权重都在微调过程中针对特定
+
+任务进行了更新。这种方法通常需要大量的数据和计算资源，因为整个模型都在学习任务特定的知识。
+
+Prefix-tuning 就提出了一种不同的微调策略，对基于 Transformers 结构的模型，它会将特定的前缀添
+
+加到输入序列的开始部分，相当于任务特定的提示，可以是一组固定的词或是可训练的嵌入向量。
+
+
+-----
+
+但是这个 Prefix 并不是一些明确的单词，比如对于文本摘要任务来说，我们添加 this is summarization
+
+（明确指出这是一个摘要的任务），相反，这个 prefix 加的是一些隐式的 Token 。这里就需要了解两个概
+
+念：
+
+Hard Prompt ：也称离散 Prompt ，是一个实际的文本字符串（自然语言，人工可读），通常由中文或
+
+英文词汇组成；
+
+Soft Prompt ：也称连续 Prompt ，通常是在向量空间优化出来的提示，通过梯度搜索之类的方式进行优
+
+化；
+
+在 Hoft Promot 中，提示语的变化对模型最终的性能特别敏感，加一个词、少一个词或者变动位置都会
+
+造成比较大的变化。成本比较高，并且效果不太好。显然： Prefix Tuning 属于 Soft prompt 。也就是我们学
+
+习调整的就是这部分的参数，从而达到微调的目的。
+
+Encoder 端增加前缀是为了引导输入部分的编码， Decoder 端增加前缀是为了引导后续 token 的生成。
+
+Prefix-tuning 的优势在于它不需要调整模型的全部权重，而是通过在输入中添加前缀来调整模型的行
+
+为，这样可以节省大量的计算资源，同时使得一个单一的模型能够适应多种不同的任务。
+
+**Prompt Tuning** **（** **2021** **年提出）**
+
+Prompt Tuning 方法可以看做是 Prefix Tuning 的简化版本，它给每个任务都定义了自己的 Prompt ，将
+
+真实的 Tokens 转化为可微的 virtual token ，并加入人工设计的锚字符（与任务高度相关的 Token ），拼接到
+
+数据上作为输出，但只在输入层加入 Prompt tokens 。
+
+Prompt Tuning 论文地址： [https://arxiv.org/pdf/2104.08691.pdf](https://arxiv.org/pdf/2104.08691.pdf)
+
+如图所示：如果 A 、 B 、 C 三个任务，模型框架都是一样的，对每一个任务都添加一个自己定义的
+
+
+-----
+
+下面的训练例子说明了两者的区别：
+```
+ Prompt Tuning 示例：
+ 输入序列 : ""Prompt 1, Prompt2 | 这部电影令人振奋。 ""
+ 问题 : 评价这部电影的情感倾向。
+ 答案 : 模型需要预测情感倾向（例如 “ 积极 ” ）
+ 提示 : 无明确的外部提示，
+ 充当引导模型的内部提示，因为这里的问题是隐含的，即判断文本中表达的情感倾向。
+ Prefix Tuning 示例：
+ 输入序列 : "" Prefix1, Prefix 2 | I want to watch a movie.""
+ 问题 : 根据前缀生成后续的自然语言文本。
+ 答案 : 模型生成的文本，如 “that is exciting and fun.”
+ 提示 : 前缀本身提供上下文信息，没有单独的外部提示
+
+```
+所以 Prompt Tuning 和 Prefix Tuning 都涉及在输入数据中加入可学习的向量，但两者的策略和目的不一
+
+样：
+
+Prompt Tuning ：可学习向量（通常称为 prompt tokens ）旨在模仿自然语言提示的形式，它们被设计
+
+为引导模型针对特定任务生成特定类型的输出。这些向量通常被看作是任务指导信息的一部分，倾向于
+
+用更少量的向量模仿传统的自然语言提示。
+
+Prefix Tuning ：可学习前缀 Prefix 更多地用于提供输入数据的直接上下文信息，这些前缀作为模型内部
+
+表示的一部分，可以影响整个模型的行为。
+
+**P-Tuning v1**
+
+P-Turning V1 的核心是使用可微的 virtual token 替换了原来的 discrete tokens ，且仅加入到输入层，并
+
+使用 prompt encoder （ BiLSTM+MLP ）对 virtual token 进行编码学习。
+
+
+-----
+
+Prompt Tuning 会使用静态的、可训练的虚拟标记嵌入。这些嵌入在初始化后保持固定，除非在训练过
+
+程中被更新，相对简单，因为它只涉及调整一组固定的嵌入参数。在处理多种任务时表现良好，但在处理特
+
+别复杂或需要细粒度控制的任务时受限。所以， P-Turining v1 就在输入的句子中也是加入了隐式的 virtual
+
+token ，区别就是：前面的方式是直接对它进行一个学习更新，只不过不会更新大模型中的参数，只是更新
+
+我们加入的 virtual token 这样一个参数， P-Turning v1 是对添加的 virtual Token ，又使用 BiLSTM + MLP 对
+
+其进行了一个编码。
+
+虽然这个编码对于 PLM 来说简单多了，参数也都非常小。但是，也能起到一个比较好的效果。相同参数
+
+规模，如果进行全参数微调， Bert 在 NLU 任务上的效果，超过 GPT 很多；但是在 P-Tuning 下， GPT 可以取得
+
+超越 Bert 的效果。
+
+那么 Prompt Tuning 和 P-Tuning 等方法存在两个主要的问题：
+
+缺乏模型参数规模和任务通用性： Prompt Tuning 论文中表明当模型规模超过 100 亿个参数时，提示优
+
+化可以与全量微调相媲美。但是对于那些较小的模型（从 100M 到 1B ），提示优化和全量微调的表现有
+
+很大差异，这大大限制了提示优化的适用性。
+
+缺乏任务普遍性：尽管 Prompt Tuning 和 P-tuning 在一些 NLU 基准测试中表现出优势，但提示调优对
+
+硬序列标记任务（即序列标注）的有效性尚未得到验证。
+
+缺少深度提示优化，在 Prompt Tuning 和 P-tuning 中，连续提示只被插入 transformer 第一层的输入
+
+embedding 序列中，在接下来的 transformer 层中，插入连续提示的位置的 embedding 是由之前的
+
+transformer 层计算出来的，这可能导致两个可能的优化挑战。
+
+由于序列长度的限制，可调参数的数量是有限的，输入 embedding 对模型预测只有相对间接的影响。这
+
+些问题在 P-tuning v2 得到了改进。
+
+**P-Tuning v2**
+
+P-Tuning v2 主要是基于 P-tuning 和 Prefix-tuning 技术，最核心的是引入 Deep Prompt Encoding 和
+
+Multi-task Learning 等策略进行优化的。
+
+P-Tuning v2 论文地址 : [https://arxiv.org/abs/2110.07602](https://arxiv.org/abs/2110.07602)
+
+P-Tuning v2 github 代码： [https://github.com/THUDM/P-tuning-v2](https://github.com/THUDM/P-tuning-v2)
+
+
+-----
+
+Deep Prompt Encoding ： P-Tuning v2 在每一层都加入了 Prompts tokens 作为输入，而不是仅仅加在
+
+输入层，这带来两个方面的好处：
+
+更多可学习的参数（从 P-tuning 和 Prompt Tuning 的 0.01% 增加到 0.1%-3% ），同时也足够参数高效。
+
+加入到更深层结构中的 Prompt 能给模型预测带来更直接的影响。
+
+Multi-task learning ：基于多任务数据集的 Prompt 进行预训练，然后再适配到下游任务。对于 pseudo
+
+token 的 continous prompt ，随机初始化比较难以优化，因此采用 multi-task 方法同时训
+
+练多个数据集，共享 continuous prompts 去进行多任务预训练，可以让 prompt 有比较好的初始化。
+
+所以 P-Tuning v2 是一种在不同规模和任务中都可与微调相媲美的提示方法。 P-Tuning v2 对从 330M 到
+
+10B 的模型显示出一致的改进，并在序列标注等困难的序列任务上以很大的幅度超过了 Prompt Tuning 和 P
+Tuning 。
+
+除此之外，还有比较主流的 LoRA ， QLoRA ，感兴趣的也可以自行了解一下。本篇内容主要涉及
+
+ChatGLM3-6B 模型的 P-Turning V2 高效微调。
+
+## 3.2 ChatGLM3-6B 模型的高效微调实践
+
+本次实验环境配置 1 ：
+
+操作系统： Ubuntu 22.04 ；
+
+GPU ： 3090 双卡，总共 48G 显存；
+
+CPU ： AMD 5900X ；
+
+存储： 64G 内存 +2T SSD 数据盘；
+
+实验环境配置 2 ：
+
+操作系统： CentOs 7.3 ；
+
+GPU ： 4090 双卡，总共 48G 显存；
+
+CPU ： 24 vCPU Intel(R) Xeon(R) Platinum 8352V CPU
+
+存储： 180GB + 100G 数据盘
+
+ChatGLM 官网出了⼀个基于 P-Tuning v2 的⽅式微调 ChatGLM-6B 的项目，项目地址： https://github.co
+
+m/THUDM/ChatGLM-6B/tree/main/ptuning ，最低只需要 7GB 显存即可运行。
+
+
+-----
+
+座模型的微调示例，其中 ChatGLM3-6B-base 模型仅提供了 Lora 微调，而 ChatGLM3-6B 包括全量微调和 P
+Tuning V2 。相关存储位置如下：
+
+base 模型不具备对话能力，仅能够生成单轮回复。如果大家希望使用多轮对话模型，需要对 Chat 模型进
+
+行微调，所以需要用到 `finetune_chatmodel_demo` 下的参考代码，进入后，相关的项目代码如下：
+
+无论是全量微调还是 P-Tuning v2 ，都需要设计微调数据， ChatGLM3-6B 支持多轮对话和输入输出格式
+
+微调样例。因此如果想要使用自己的数据集进行模型微调，需要首先统一样例格式。同时， ChatGLM3-6B 微
+
+调对话和微调工具能力的数据格式也不相同。
+
+这里我们启动微调的脚本存放在 `script` 文件目录下。
+
+**单轮对话微调**
+
+首先来看单轮对话微调，对于输入 -  输出格式，样例采用如下输入格式：
+```
+ [
+  {
+    ""prompt"" : ""<prompt text>"",
+    ""response"" : ""<response text>""
+  }
+  // ...
+
+```
+
+-----
+
+edu.cn/f/b3f119a008264b1cabd1/?dl=1 下载并上传到 `finetune_chatmodel_demo` 路径下。一种更便捷的
+
+方式就是在服务器终端使用 `wget` 命令来进行下载。同时下载到的 AdvertiseGen 数据集是一个 .tar.gz 的压缩
+
+文件，需要解压才可使用：
+```
+ wget - O AdvertiseGen https://cloud.tsinghua.edu.cn/f/b3f119a008264b1cabd1/ ?dl = 1
+
+```
+ADGEN 数据集任务为根据输入（ content ）生成一段广告词（ summary ），其数据格式如下：
+```
+ { ""content"" : "" 类型 # 上衣 * 版型 # 宽松 * 版型 # 显瘦 * 衣样式 # 外套 * 衣袖型 # 插肩袖 * 衣款式 # 拼接 "", ""summary"" :
+ "" 宽松的版型，穿搭起来总是不挑身材；所以作为早春穿搭的话，有着插肩袖设计的这款外套，最是能展现出舒适和
+ 大方的感觉了。而比较宽松的外套款式，它在衣身上特别做了拼接的设计，你看那颜色独特的拼接，很是容易就能
+ 展现出独特和抢眼的效果；再加上直筒的版型设计，穿搭起来真的是一点也不挑身材，还能起到显瘦的效果。 "" }
+ { ""content"" : "" 类型 # 上衣 * 风格 # 运动 * 风格 # 休闲 * 衣样式 # 外套 * 衣领型 # 立领 * 衣袖长 # 长袖 * 衣门襟 # 拉链 * 衣款
+ 式 # 拉链 "", ""summary"" : "" 基础的外套廓形，直筒，立领长袖，中间金属拉链穿脱，方便实用，带有浓浓的休闲运
+ 动味道。日常休闲上班或是去 <UNK> 等运动时都可以穿着，时尚前卫。 "" }
+ { ""content"" : "" 类型 # 上衣 * 风格 # 街头 * 图案 # 创意 * 衣样式 # 卫衣 "", ""summary"" : "" 在这件卫衣上， BRAND white 集合了女性化的柔美还有不变的街头风采， <UNK><UNK> 的向日葵花朵美丽的出现在胸前和背后，犹如暗
+ <UNK> 闪光的星星一般耀眼又充满着 <UNK> 的生命力，而后品牌标志性的 logo<UNK> 出现，呈现出将花束固定的效
+ 果，有趣极了，穿的不仅是服饰。更是新颖创意的载体。 "" }
+
+```
+我们需要修改成单轮对话的数据微调格式。官方也提供了转换脚本，如下：
+
+执行后，数据格式如下：
+
+
+-----
+
+```
+  ""response"" : "" 宽松的阔腿裤这两年真的吸粉不少，明星时尚达人的心头爱。毕竟好穿时尚，谁都能穿出腿长 2
+ 米的效果宽松的裤腿，当然是遮肉小能手啊。上身随性自然不拘束，面料亲肤舒适贴身体验感棒棒哒。系带部分增
+ 加设计看点，还让单品的设计感更强。腿部线条若隐若现的，性感撩人。颜色敲温柔的，与裤子本身所呈现的风格
+ 有点反差萌。 "" }
+ { ""prompt"" : "" 类型 # 裙 * 风格 # 简约 * 图案 # 条纹 * 图案 # 线条 * 图案 # 撞色 * 裙型 # 鱼尾裙 * 裙袖长 # 无袖 "",
+  ""response"" : "" 圆形领口修饰脖颈线条，适合各种脸型，耐看有气质。无袖设计，尤显清凉，简约横条纹装饰，
+ 使得整身人鱼造型更为生动立体。加之撞色的鱼尾下摆，深邃富有诗意。收腰包臀, 修饰女性身体曲线，结合别出心
+ 裁的鱼尾裙摆设计，勾勒出自然流畅的身体轮廓，展现了婀娜多姿的迷人姿态。 "" }
+
+```
+单轮微调官方提供的示例脚本是 `finetune_pt.sh` 。
+
+准备完成后，需要安装一下执行微调过程必要的依赖包。执行如下命令：
+```
+ pip install -r ../requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+```
+这里我们先使用默认的参数，仅修改必要的参数，把微调启动起来。
+
+
+-----
+
+默认是使用单卡启动，会占用 20GB 的显存资源。
+
+如果需要加载多块卡，可以进入 `finturn_pt.sh` 中修改一下配置。
+
+双卡启动会占用 30G 的显存，占用更多显存的原因，主要会涉及一些模型复制、数据并行、梯度同步等
+
+训练过程中的操作。
+
+|参数名|描述|
+|---|---|
+|PRE_SEQ_LEN|Prompts序列的长度。|
+|LR|学习率。高的学习率模型权重在优化过程中更新得更快。|
+|NUM_GPUS|训练过程中使用的 GPU 数量。|
+|MAX_SOURCE_LEN|定义输入序列的最大长度。|
+|MAX_TARGET_LEN|定义输出序列的最大长度。|
+|DEV_BATCH_SIZE|每个批次的大小，即每个优化步骤使用的示例数量。|
+|GRAD_ACCUMULATION_STEPS|在进行一次参数更新之前，梯度积累的步数。模型会在 指定次数 前向和后向传播后才更新参数。|
+|MAX_STEP|训练过程执行的最大步数，|
+
+
+-----
+
+|参数名|描述|
+|---|---|
+|RUN_NAME|运行的名称（advertise_gen_pt），用于标识和区分不同的训练运 行。|
+|BASE_MODEL_PATH|预训练模型的路径，保持为|
+|DATASET_PATH|训练数据集的路径，保持为|
+|OUTPUT_DIR|保存模型输出以及训练日志的文件夹路径。|
+
+
+因为默认参数是 1000 步，会导致训练过程较慢，这里我出于演示目的，将其调整为 50 执行微调。
+
+微调完成后，如下：
+
+同时，会在 `output/` 路径下会⽣成对应的模型⽂件：
+
+
+-----
+
+`checkpoint` 中存储的是训练过程中保存的模型状态，包括模型参数、优化器状态、当前 epoch 等信
+
+息。
+
+不同的训练参数，会产生不同数量的 `checkpoint` ，比如在脚本中， `SAVE_INTERVAL` 设置为 1000 ，这
+
+说明每 1000 个训练步骤保存一次模型。如果 `MAX_STEP` 设置为 3000 ，就应该有 3 个 checkpoints 被保存，这个
+
+也很好计算。
+
+**微调完成后使用微调模型执行推理**
+
+对于输入输出格式的微调，可以使用 `inference.py` 进行基本的推理验证。在
+
+`fineturn_chatmodel_demo` 文件目录中输入如下命令：
+```
+ python inference.py --tokenizer 'chatglm3-6b 模型路径 ' -- model ' 微调模型的 checkpoint 路
+ 径 '
+
+```
+这是因为在 P-tuning v2 训练时模型只保存 PrefixEncoder 部分的参数，所以在推理时需要同时加载原
+
+ChatGLM-6B 模型以及 PrefixEncoder 的权重。
+
+**多轮对话微调**
+
+多轮对话微调示例采用 ChatGLM3 对话格式约定，基本上大多数使用的也都是多轮对话的方式。
+```
+ [
+  {
+    ""conversations"" : [
+
+```
+
+-----
+
+```
+       content : <system prompt text>
+    },
+    {
+      ""role"" : ""user"",
+      ""content"" : ""<user prompt text>""
+    },
+    {
+      ""role"" : ""assistant"",
+      ""content"" : ""<assistant response text>""
+    },
+     // ... Muti Turn
+    {
+      ""role"" : ""user"",
+      ""content"" : ""<user prompt text>""
+    },
+    {
+      ""role"" : ""assistant"",
+      ""content"" : ""<assistant response text>""
+    }
+   ]
+  }
+  // ...
+ ]
+
+```
+同样官方也提供了一个数据集，供用户快速使用，可以直接在 github 上进行下载。
+
+复制远程仓库的 url 链接后，直接在服务器上使用 git 工具拉取到本地。
+
+
+-----
+
+同样，使用官方提供的数据格式转化脚本，转化成适合多轮微调格式的数据集。
+
+这次使用 `fineturn_pt_multiturn.sh` 微调脚本，进行和单轮对话微调相同的配置修改即可。
+
+
+-----
+
+微调过程中会占用 24G 显存。
+
+其推理验证过程，和上面说明的单轮对话微调模型的一致。
+
+训练过程的参数会很大程度影响当前训练的显存占用，比如我们做如下实验：
+
+显存直接就会爆掉：
+
+
+-----
+
+如果按照这种 `- per_device_train_batch_size=1` `、` `- gradient_accumulation_steps=16` 比较低的
+
+参数设置还爆显存的话，只能尝试微调量化模型。
+
+INT4 的模型参数被冻结，一次训练迭代会以 1 的批处理大小进行 16 次累加的前后向传播，等效为 16
+
+的总批处理大小，实际显存占用也仅有 7.9G 。
+
+所以， P-Tuning V2 高效微调中， `PRE_SEQ_LEN=128, DEV_BATCH_SIZE=1,`
+
+`GRAD_ACCUMULARION_STEPS=16, MAX_SEQ_LEN=2048` 配置下约需要 21GB 显存。
+
+若尝试后发现显存不足，可以考虑 :
+
+尝试降低 DEV_BATCH_SIZE 并提升 GRAD_ACCUMULARION_STEPS
+
+尝试添加 --quantization_bit 8 或 --quantization_bit 4 。
+
+除此之外，对于模型参数的选择，往往是参数越大效果越好。如果资源充足，当然是推荐 30B 以上的模
+
+型。 不管是 6B, 7B 和 13B 同样的训练数据，同样训练参数，模型参数量大效果则优于低参数的模型。 根据
+
+模型参数预估训练所需的内存开销，一个简单的方法是： 比如 6B 模型， 60 亿规模参数，根据以下公式计
+
+算：
+```
+ 模型参数 + 梯度参数 + 优化器参数 = 6B * 1bytes + 6GB + 2 *6GB = 24GB
+
+```
+注意：参数多量化低的模型要优于参数低量化高的模型，举例 ： 33B-fb4 模型要优于 13b-fb16 模型 .
+
+**全量微调**
+
+
+-----
+
+`DEV_BATCH_SIZE=16, GRAD_ACCUMULARION_STEPS=1` 恰好用满 4 * 80GB 显存。
+
+我这里也尝试了一下，可以跑通：
+
+但奈何硬件差距太多，直接显存爆掉。"
+5abae9e2-679a-4f68-ad6a-f89ca63f08bc,开源大模型课件,['Ch.5 在 Ubuntu 22.04 系统下 ChatGLM3-6B 高效微调实战'],Ch 5 在Ubuntu 22.04系统下ChatGLM3-6B高效微调实战.pdf,4. 大模型并行训练框架 -DeepSpeed,,"训练像 ChatGLM3-6B 这种大的模型往往需要配备高价的多 GPU 、多节点的集群，但是，即便拥有了这些
+
+先进的硬件资源，实际的机器利用率往往只能达到其最大效率的一半左右。这意味着，仅仅拥有更加强大的
+
+硬件资源并不能保证更高的模型训练吞吐量。同样，即使系统具有更高的吞吐量，也并不能保证所训练出的
+
+模型具有更高的精度或更快的收敛速度。更重要的是，当前的开源软件的易用性也常常被用户诟病。
+
+DeepSpeed 是一个开源深度学习优化库，专门设计来提高大型模型训练的效率和扩展性。这个库采用了
+
+一系列先进技术，如模型并行化、梯度累积、动态精度缩放和混合精度训练等，来实现快速训练。除此之
+
+外， DeepSpeed 还搭载了一套强大的辅助工具集，涵盖分布式训练管理、内存优化以及模型压缩等功能，帮
+
+助开发者更有效地处理和优化大规模的深度学习任务。值得一提的是， DeepSpeed 是基于 PyTorch 构建的，
+
+因此对于现有的 PyTorch 项目，开发者可以轻松地实施迁移。此库已在众多大规模深度学习应用中得到验
+
+证，涉及领域包括但不限于语言模型、图像分类和目标检测。
+
+
+-----
+
+非常简单的，就是一个 configs 文件，然后在训练代码中反向传播后执行参数更新的时候加一两行代码就可以
+
+了。对于 ChatGLM3-6B 模型的微调，默认只是在全量微调的脚本中加入了 deepspeed 的代码，因硬件配置
+
+相差太大，即使是使用 deepspeed 也无法运行。但我们可以将其应用到高效微调的 P-Turning v2 中，只需要
+
+添加一行代码，其他的全部使用默认的即可。
+
+DeepSpeed 已经在 Github 上开源，地址： [https://github.com/microsoft/DeepSpeed](https://github.com/microsoft/DeepSpeed)
+
+这里在 `fineturn_pt.sh` 中加入这样一行代码：
+
+直接启动后，就会降低约 4G 的显存使用。因我们的配置和数据量过小，其实不太容易看出这种差距。训
+
+练级别越高，提升的效果会越明显。
+
+
+-----
+
+deepspeed 在训练过程中依赖的相关参数配置，来源于这里：
+
+这个参数的调整，直接影响整体的训练效率。但这部分参数需要对 Deepspeed 有一定的了解才能更好的
+
+根据训练任务和硬件配置情况灵活调整。我们这里简单的了解一下。
+
+DeepSpeed 是最早开始关注大模型训练的一批，其最核心的就是 ZeRo ， ZerO-Offload 是将模型的参
+
+数、梯度或者优化器的状态可以从 GPU 内存中转移到 GPU 中。
+
+
+-----
+
+其终极形态 ZeRo-infinity ，不仅可以将这些参数等卸载到 CPU 上，还可以 Offload 到 nvme 的硬盘上，在
+
+速度上，基于 zero 的这种方式，随着 GPU 的增加，可以达到超线性的效率增长和。
+
+第二点是训练速度。不管大模型还是小模型的训练，训练的效率一定是框架需要重点关注的，需要在保
+
+证精确性的前提下，保证它快。
+
+ZeR0-1 只会对优化器状态做切分。 ZeR0-2 会对优化器状态和梯度做切分。 ZeR0-3 是对优化器状态、梯
+
+度和模型参数做切分。
+
+φ ：假设有一个模型，这个模型由 φ 个参数，也就是由 φ 个浮点数组成的模型，每个参数如果以 fp16 的形
+
+式存放，一个参数是 32float ，也就是 4bit ，所以这里就是 2 φ 。
+
+梯度，同样是 2 φ 的显存占用。
+
+优化器状态就是 K 倍的 φ ，优化器的状态根据实现的形式是不一样的，这里选择 12 进行比较。
+
+在 Baseline 中，这 120GB 显存是每张卡都要占用的，所以现在最大的 H100 这种 80G 的显存都放不下。
+
+
+-----
+
+所以在实际计算过程中， GPU1 ~ GPU3 计算显存空间的使用会根据 GPU0 的可使用显存空间来确定，
+
+这就造成了一个问题：在显存使用上， GPU0 = GPU1 = GPU2 = GPU3 ，对 GPU1~GPU3 来说是一种巨大的
+
+浪费。而且，这种浪费随着模型精度、参数的增加愈发明显。
+
+并行模型：
+
+Data Parallelism （ DP ）：数据并行，整个模型会复制到所有 GPU 上，输入数据会被分割成多个 batch
+
+到不同的 GPU 上。也因为每个 GPU 都在处理不同的数据子集，所以在独立执行前向传播后计算的损失
+
+（ loss ）也会有所不同，接着每个 GPU 根据其计算出的损失执行反向传播，计算梯度。当所以 GPU 计算
+
+完成后，求平均。这个平均梯度代表了整个数据集上的平均梯度。使用这个平均梯度更新模型的参数。
+
+从而确保所有 GPU 上的模型都保持同步。
+
+Tensor MP ：对模型做横向切分，也就是层内的切分，每一层的计算被分割成几个较小的部分，每部分
+
+独立在不同的 GPU 上进行计算。比如最大层是一个 MLP 层，有非常大的计算，但一张卡放不下，就需要
+
+切分成两个小的分别放在两张卡上计算。
+
+Pipeline MP ：流水线并行，把模型的不同层分在不同的 GPU 上，比如 12 层的模型，前 6 层分在一个
+
+GPU 上，后六层分在一个 GPU 上。像我们常用的 Transformer 结果，它会分成一个个 Block ，所以一般
+
+不同的 Block 会分布不同的层中。
+
+
+-----
+
+什么是 micro_batch_size ？
+
+Pipeline 会把输入进来的 mini_batch 分成设备个 micro_batch 。
+
+理想的计算加载方式应该是将模型加载在每个 GPU 上，减少模型对单个 GPU 的占用依赖，如下图所示：
+
+DeepSpeed 就是实现这样的加载，结合 Deepspeed 框架的优化特性，充分发挥每块 GPU 的计算和显存
+
+潜能，从而提高整体的训练效率和资源利用率。
+
+在理解了 DeepSpeed 原理后，我们尝试进行模型加载并观察其内存消耗情况。
+
+对于我们的本地运行环境，如果采用 DeepSpeed 在 4 块 3090 上加载 ChatGLM2-6B 模型，加载情况如
+
+下：
+
+
+-----
+
+在 $n _{GPU} = 4$_ 的情况下采用 _zero++_ 方式计算过程中，模型会先加载到 内存中，占用内存大小
+
+_$Men_ {load} = n _{GPU} * Mem_ {model} = 4 * 12 ~= 48GB$
+
+内存加载完毕后再分布到各个显存上，遵循 “ 对内存中 $n_{GPU}$ 个模型进行截取，而不是 一个模型
+
+进行分割 ” ；
+
+计算公式如下：
+
+$$Men _{load}=Mem_ {model} * n_{GPU}$$
+
+加载 130B FP16 $n _{GPU} = 4$_ 时， _$Men_ {load}=Mem_{model} * n_GPU=130 _2_ 4=1040GB$
+
+可见， DeepSpeed 的 分布截取 会占用大量重复内存，造成资源上的冲击和浪费，一种优化方法是加
+
+载到虚拟内存中作为缓存，对一个模型进行分割而不是逐个截取。
+
+在微调过程中，参数配置和优化对于模型性能和训练效率至关重要。合理的参数设置不仅可以加速模型
+
+的收敛，还可以提高模型的表现。特别是当我们使用高级的训练框架如 DeepSpeed 时，更需要对每个参数有
+
+深入的理解和精细的调整。 DeepSpeed 训练过程中涉及的主要参数和分类如下：
+
+
+
+
+
+
+
+
+
+
+|para|n|GPU|times/acc|cost|micro- bs|bs|1 0000|times|
+|---|---|---|---|---|---|---|---|---|
+|4-4- 16|4U|21554MB|4|50s / step|64|256|39 step/epoch|32.5min|
+|4-4- 12|4U|21554MB|3|40s / step|48|192|52 step/epoch|34.6h|
+|4-4-8|4U|21554MB|2|25s / step|32|128|78 step/epoch|32.5h|
+|2-2- 16|4U|18254MB|8|25s / step|32|128|78 step/epoch|32.5h|
+|2-2- 32|4U|18254MB|16|50s / step|64|256|39 step/epoch|32.5h|
+
+
+$$micro-bs=TRAIN_BATCH_SIZE _GRA_ACC_STEPS$$_
+
+_$$bs=micro-bs_ nGPU$$
+
+其中， para 列中的 4-4-16 表示 per_device_train_batch_size 、 per_device_eval_batch_size 、
+
+gradient_accumulation_steps 。
+
+注： 10000 条数据在当前 para 下完成一个 epoch 需要步数； 10000/48/4=52 step/epoch ；
+
+10000/32/4=78 step/epoch"
+a2230637-0d7a-4442-8e9d-ecb4c616fe67,开源大模型课件,['Ch.5 在 Ubuntu 22.04 系统下 ChatGLM3-6B 高效微调实战'],Ch 5 在Ubuntu 22.04系统下ChatGLM3-6B高效微调实战.pdf,5. 中文语言模型的评测基准,,"1. LLM 实时排行，来自 UC 伯克利： [https://lmsys.org/blog/2023-06-22-leaderboard/](https://lmsys.org/blog/2023-06-22-leaderboard/)
+
+2. 选择中文模型：中文语言理解测评基准 (CLUE) ： [https://www.cluebenchmarks.com/index.html](https://www.cluebenchmarks.com/index.html) 和
+
+SuperCLUE 琅琊榜 ： [https://www.superclueai.com/](https://www.superclueai.com/)
+
+
+-----
+
+LLAMA ， RNN 架构决定 RWKV 有很好的推理效率（随输入长度内存占比线性自增，而 LLAMA 则是指数增
+
+加） 和 Length Extrapolation （关于长度外推性，可以参考苏神的文章 ）。 当然 MPT-7B-StoryWriter
+65k+ 模型也有较长的外推能力。
+
+自 ChatGPT 为代表的大语言模型（ Large Language Model, LLM ）出现以后，由于其惊人的类通用人工
+
+智能（ AGI ）的能力，掀起了新一轮自然语言处理领域的研究和应用的浪潮。尤其是以 ChatGLM 、 LLaMA 等
+
+平民玩家都能跑起来的较小规模的 LLM 开源之后，业界涌现了非常多基于 LLM 的二次微调或应用的案例。下
+
+面这个项目在收集和梳理中文 LLM 相关的开源模型、应用、数据集及教程等资料，目前收录的资源已达
+
+100+ 个！
+
+Awesome Chinese LLM ， 主要是整理开源的中文大语言模型，以规模较小、可私有化部署、训练成本
+
+较低的模型为主，包括底座模型，垂直领域微调及应用，数据集与教程等。
+
+Awesome Chinese LLM 的 GitHub 地址： [https://github.com/HqWu-HITCS/Awesome-Chinese-LLM](https://github.com/HqWu-HITCS/Awesome-Chinese-LLM)
+
+3. C-Eval: 构造中文大模型的知识评估基准，其榜单是一个全面的中文基础 模型评估 套件 ( 多层次、多学科
+
+的语文评价基础模型套件 ) 。它由 13948 个选择题组成 问题跨越 52 个不同的学科和四个难度级
+
+别，测试集用于模型评估（简单来说就是针对中文模型的综合测试机），目的是 C-Eval 能够帮助开发人
+
+员跟踪模型开发的进展，以及分析开发中模型的优点和弱点。
+
+C-Eval 的 GitHub 地址： [https://github.com/hkust-nlp/ceval](https://github.com/hkust-nlp/ceval) ， 论文地址： https://arxiv.org/pdf/230
+
+5.08322v1.pdf
+
+不同颜色的主体表示四个难度等级：初中、高中、大学和专业。
+
+比较有代表性，很多新出的模型或者微调过的模型都会在这样一个基准上进行评估。榜单地址： https://
+
+cevalbenchmark.com/static/leaderboard.html
+
+其使用的数据集的地址是： [https://cevalbenchmark.com/static/leaderboard.html](https://cevalbenchmark.com/static/leaderboard.html) ，都是一些选择
+
+
+-----
+
+-----"
+178fbe59-7bd0-454d-9a26-1f263766d80b,开源大模型课件,['Ch.1 如何选择合适的硬件配置'],Ch 1 开源大模型本地部署硬件指南-checkpoint.pdf,本地部署开源大模型,Ch.1 如何选择合适的硬件配置,"## Ch.1 如何选择合适的硬件配置
+
+为了在本地有效部署和使用开源大模型， **深入理解硬件与软件的需求至关重要。** 在硬件需求方面，关键
+
+是 **配置一台或多台高性能的个人计算机系统或租用配备了先进** **GPU** **的在线服务器** ，确保有足够的内存和存储
+
+空间来处理大数据和复杂模型。至于软件需求， **推荐使用** **Ubuntu** **操作系统** ，因其在机器学习领域的支持和
+
+兼容性优于 Windows 。编程语言建议以 Python 为主，结合 TensorFlow 或 PyTorch 等流行机器学习框架，并
+
+利用 DeepSpeed 等优化工具来提升大模型的运行效率和性能。
+
+所以在本系列课程中，我们将从硬件选择入手，逐步引导大家理解并掌握如何为大模型部署选择合适的
+
+硬件，以及如何高效地配置和运行这些模型，从零到一实现大模型的本地部署和应用。首先来看硬件方面，
+
+提前规划计算资源是必要的。目前，我们主要考虑以下两种途径：
+
+1. **配置个人计算机或服务器** ，组建一个适合大模型使用需求的计算机系统。
+
+2. **租用在线** **GPU** **服务** ，通过云计算平台获取大模型所需的计算能力。"
+604f6a8a-57d0-46e1-8d72-008d0b99a2bb,开源大模型课件,['Ch.1 如何选择合适的硬件配置'],Ch 1 开源大模型本地部署硬件指南-checkpoint.pdf,一、大模型应用需求分析,,"大模型的本地部署主要应用于三个方面： **训练（** **train** **）、高效微调（** **fine-tune** **）和推理**
+
+**（** **inference** **）** 。这些过程在算力消耗上有显著差异：
+
+**训练** ：算力最密集，通常消耗的算力是推理过程的至少三个数量级以上。
+
+**微调** ：微调是在预训练模型的基础上对其进行进一步调整以适应特定任务的过程，其算力需求低于训
+
+练，但高于推理。
+
+**推理** ：推理指的是使用训练好的模型来进行预测或分析，是算力消耗最低的阶段。
+
+总的来说，在算力消耗上， **训练** **>** **微调** **>** **推理。**
+
+从头训练一个大模型并非易事，这不仅对个人用户，对于许多企业而言也同样困难。因此，如果个人使
+
+用，关注点应该放在 **推理和微调** 的性能上。在这两种应用需求下，对 **硬件的核心要求体现在** **GPU** **的选择上，**
+
+**对** **CPU** **和内存的要求并不高。** 无论是选择租用在线算力还是配置本地计算机，如果想在本地运行大模型，我
+
+们可以拆分成两个关注点：
+
+模型：选择什么基座模型或微调模型，这可以直接下载至本地。
+
+硬件：希望在什么硬件平台上来执行，可以分为 CPU 和 GPU 两大类。
+
+⼤部分开源⼤模型⽀持在 CPU 和 Mac M 系列芯片上运⾏，但较为繁琐且占⽤内存⾄少 32G 以上，因此
+
+更推荐在 GPU 上运⾏。针对本地部署大模型， **在选择** **GPU** **时，可以遵循的简单策略是：在满足具体的大模**
+
+**型的官方配置要求下，选择性价比最高的** **GPU** **。**
+
+GPU 的性能主要由以下三个核心参数决定：
+
+1. **计算能力** ：这是最关注的指标，尤其是 32 位浮点计算能力。随着技术发展， 16 位浮点训练也日渐普
+
+及。对于仅进行预测的任务， INT 8 量化版本也足够；
+
+2. **显存大小** ：大模型的规模和训练批量大小直接影响对显存的需求。更大的模型或更大的批量处理需要更
+
+多的显存；
+
+
+-----
+
+处理大量数据时的性能通常也越好；
+
+注：显存带宽相对固定，选择空间较小。"
+a83e9eef-5143-4e24-a247-3dee6f040fd1,开源大模型课件,['Ch.1 如何选择合适的硬件配置'],Ch 1 开源大模型本地部署硬件指南-checkpoint.pdf,二、硬件配置的选择标准,"2.1 选择满足显存需求的 GPU, 2.2 主流显卡性能分析, 2.3 单卡 4090 vs A100 系列, 2.4 单卡 4090 vs 双卡 3090, 2.5 风扇卡与涡轮卡如何选择, 2.6 整机参考配置, 2.7 显卡博弈的形式分析, 2.8 国产 AI 超算芯片期待","无论是个人使用、科研团队进行项目研究，还是企业寻求商业应用的落地，不同的应用场景和目标任务
+
+（如微调或推理）都需要相应的硬件配置方案来支持。所以 **在选择硬件配置时应根据具体的模型需求和预期**
+
+**用途来确定。**
+
+因此，我们的建议是： **根据部署的大模型配置需求，先选择出最合适的** **GPU** **，然后再根据所选** **GPU** **的**
+
+**特性，进一步搭配计算机的其他组件，如** **CPU** **、内存和存储等，以确保整体系统的协调性和高效性能。最简**
+
+**单的匹配** **GPU** **的标准是显存大小和性价比。** 因为训练不纯粹看一个显存容量大小，而是和芯片的算力高度相
+
+关的。因为实际训练的过程当中，将海量的数据切块成不同的 batch size ，然后送入显卡进行训练。显存
+
+大，意味着一次可以送进更大的数据块。但是芯片算力如果不足，单个数据块就需要更长的等待时间显存和
+
+算力，必须要相辅相成。
+
+简单来说，在深度学习的训练和推理中， GPU 的显存主要用于以下几个方面：
+
+1. **权重存储** ：模型的参数，包括权重和偏置，都需要在显存中存储。这些参数是模型进行预测或分类所必
+
+需的。
+
+2. **中间过程数据存储** ：在模型计算的前向传播和反向传播过程中，会产生并且需要暂时存储大量的中间计
+
+算结果。这些数据同样存储在显存中。
+
+3. **计算过程** ： GPU 专门为并行处理大量的矩阵和向量运算而设计，这正是深度学习中常见的计算类型。这
+
+些计算直接在显存中进行，以利用 GPU 的高速运算能力。
+
+显存的大小和速度直接影响到模型的处理速度和能处理的模型大小。显存越大，意味着可以处理更大的
+
+模型和更复杂的计算任务，但同时也需要更多的能源和可能导致更高的成本。
+
+"" 芯片 "" 通常指的是集成电路，它们被集成到各种电脑硬件组件中，如 CPU 、 GPU 和主板等。 CPU 本身就
+
+是一种芯片。它是计算机的大脑，负责执行程序和处理数据。显卡上的核心组件是图形处理器
+
+（ GPU ），它也是一种芯片。 GPU 负责处理图形和视频渲染。
+
+**所谓的** **""** **算力** **""** **大小，通常指的是整个计算系统的处理能力，尽管在特定上下文中，它有时特指** **GPU** **的处**
+
+**理能力。**
+
+我们以 ChatGLM-6B 模型为例，官方给出的硬件配置说明如下：
+
+模型量化是一种用于优化模型的技术，特别是在推理时。它通过减少模型中使用的数值精度来减小模
+
+型的大小，加快推理速度，并降低内存和能源消耗。模型量化常用于将模型部署到资源受限的设备
+
+上，如手机或嵌入式系统，量化程度越高，对硬件的要求就会越低。 单精度通常指的是 32 位浮点数
+
+（ FP32 ），使用 32 位表示，包括 1 位符号位、 8 位指数位和 23 位尾数位。 FP32 是标准的训练和推理格
+
+式，但由于半精度（ FP16 ）提供了相似的结果且计算速度更快，更节省内存，因此在资源受限或需要
+
+
+-----
+
+少，它的计算量就会越小，对应的输出结果的精度也就会越差。
+
+## 2.1 选择满足显存需求的 GPU
+
+关于如何选择 GPU ，当前市场 NVIDIA 和 AMD 是两大主要显卡生产商。但在人工智能、大数据、深度
+
+学习领域， NVIDIA （通常被称为 N 卡）几乎独占鳌头。主要原因还是 NVIDIA 在很早期就开始专注于 AI 和深度
+
+学习市场，开发了强大的软件工具和库，例如 cuDNN 、 TensorRT ，这些都是专门为深度学习优化的，与流
+
+行的深度学习框架（如 TensorFlow 、 PyTorch 等）紧密集成，同时 NVIDIA 的 CUDA （ Compute Unified
+
+Device Architecture ）作为独特的平行计算平台和编程模型，它允许开发者利用 NVIDIA 的 GPU 进行高效的通
+
+用计算。这一点对于深度学习和大数据分析等需要大量并行处理的应用来说至关重要。
+
+**英伟达是一家什么公司？**
+
+这时候可能有小伙伴说了，英伟达是一家卖游戏显卡的，这个说法呢，对，但也不对，从财报来看，英
+
+伟达目前主要有四块业务，分别是游戏 GPU ，数据中心产品，自动驾驶芯片和其他业务。占比分别为
+
+33.6% ， 55.% ， 3.3% 和 7.4% 。游戏 GPU ，数据中心产品，自动驾驶芯片其实都可以归类为计算芯片这个门
+
+类下面，换句话说，如果从财报公布的业务情况来分析的话，英伟达确实就是一家卖计算芯片的公司。但如
+
+果真的把英伟达当做一家卖芯片的公司，那就大错特错了。英伟达的确是靠着游戏显卡起家，并且在人工智
+
+能爆发的现在靠着一手 AI 计算芯片市值突破了万亿美元，但其实它并不是一家卖芯片的公司，我对英伟达的
+
+定位是，它是一家卖 **人工智能系统** 的公司。这就有两个核心的概念，一个是英伟达的计算芯片，一个是英伟
+
+达针对自家芯片做的计算架构 CUDA ，二者缺一不可。这种定位就像智能手机时代的苹果公司，苹果依靠着 A
+
+系列芯片和 ios 操作系统收割了智能手机行业超过 80% 的利润。人工智能大发展的时代，英伟达就依靠着 GPU
+
+和计算芯片与 CUDA 计算架构，共同组成的 AI 生态系统赢得了市场青睐，根据相关机构的统计数据，在独立
+
+显卡领域，英伟达的市占率高达 85% ，在 AI 算力芯片领域，在未来可能达到 90% ，现在做深度学习，英伟达
+
+的卡就是刚需，没有其他的选择。
+
+因此，我们建议还是选择 NVIDIA 的显卡。如果对应的 ChatGLM-6B 模型的硬件配置说明，我们就可以
+
+这样选择 GPU 。理论上， **在进行少量对话时** **:**
+
+在选择显卡时，必须遵循的首要准则是：显卡的显存容量一定要高于大模型官方要求的最低显存配置。
+
+这是确保模型能够有效运行的基本要求。显存容量越大，其推理或微调的能力就会越强。当然，随着显存容
+
+量的增加，显卡的价格也相应提高。以下是目前最主流的几款大模型的显卡型号及其显存容量：
+
+|显卡型号|显存容量|
+|---|---|
+|H100|80 GB|
+|A100|80/40 GB|
+|H800|80 GB|
+
+
+
+A800 80 GB
+
+
+-----
+
+|显卡型号|显存容量|
+|---|---|
+|4090|24 GB|
+|3090|24 GB|
+
+
+其组合形式可以分为以下四类：
+
+1. 纯 CPU ：基于不同架构的 CPU 配置，适用于不需要或不能使用 GPU 加速的场景。 **（不推荐）**
+
+x86 ( 如 Intel 或 AMD)
+
+ARM ( 如 Apple 、 Qualcomm 、 MTK)
+
+2. 单机单卡：使用一块 GPU 进行计算，适用于大多数个人使用和一些中等计算负载的场景。 **（典型配置）**
+
+Nvidia 系列 GPU
+
+AMD 系列 GPU
+
+Apple 系列 GPU
+
+Apple Neural Engine （较少见，支持有限）
+
+3. 单机多卡：在一台机器上使用多张 GPU 卡，适用于高计算负载的场景，如模型分割处理。 **（典型配置）**
+
+4. 多机配置：使用多台计算机进行集群计算，通常超出个人使用范围，主要用于从头预训练基座模型等高
+
+负载任务。
+
+所以，在单个显卡的显存容量不足以满足需求时，也可以采用多显卡配置来增加整体的显存容量。只要
+
+总显存超过官方推荐的配置要求就可以。此外，在选择显卡时，除了考虑整体显存容量，还要根据不同显卡
+
+的性能和成本进行权衡。根据具体需求和预算，决定是选择单张高性能显卡，还是部署多张成本效益更高的
+
+低版本显卡。实现最优的性价比。比如在理论上，在进行多轮对话时或需要微调时，采用单机多卡：
+
+## 2.2 主流显卡性能分析
+
+对于 NVIDIA 的显卡（ N 卡）卡来说，我们可以按照以下几个维度来划分：
+
+按照产品线划分：
+
+|系列|特点|主要应用领域|
+|---|---|---|
+
+
+GeForce
+
+系列（ G
+
+
+消费级 GPU 产品线，注重提供高性能的图形处理能力和游戏
+
+特性 性价比高 适合游戏和深度学习推理 训练
+
+
+主要面向游戏玩家和普
+
+通用户
+
+
+-----
+
+|系列|特点|主要应用领域|
+|---|---|---|
+|Quadro 系列（P 系列）|专业级GPU产品线，针对商业和专业应用领域进行了优化， 适用于设计、建筑等专业图像处理。|设计、建筑、专业图像 处理等领域。|
+|Tesla系 列（T系 列）|主要用于高性能计算和机器学习任务，集成深度学习加速 器，提供快速的矩阵运算和神经网络推理。|高性能计算、机器学习 任务等领域。|
+|Tegra系 列|移动处理器产品线，用于嵌入式系统、智能手机、平板电 脑、汽车电子等领域，具备高性能的图形和计算能力，低功 耗。|嵌入式系统、智能手 机、平板电脑、汽车电 子等领域。|
+|Jetson系 列|面向边缘计算和人工智能应用的嵌入式开发平台，具备强大 的计算和推理能力，适用于智能摄像头、机器人、自动驾驶 系统等。|边缘计算、人工智能、 机器人等领域。|
+|DGX系列|面向深度学习和人工智能研究的高性能计算服务器，集成多 个GPU和专用硬件，支持大规模深度学习模型的训练和推 理。|深度学习、人工智能研 究和开发等领域。|
+
+
+按照架构划分：
+
+
+
+
+
+
+
+|架构|年份|芯 片 代 号|特点|代表产品|
+|---|---|---|---|---|
+|Tesla|2006|GT|第一个通用并行计算架构，主要用于科学计算和 高性能计算。|Tesla C870/GeForce 8800 GTX|
+|Fermi|2010|GF|引入CUDA架构、ECC内存等，用于科学计算、图 形处理和高性能计算。|Tesla C2050/GeForce GTX 480|
+|Kepler|2012|GK|功耗效率和性能改进，引入GPU Boost技术，适 用于科学计算、深度学习和游戏。|Tesla K40/GeForce GTX 680|
+|Maxwell|2014|GM|提高功耗效率，引入新技术如多层次内存系统， 应用于游戏、深度学习和移动设备。|Tesla M40/GeForce GTX 980|
+|Pascal|2016|GP|16nm FinFET制程技术，加强深度学习和AI计算 支持，引入Tensor Cores，应用于深度学习和高 性能计算。|Tesla P100/GeForce GTX 1080|
+
+
+-----
+
+**架构** **年份**
+
+
+**特点** **代表产品**
+
+
+
+
+
+
+
+
+
+|Col1|Col2|号|Col4|Col5|
+|---|---|---|---|---|
+|Volta|2017|GV|深度学习优化特性，如Tensor Cores，主要用于 深度学习、科学计算和高性能计算。|Tesla V100|
+|Turing|2018|TU|实时光线追踪技术、深度学习技术，适用于游 戏、深度学习和专业可视化。|Tesla T4/GeForce RTX 2080 Ti|
+|Ampere|2020|GA|第二代深度学习架构，更多Tensor Cores、改进 的Ray Tracing技术，应用于深度学习、科学计算 和高性能计算。|Telsa A100/GeForce RTX 3090|
+|Ada Lovelace|2022|AD|专为光线追踪和基于AI的神经图形设计，第四代 Tensor Core，第三代RT Core，提高GPU性能。|GeForce RTX 4090|
+|Hopper|2022|GH|下一代加速计算平台，支持PCIe 5.0，专用的 Transformer引擎，适用于大型语言模型和对话 AI，提供企业级AI支持。|Telsa H100|
+
+
+按照应用领域划分：
+
+
+
+
+
+
+
+|类型|系列|描述|应用领域|代表产品|
+|---|---|---|---|---|
+|游戏娱 乐|GeForce RTX™系 列|面向大众消费级游戏和创作者用户的图形 加速卡。在性能、功耗和成本之间达到最 佳平衡点,提供极致的游戏和创作体验。|游戏、娱乐、 内容创作|如RTX 3090、RTX 4090等|
+|专业设 计和虚 拟化|NVIDIA RTX™系 列|面向专业可视化和创意工作负载的高性能 GPU,提供强大的计算性能、大容量视频 内存等。服务于工业设计、建筑设计、影 视特效渲染等专业用户。|工业设计、建 筑设计、影视 特效渲染|高端专业可视 化工作站级显 卡|
+|深度学 习、人 工智能 和高性 能计算|A系列、 H系列、 L系列、 V系列、 T系列|不同系列针对不同AI和计算需求。A系列 是AI计算加速器; H系列是AI超算; L系列 是边缘AI推理; V系列是虚拟工作站; T系 列是AI推理优化解决方案。|数据中心AI训 练和推理、边 缘AI、虚拟桌 面、AI推理加 速|A100、 A30、A40、 H100、 L40、 DeepStream 加速器等|
+
+
+像大模型领域这种生成式人工智能，需要强大的算力来生成文本、图像、视频等内容。在这个背景下，
+
+NVIDIA 先后推出 V100 、 A100 和 H100 等多款用于 AI 训练的芯片，其中 A100 是 H100 的上一代产品，于 2020
+
+年发布，使用 7 纳米工艺，支持 AI 推理和训练。而 H100 ，该显卡是 2022 年 3 月发布，可谓是核弹级性能显
+
+卡，采用了台机电 4 纳米工艺，具备 800 亿个晶体管，采用最新 Neda Hopper 架构，同时显存还支持
+
+hbm3 ，最高带宽可达 3TB 每秒。第四代 MNLINK 的带宽， 900G 每秒。是 PCIE5.0 的 7 倍，比上一代的 A100 显
+
+
+-----
+
+飞跃，各项基础性能是 A100 的三倍之多， H100 的单片显卡售价 24 万元左右。
+
+但在 2022 年 10 月，漂亮国政府为了限制我国的人工智能发展，发布禁令：禁止 NVIDIA 向中国出售 A100
+
+和 H100 显卡。数据显示， 2022 年中国市场的人工智能芯片规模高达 70 亿美元，而这 70 亿的市场，被 NVIDIA
+
+垄断了 90% ，虽然 NVIDIA 的 A100 ， H100 这样的顶级芯片不能卖给中国，但 NVIDIA 作为商业公司，也是要做
+
+生意的，于是为了合规， NVIDIA 针对传输速率进行了限制，提出了中国大陆特供版的 A800 和 H800 ，即：
+
+H100 、 A100 的阉割版。
+
+也就是说，由于漂亮国的禁令，我们现在使用的 GPU 都是中国特供版的，说白了就是阉割版的，像
+
+A100 ，到国内就成了 A800 ， H100 到国内就成了 H800 ，那么 A ~ H 的差距在哪里呢？
+
+直接用 SXM 版本的 H800 进行对比，只能说这个参数对比，对于不了解的人来说，还是比较出人意料
+
+的，除了 FP64 和 NVLink 传输速率上的明显削弱，其他参数和 H100 都是一模一样的。 FP64 上的削弱主要影
+
+响是 H800 在科学计算、流体计算、有限元分析等超算领域的应用，受到影响最大的还是 NVLINK 上的削减，
+
+但因为架构上的升级，虽然比不上同为 Hoper 架构的 H100 ，但是比 AMPERRE 架构的 A100 还是要强上不少，
+
+说白了，老黄想要抓住国内市场，就算是阉割，也不会阉割的特别过分，漂亮国政府想限制国内的超算，那
+
+就算把超算性能砍掉，传输速率减小，换个名字， GPU 照卖。只要保证 H800 在大部分场景下的性能不受影
+
+响，能满足大部分人的使用需求就足够了。毕竟也不会有人跟钱过不去，所以 其实 H800 和 H 100 的性能差
+
+距并没有想象的那么夸张，就算是砍掉了 FP64 和 NVLINK 的传输速率，性能依旧够用。最关键的是，它合法
+
+呀。所以如果不是追求极致性能的话，也没必要冒着风险去选择 H100 。
+
+而就在今年的 10 月份，漂亮国又玩起了变卦， 10 月份刚升级了芯片禁令，开启了新一轮的出口管制，先
+
+预留了 30 天的窗口期，随后又要求立即生效，连 30 天都没了，也就是说，从 10 月份开始，中国将无法再获得
+
+NVIDIA5 类的 GPU 显卡 （ A800 、 A800 、 H100 、 A100 ， L40S ），其实早在 8 月份的时候， BAT 的一些大厂不
+
+知道是收到风声还是控制风险，就向 NVIDIA 提前订购了 10 万个 A800 芯片，结果这次也是彻底泡汤。其实从
+
+
+-----
+
+的尖端 AI 芯片了，漂亮国就是亮牌，高端 AI 芯片，必禁无疑。所以对于目前的 A100 系列和 H100 系列，因为
+
+是漂亮国断供之前出的芯片，所以现在国内还有货，只不过市场渠道比较乱，需要甄别。
+
+同时需要说明的是， GeForce 系列显卡虽被官方定位为面向消费级市场，适合游戏爱好者。但这类显卡
+
+在深度学习领域同样展现出了出色的性能，很多人用来做推理、训练，单张卡的性能跟深度学习专业卡 Tesla
+
+系列比起来其实差不太多，但是性价比却高很多。对于大模型来说，同样可以使用 GeForce 系列显卡。
+
+那么个人使用或者实验室针对大模型的推理和微调需求配置服务器，高端显卡目前我们可选的就是
+
+A100 、 A800 、 H100 和 4090 等，应该如何选呢？
+
+## 2.3 单卡 4090 vs A100 系列
+
+先说结论： **没有双精度需求，追求性价比，选** **4090** **。有双精度需求，选** **A100** **，没有** **A100** **选** **A800** **。如果**
+
+**是做大模型的训练，** **GeForce RTX 4090** **是不行的。但在执行推理（** **inference/serving** **）任务时，使用**
+
+**RTX 4090** **不仅可行，而且在性价比方面甚至略优于** **A100** **。同时如果做微调，也勉强是可以的，但建议多**
+
+**卡。**
+
+
+
+
+
+
+
+
+
+
+
+
+
+|GPU 型号|Tensor FP16 算力|Tensor FP32 算力|内存 容量|内存 带宽|通信 带宽|通信 时延|售价（美元）|
+|---|---|---|---|---|---|---|---|
+|H100|989 Tflops|495 Tflops|80 GB|3.35 TB/s|900 GB/s|~1 us|30000~40000|
+|A100|312 Tflops|156 Tflops|80 GB|2 TB/s|900 GB/s|~1 us|15000|
+|4090|330 Tflops|83 Tflops|24 GB|1 TB/s|64 GB/s|~10 us|1600|
+
+
+**推理**
+
+从数据对比来看， A100 和 GeForce RTX 4090 显卡在通信能力和内存容量方面存在显著差异，但在算力
+
+上差距并不大。在 FP16 算力方面，两者几乎相当， 4090 甚至略有优势。相较于 A100 ，其较高的性价比主
+
+要源于推理过程通常涉及单一模型，在这种场景下，显卡的算力才是关键因素，而 4090 在这方面表现出
+
+色。虽然内存带宽同样重要，但在推理任务中， 4090 的内存带宽通常足以应对需求，不会成为显著的制约
+
+因素。
+
+LambdaLabs 有个很好的 GPU 单机训练性能和成本对比： [https://lambdalabs.com/gpu-benchmarks](https://lambdalabs.com/gpu-benchmarks)
+
+， 我们来看：
+
+
+-----
+
+高的。
+
+**微调**
+
+反观训练需求下， 4090 在训练的时候表现不佳的原因主要是其有限的通信能力和内存容量。比如训练
+
+LLaMA-2 70B 时需要 2400 块 A100 ，同时据说训练 ChatGPT 用了上万块 A100 ，主要还是因为训练过程除了
+
+存储模型参数外，还需要处理大量数据以及各层之间的中间数据和参数。因此，大容量内存和高通信带宽会
+
+比较关键，以便高效地处理和协调这些信息。首先就是把 n 个 T 的数据，分发到不同的 GPU 上去，然后训练，
+
+这叫数据并行。第二个并行就是会把这个模型的数据在一块 GPU 里可能放不下，所以要按照每一层，把某几
+
+层放在不同的 GPU 上面，进行串联。这就叫流水线并行。第三个就是 Tensor 张量并行。主要是我们目前训练
+
+的 Transform 模型都是多头的，每一个头都是可以按照张量来进行并行训练。所以整个 LLaMA-2 70B 他会通
+
+过张量，流水线、数据三种并行方式，从模型内层，到模型层之间，和训练数据三个维度进行计算空间的划
+
+分。
+
+2400 块 GPU 之间要进行大量的协调和通讯计算，这种复杂的并行结构需要 GPU 之间进行大量的协调和
+
+通信。 4090 的通信带宽仅为 64 GB/s ，与 A100 的 900 GB/s 相比差距过大，导致在这类大规模训练任务中
+
+通信成为瓶颈，进而影响整体性价比。因此，尽管 4090 在某些方面表现优秀，但在大模型训练中的局限性
+
+仍然明显。尽管微调过程对硬件的要求相较于训练相对较低，但这个过程仍然需要足够的内存以存储模型参
+
+数，以及有效的通信带宽来处理数据和模型层之间的交互。所以对于需要高通信带宽和大内存容量的大模型
+
+微调任务， A100 等高端 GPU 可能是更合适的选择。
+
+我们拿 GPT 3 来说， GPT 3 的参数将近 700 亿，假设每个参数使用 4 字节（通常使用 float 32 ）进行存
+
+储，训练运算储备需求是 4200 GB ，完成一次 GPT 3 训练的总算力是： 3.15 * 10 ^23 Flops, 仅考虑算力的情
+
+况下，单块 A100 需要 45741 天，几乎是 128 年（假设有效算力是 78Tflpos ），单块 4090 需要 91146 天，几
+
+乎是 250 年，（假设有效算力是 40 Tflpos ）。任何一张单卡训练一次都需要超过 100 年，对于参数量达到 10
+
+亿级别的大模型，参数本身就大，而且大模型通常需要更高的显存来来存储参数、中间计算结果和梯度等，
+
+既然要多卡运行，数据的同步效率就会显得非常重要，那么内存带宽、通信带宽、通信延时等性能将非常非
+
+常重要。， 4090 24g 的显存小，而且内存带块、通信贷款、和通信延时都相对较弱，这就有点像短板理论。
+
+最弱的那一项就决定了显卡的能力。综上， 4090 在较大的大模型没有什么发挥的余地，但随着现在的大模型
+
+越来越小，对显存和算力需求相对较小的大模型，再加上推理的算力需求更低，如 LLama 7B 13B 模型，单
+
+卡的 4090 都可以运行，至少对于学习和研究大模型的个人或实验室来说， 4090 还真是不错的选择。
+
+⼤模型的⼯业级实践要求，⼤模型全量微调需要⾄少 4 张 A100 80G 显卡；（ ChatGLM6B 模型 全量微调
+
+差不多也是需要这个配置）
+
+## 2.4 单卡 4090 vs 双卡 3090
+
+如果预算差不多的情况下，对于两张 3090 与一张 4090 的选择，推荐使用两张 3090 显卡。虽然从算力角
+
+度看，两张 3090 与一张 4090 大致持平，但两张 3090 显卡提供的总显存会更多，这对于处理大型模型尤为重
+
+要。目前，大多数深度学习计算框架都支持各种并行计算技术，如流水线并行、张量并行和 CPU 卸载。这些
+
+技术使得即使是显存较小的显卡也能处理大型模型。在这种情况下，双 3090 配置可以更有效地利用流水线并
+
+行，同时，与单 4090 配置相比， CPU 卸载的需求会降低。此外，企业环境一般都是多卡并行，使用双 3090 配
+
+置还可以练习如何写多卡代码。现有技术如串行反向传播，进一步增强了多卡系统的效率，使其成为一个经
+
+济高效的选择，尤其是在需要处理大量数据和复杂模型的情况下。因此，从目前的技术和应用需求来看，选
+
+择两张 3090 显卡无疑是更优的选择。
+
+## 2.5 风扇卡与涡轮卡如何选择
+
+
+-----
+
+风扇卡与涡轮卡的供电接口位置不同，涡轮卡的供电接口位置在接口尾部，供电线比风扇卡的线
+
+更短，这样是方便安装和理线，而风扇卡供电接口一般在显卡顶部，接线后线缆会高于机箱最高
+
+面，在服务器中使用风扇卡，服务器盖板盖不上。
+
+在散热方向上面，涡轮卡散热方向是朝尾部散热，并于服务器风向是一致的，而风扇卡的散热是朝四面
+
+八方来散热的，平常的 PC 机箱放一张是可以适应的，但用作服务器上（很多时候是多卡）就不适合了，
+
+很容易因为温度过热出现宕机。
+
+风扇卡与涡轮卡的尺寸大小不同
+
+涡轮卡与风扇卡的尺寸大小也是不一样的，风扇卡的尺寸一般是 2.5-3 倍宽设计，而涡轮卡的尺寸
+
+大小是双宽设计，因为涡轮卡为了方便放入服务器里，所以涡轮卡的尺寸和高度都远远低于风扇
+
+卡，从而服务器可以支持 4 卡或者 8 卡，如果用风扇卡代替涡轮卡装在服务器里，那位置够不够还
+
+是一回事儿呢。
+
+面对市场不同
+
+风扇卡无论是公版显卡还是非公版显卡，风扇卡都是面向个人的，是应用在个人游戏行业的，
+
+4090 风扇卡的特点就是外观炫酷，而个人游戏行业就是为了风扇卡的外观和玩游戏的性能。而
+
+4090 涡轮卡是定制版，是面向 AI 科技产业，因为做工精巧、支持多卡安装、性价比高等一系列优
+
+点， 4090 涡轮卡深受广大 AI 深度学习用户的喜爱。
+
+## 2.6 整机参考配置
+
+确定 GPU 后，根据 GPU 搭配合适的计算机组件，具体来说，计算机八大件： CPU 、散热器、主板、内
+
+存、硬盘、显卡、电源、风扇、机箱。个人使用的计算机，典型的配置是单 GPU 或双 GPU ，一般不超过四个
+
+GPU ，否则常规的机箱放不下，且运行时噪声很大，而且容易跳闸。
+
+目前国内实验室主流的还是 4090 和 3090,10 万 + 的预算配置 4 张 4090 是没问题的， 20~30 万的预算则可以
+
+考虑 8 张 4090 ，或者两张 A100 80G ，如果预算不限， A100 8 卡服务器一定是最佳选择。
+
+这里给出一个本地部署 ChatGLM-6B ，同时也适用于大多数消费级实验环境的配置：
+
+GPU ： 3090 双卡，涡轮版；总共 48G 显存，能够适⽤于⼤多数试验和复现性质深度学习任务；同时双卡
+
+也便于模拟多卡运⾏的⼯业级环境；
+
+CPU ： AMD 5900X ； 12 核 24 线程，模拟普通服务器多线程设置；
+
+存储： 64G 内存 +2T SSD 数据盘；内存主要考虑机器学习任务需求；
+
+电源： 1600W 单电源；双卡 GPU 的电源在 1200W-1600W 均可；
+
+主板：华硕 ROG X570-E ；服务器级 PCE ，⽀持双卡 PCIE ；
+
+机箱： ROG 太阳神 601 ； atx 全塔式⼤机箱，便于⾼功耗下散热；
+
+A800 工作站的典型配置信
+
+|配置项|规格|
+|---|---|
+|CPU|Intel 8358P 2.6G 11.2UFI 48M 32C 240W *2|
+|内存|DDR4 3200 64G *32|
+
+
+
+数据盘 960G 2.5 SATA 6Gb R SSD *2
+
+
+-----
+
+|配置项|规格|
+|---|---|
+|硬盘|3.84T 2.5-E4x4R SSD *2|
+|网络|双口10G光纤网卡（含模块）*1|
+||双口25G SFP28无模块光纤网卡（MCX512A-ADAT ）*1|
+|GPU|HV HGX A800 8-GPU 8OGB *1|
+|电源|3500W电源模块*4|
+|其他|25G SFP28多模光模块 *2|
+||单端口200G HDR HCA卡(型号:MCX653105A-HDAT) *4|
+||2GB SAS 12Gb 8口 RAID卡 *1|
+||16A电源线缆国标1.8m *4|
+||托轨 *1|
+||主板预留PCIE4.0x16接口 *4|
+||支持2个M.2 *1|
+|原厂质保|3年 *1|
+
+
+总的来说：
+
+3090 ⽐ 4090 综合性价⽐更⾼，不过 4090 计算速度⼏乎是 3090 的两倍，有需求亦可考虑升级，不过
+
+4090 需要的机箱空间更⼤、电源配置也要求更⾼；
+
+双卡 GPU 升级路线： 3090—>4090—>A100 40G （ 2.5w 左右） —>A100 80G （ 6~7w 左右）；
+
+⼤模型的⼯业级实践要求，⼤模型全量微调需要⾄少 4 张 A100 80G 显卡；（ ChatGLM6B 模型 全量微调
+
+差不多也是需要这个配置）
+
+## 2.7 显卡博弈的形式分析
+
+除此之外，在 2023 年 11 月 13 日老黄又放出来两个核弹。第一个核弹就是它推出了全新的超算 GPU
+
+H200 ，直接说是当世最强，听起来很嚣张，但其实一点没有吹牛。在 AI 超算领域，对手只有看 NVIDIA 车尾
+
+灯的份。从数据层面看， H200 强在大模型推理上，以 700 亿参数的 Llama2 二代大模型为例， h200 推理速度
+
+几乎比前代的 h100 快了一倍。而且能耗还降低了一半。显存从 h100 的 80GB ，直接拉到了 141gb ，带宽也从
+
+3.35TB/s ，提升到了 4.8TB/s ，最新的 GPU H200 ，跟前一代 H100 相比，最大的提升就是它的内存，达到了
+
+惊人的 1.15TB/s ，相当于在 1s 内传输了 230 步 FHD 的高清电影。如果每一部的容量按 5G 来算的话。这个跟我
+
+们以前的计算机里的内存条就不一样了，它采用的最新技术是 HBM3e ， HBM 就是高带宽内存，这个实现是
+
+把 DRAM 内存用 3D 封装的技术叠了起来，然后把它和 GPU 芯片放在同一个 GPU 的底板上，它们之间的通信就
+
+通过这块晶元直接做了，这样内存的容量就大大提高了，同时他们和 GPU 的通信速度也有显著的增长，。达
+
+到了每秒钟 4.8 个 TB 。然后又把所有的软件做了优化，这样就使得 ChatGPT 这样 大模型的推理速度大大的提
+
+升，跟 A100 相比提高了 18 倍。第二个核弹就是 CPU 和 GPU 的合体， GH200 ， 就是把 ARM 的 CPU 和它的 GPU
+
+封装在了同一块 GPU 晶圆板上，这样 CPU 和 GPU 之间的传输速度就非常快，而且可以共享内存。内存也达到
+
+
+-----
+
+有 1/2 。
+
+炸一听好像是王炸升级，刚装满 h100 的企业要哭晕在厕所了。但实际上，它可能只是 h100 的一个中期
+
+改款，单论峰值算力， H100 和 H200 其实是一模一样的。，真正提升的是显存和带宽，然而对于 AI 芯片的性
+
+能，讨论最多的是训练能力。，在 GPT 3 175B 大模型的训练中， H200 相较于 H100 ，只强了 10% ，提升并不
+
+明显，这操作，大概率是老黄有意为之，以前为了打造大模型，对 GPU 的首要要求是训练，但是到了现在，
+
+随着各种 AI 大预言模型的落地，大家开始卷的是推理速度。于是 H200 的升级，就忽略了算力升级，转向推理
+
+方面的发力，老黄的刀法依旧精准。哪怕只是小提升，依然当得起最强的称号。谁让 NVIDIA 的显卡，在 AI 芯
+
+片这块，这就是遥遥领先。
+
+但这因为是断供后的新卡，国内现在基本买不到。
+
+在 H200 没出现以前， H100 是地表最强 GPU ， NVIDIA 每一个层级的性能基本都是翻倍的， H100 ，其中
+
+微软采购了 15w 片， mate 采购了 15w 片，谷歌、亚马逊、甲骨文、腾讯都是 5w 片，那么谷歌的 gemini 发布
+
+晚，原来是因为缺少 GPU 哈。一共是 48w 片，和外界传的 一年 H100 的产量 50w 基本吻合。在 2024 年预计出
+
+货量在 200 万张。中国采购的用户 H800 要比 H100 量大，而且 H800 的售价比 H100 还要高，为什么性能不行
+
+价格还是高呢，主要原因还是有一份建议国企采购产品中的文件，里面只有 A800 和 H800 ，没有 A100 和
+
+H100 ，这就导致国企采购更愿意采购 A800 的原因，
+
+同时需要说的是，在今年的 10 月份，漂亮国再次禁用 H800 、 A800 芯片后， NVIDIA 计算再次推出中国特
+
+供 AI 芯片，初步计划是 3 款，分别是 h20 ， L20 和 L2 ，这三款基于 H100 进行阉割。使以性能符合禁令的要
+
+求。其中最强的是 H20 ，但与 H100 相比，性能被封印了 80% ，只有 H100 的 20% 左右的性能，对于 NVIDIA 而
+
+言，中国这笔 70 亿美元的大市场肯定不能丢，必须推出 AI 芯片来抢占，不过，近日有消息传出，这三款特供
+
+版芯片要跳票了，只有 L20 可能会按期推出， H20 和 L2 都可能延期。特别是 H20 这个最强的，什么时候推
+
+出，会不会推出都是未知数，最重要的原因，还是目前中国的市场已经发生了变化。没有 NVIDIA 想像的那么
+
+美好了。
+
+有一些朋友可能还不知道这回事，而知道的朋友有些也不清楚，为什么偏偏是显卡会成为国际博弈的工
+
+具，这些卡一张卖 十几 甚至几十万元，这么赚钱的生意，怎么就不让做了。在 1999 年之前的人类文明早
+
+期，世界上是没有显卡的，但已经有了电子游戏了，那时候的游戏画面是由 CPU 生成的，游戏玩家说，需要
+
+有高画质，于是就有了显卡。 1999 年， NVIDIA 声称自己发明了 GPU ，也就是 GFFORCE 256 ，所谓的 GPU ，
+
+就是图形计算单元，他是显卡最最核心的部件，再给他配上其他一系列零件，就成为了一张显卡。 GPU 跟显
+
+卡，严格来说不是一个概念，只是大家平时很少特意区分。这玩意为啥能提升游戏画质？因为渲染游戏画面
+
+这件事，难就难在计算量太大了，比如游戏中任何一个 3D 物体，它的位置、方向、大小、光源、物体表面等
+
+变化，都需要电脑来计算。
+
+渲染画面这件事，就像再做 10000 道加减乘除， CPU 的核心很强，但数量少。每个核心就像出于一个智
+
+力巅峰的高三学生，他能熟练的解出模拟卷上的最后一道大题，但让他算 1000 道，他得累死。而显卡上面
+
+密密麻麻的分布着几千个小核心，每个核心都像是一个小学生，高考题肯定是不会，但他们能同时并排启
+
+动，在 10 秒只能，把 10000 道题做完。所以渲染特别快。显卡能提升画质，就是因为他有这种强大的并行计
+
+算能力。而显卡从此脱离游戏领域，被别的领域盯上，乃至成为国际博弈的筹码。也是因为这种强大的并行
+
+计算能力，。发布了没几年，斯坦福大学实验室就盯上了显卡，它们想要显卡解决其他领域的问题，但是并
+
+不简单，显卡算力虽强，但是它们都是小学生，需要合适的软件能驾驭才行。沿用刚才的比方， GPU 就是一
+
+万个小学生在同时工作，计算能力很强，但前提是你得能把一道难解的大题，分解成无数个小学生能解决的
+
+简单问题才行。否则显卡再强又有什么用呢？转换到现实中，就是得让开发者能方便的写出代码。利用上显
+
+卡的并行计算能力才行。所以在 2006 年，带领团队出现了至今仍然在不断更新的 CUDA ， CUDA 就是更方便
+
+的让开发人员能够面向 编程 如果绝大多数 模型的训练 背后都离 开 的支持 除了
+
+
+-----
+
+并行计算能力，在软件层面，配套的编程平台也成熟了，这就意味着， GPU 可以完全离开游戏领域，走向更
+
+大的世界了。
+
+第一次感受到 GPU ，就是挖矿，也就是挖比特币，挖矿其实就是用计算机 来解决数学问题，比如任何数
+
+据，都可以通过哈希算法生成一串哈希值，原始数据不管发生多小的变化，最后生成的哈希值都完全不同。
+
+我们有时候下载大文件时，也会利用哈希算法的这种特性，来做一次校验。。看看下载的文件是否完整。很
+
+多挖矿，就是要生成一个符合要求的哈希值，这就需要计算机去反复的尝试，所以挖矿就跟游戏画面一样，
+
+属于那种不难，但是计算量非常大的事情。恰好能够利用显卡的算力。于是在加密价格持续攀升的日子里，
+
+显卡涨价，缺货。一路推动 NVIDIA 的市值从 140 亿美元暴涨到了 1750 亿美元。但显卡跟加密货币之间只是一
+
+段露水情缘，随着专用矿机的出现，虚拟比特币的价格跳水，以太坊等调整了挖矿规则等原因，显卡跟虚拟
+
+货币的关系已经大不如前了。但显卡就跟上了更大、更革命的科技浪潮，就是 AI 。现在所有人都知道， AI 是
+
+可能引起新一轮科技革命的巨大产业，而几乎所有的 AI 模型训练，都需要显卡。
+
+就拿现在正火的 ChatGPT 来说，它的模型训练中涉及到大量的矩阵运算，这些矩阵运算本身不难，但是
+
+量很大很大，所以就需要 GPU 来并行处理。 AI 是可能改变世界的，而 AI 的基础是 算法、算力和数据。而提到
+
+的 A100 和 H100 ，售价高到十几万、甚至几十万的专业显卡，还供不应求。有报道说，训练 ChatGPT 需要相
+
+当于 300 块 A100 显卡的算力，光这一个项目就需要花几十个亿来购买显卡，这也是为什么 从 2022 年 10 月开
+
+始， NVIDIA 的市值在半年时间内就飙升了 34 倍。
+
+## 2.8 国产 AI 超算芯片期待
+
+这么着急赶尽杀绝，不惜拉上自己企业垫背。答案就是我国在半导体自主研发上，已经触碰到了他们的
+
+痛处。很多人总以为，我们依赖国外的 AI 芯片，是自身技术上不过关，其实真相是我们的芯片都没有真正的
+
+上过牌桌，为什么？ AI 芯片只有在实际应用中才能够发现问题，加快迭代，而我们的国产芯片，起步晚、性
+
+能差，所以国内的厂商大多不愿意使用，这也就造成了国产芯片无法获得正向反馈，发展速度只会越来越
+
+慢，这是一个矛盾的循环。在还有选择的时候，考虑到性能也好，成本也好，中国企业往往愿意选择像
+
+NVIDIA 的芯片，所以在很长一段时间，美国对中国的高端芯片的制裁，也不是彻底封死，因为国产的 AI 芯片
+
+不是它的对手，都还不够好用，但现在，局面彻底改变了。出口禁令全面升级，中国企业没有了其他的任何
+
+选择，下一步只能规模化的采购国产芯片，并且培育出本土的产业链，逐步实现真正意义上的国产替代。那
+
+可能有人说，这件事这么简单，能实现岂不是早就实现了。不太可能。其实还真不一定，放眼全球算力芯片
+
+市场，不可否认， NVIDIA 占据了九成多的份额，出于高度垄断的地位。但是，目前国产 AI 芯片的可替代方
+
+案，也不少。
+
+如果单看并行计算这个领域，有两家国产 GPU 公司值得关注：分别是摩尔线程和壁任科技。
+
+摩尔线程 2020 年 10 月成立，在 2023 年 10 月 17 日，第一款产品摩尔芯用了 7 纳米工艺，支持 CUDA 平台和
+
+算法模型，性能超过每秒 20 万亿次浮点计算，仅成立三年就上了白宫严选名单。成为老美的制裁对象之一。
+
+是现在唯一可能买到的实际产品，并且一直在更新驱动的公司。壁任科技一款产品 壁任一号， 7 纳米工艺，
+
+支持 CUDA 平台和算法模型，性能超过每秒 30 万亿次浮点计算。去年发布了一个 GPU 叫 BR100 ，性能就直逼
+
+英伟达的 H100 ，但是这个芯片并没有使用，原因还是台积电不给生产，准确的说是美国政府不让台积电给我
+
+们生产，这就是一个不公平的竞争，华为的遭遇大家就更熟悉了， 19 年以后 芯片的生产、制造全都被摁的死
+
+死的，但是麒麟芯片出来了，说明我们大概率已经突破了先进芯片制造的生产流程了，顶多就是成本高一
+
+点。
+
+这些当中除了华为之外都面临相同的问题，那就是没有针对芯片专门优化的计算架构，换句话说，这些
+
+公司不具备与 CUDA 抗衡的能力，如果能成为芯片供应商，去识别其他的计算架构，理论上也是可以的。但
+
+是对于使用者来说这样做效率就太低了。一旦训练十几天，一旦出现 BUG ，不就前功尽弃了吗。所以这事还
+
+是得看华为 华为就厉害了 在人工智能领域的布局包括但不限于昇腾系列计算芯片 CANN 异构计算架
+
+
+-----
+
+可能布局出全栈式人工智能的公司，也是唯一一个全栈式国产化公司，困扰华为的最大问题还是美国的制
+
+裁，芯片没法生产，再怎么布局也是白搭，一旦能解决芯片问题，
+
+有句话说的好，天下苦英伟达久矣。有时候看似把我们逼入绝境，但其实是给我了我们绝地求生的机
+
+会，就看我们怎么把握了。尽管中国企业会迎来一段痛苦的过渡期，但从长远来看，这是一条不得不走的
+
+路。而面对当下的巨大差距，最关键的是终于有了攻坚克难的凝聚力。相信度过这段阵痛期，有的人，有的
+
+国家，只会后悔的拍大腿，眼睁睁的看着被逆袭、被超越，毕竟每一次我们都是这样过来的。"
+ad7d483f-3ed7-4035-84f1-fd78b4992c25,开源大模型课件,['Ch.1 如何选择合适的硬件配置'],Ch 1 开源大模型本地部署硬件指南-checkpoint.pdf,三、组装计算机硬件选型策略,"3.1 GPU 选型策略, 3.2 CPU 选型策略, 3.3 散热选型策略, 3.5 硬盘选型策略, 3.7 电源选型策略, 3.8 机箱选型策略","计算机八大件： CPU 、散热器、主板、内存、硬盘、显卡、电源、风扇、机箱，我们依次来看对于一套
+
+需要部署大模型的个人计算机，如何搭配。
+
+## 3.1 GPU 选型策略
+
+1. **选择厂商**
+
+目前独立显卡主要有 AMD 和 NVIDIA 两家厂商。其中 NVIDIA 在深度学习布局较早，对深度学习框架支持
+
+更好。 **建议选择** **NVIDIA** **的** **GPU** **。**
+
+桌面显卡性能天梯图： [https://www.mydrivers.com/zhuanti/tianti/gpu/index.html](https://www.mydrivers.com/zhuanti/tianti/gpu/index.html)
+
+2. **选择系列及品牌**
+
+**对个人用户来说，就是从** **NVIDIA** **的** **RTX** **系列中，选择出合适的** **GPU** **。** 就部署大模型的需求来说，只需
+
+考虑计算能力和显存大小就可以了。显存带宽通常相对固定，选择空间较小。目前各级别显卡的均价如下：
+
+
+-----
+
+|品牌|华硕|微星|技嘉|
+|---|---|---|---|
+|顶级旗舰||||
+|旗舰|ROG猛禽|超龙X|大雕|
+|次旗舰|TUF|魔龙|超级雕/小雕|
+|中端|巨齿鲨|/|雪鹰/魔鹰|
+|丐版|DUAL|万图师|猎鹰|
+
+
+华硕显卡品控优做工好，高品牌信仰足，但溢价严重，这个牌子最会宣传，卡不错但性价比不是很高。
+
+高端优先推荐华硕 ROG 猛禽，当然缺点就是：贵，另外主流用户个人更推荐 TUF ，更低端的巨齿鲨和
+
+DUAL 不太推荐
+
+微星显卡 30 系列之前更推荐魔龙， 30 系列更推荐超龙
+
+**准一线**
+
+|品牌|七彩虹|
+|---|---|
+|顶级旗舰|九段|
+|旗舰|火神/水神|
+|次旗舰|adoc|
+|中端|ultra|
+|丐版|战斧|
+
+
+
+推荐七彩虹，用料良心，保修出名的好，深受矿老板们的喜爱，支持个人送保， ultra ，三风扇，散热性
+
+能极好，噪音小，白色颜值高，不带 rgb 灯效，喜欢 rgb 灯效的可以选择 adoc 。
+
+**二线**
+
+|品牌|影驰|索泰|映众|耕升|铭瑄|
+|---|---|---|---|---|---|
+|顶级旗舰||||||
+|旗舰|名人堂|PGF/AMP|冰龙寒霜||MGG 大玩家|
+|此旗舰|GAMER/星耀|天启|超级冰龙||电竞之心|
+|中端|金属大师|/|冰龙|炫光/星极||
+|丐版|黑将/大将|X-gaming|黑金至尊|追风|turbo/终结者|
+
+
+
+二线品牌中，影驰和索泰属于二线中实力比较强的两个，可以说是强二线，索泰重点推荐 PGF （排骨
+
+
+-----
+
+级别的产品，颜值高，性能强，次旗舰 GAMER 和星耀一个主打 DIY 一个主打 RGB ，都是非常有特点的产品
+
+企业级显卡
+
+参考第二部分的 GPU 推荐。
+
+服务器推断卡
+
+除了用于训练，还有一类卡是用于推断的（只预测，不训练），如：
+
+这些卡全部都是不带风扇的，但它们也需要散热，需要借助服务器强大的风扇被动散热，所以只能在专
+
+门设计的服务器上运行，性价比首选 Tesla T4 ，但是发挥全部性能需要使用 TensorRT 深度优化，目前仍然
+
+存在许多坑，比如当你的网络使用了不支持的运算符时，需要自己实现。
+
+**避免踩坑**
+
+如果选择配置单机多卡，采购显卡的时候， **一定要注意买涡轮版的** ，不要买两个或者三个风扇的版本，
+
+除非只打算买一张卡。因为涡轮风扇的热是往外机箱外部吹的，可以很好地带走热量，如果买三个风扇的版
+
+本，插多卡的时候，上面的卡会把热量吹向第二张卡，导致第二张卡温度过高，影响性能。
+
+## 3.2 CPU 选型策略
+
+CPU 在大模型使用中起到什么作用？当在 GPU 上运行大模型时， CPU 几乎不会进行任何计算。最有用的
+
+应用是数据预处理。 CPU 负责将数据从系统内存传输到 GPU 的显存中，同时也处理 GPU 完成计算后的数据。
+
+有两种不同的通用数据处理策略，具有不同的 CPU 需求。
+
+训练时处理数据：高性能的多核 CPU 能显著提高效率。建议每个 GPU 至少有 4 个线程，即为每个 GPU 分
+
+配两个 CPU 核心。每为 GPU 增加一个核心 ，应该获得大约 0-5 ％的额外性能提升。
+
+训练前处理数据：不需要非常好的 CPU 。建议每个 GPU 至少有 2 个线程，即为每个 GPU 分配一个 CPU 核
+
+心。用这种策略，更多内核也不会让性能显著提升。
+
+在这种情况下， GPU 通常承担大部分计算负担， CPU 的作用更多是管理和协调，因此需要高核心数，同
+
+时也需要快速的数据预处理，同样需要高频率，所以 **高核心** **+** **高频率，虽然不是必须，但推我们推荐还是能**
+
+**高即高，标准是：要与选择的** **GPU** **和** **CPU** **的性能水平相匹配** ，避免将一款高端显卡与低端 CPU 或一款高性能
+
+CPU 与低端显卡匹配，因为这可能导致性能瓶颈。比如：
+
+NVIDIA GeForce RTX 3090 * 2 搭配 Intel Core i7-13700K/KF 或 AMD 5900X CPU ；
+
+NVIDIA GeForce RTX 3080 搭配 Intel Core i9-11900K CPU 。
+
+但相对来说，瓶颈没有那么大，一般以一个 GPU 对应 2~4 个 CPU 核数就满足基本需求，比如单卡机器买
+
+四核 CPU ，四卡机器买十核 CPU 。在训练的时候，只要数据生成器（ DataLoader ）的产出速度比 GPU 的消
+
+耗速度快，那么 CPU 就不会成为瓶颈，也就不会拖慢训练速度。
+
+
+-----
+
+去很长的一段时间了里，英特尔一直是绝对霸主的存在，代表最先进的生产力，时至今日， AMD 在产品性能
+
+层面已经完全可以和 Intel 正面硬刚了。
+
+CPU 性能天梯图： [https://www.mydrivers.com/zhuanti/tianti/cpu/index.html](https://www.mydrivers.com/zhuanti/tianti/cpu/index.html)
+
+**Intel** **系列命名规范**
+
+可以通过 CPU 名称得到一些信息，如 i7-10700K ，代表产品型号是 i7 ，后面的 10 代表是第 10 代，然后 700
+
+代表性能等级高低， K 代表这个 CPU 可以超频，当然后缀字母还有 T 、 X 、 F 等， X 后缀代表高性能处理器，而 T
+
+代表超低电压， /F 代表无 CPU 无内置显卡版本。
+
+1. 系列：由低到高 Celeron （赛扬） / Pentium （奔腾） / 酷睿系列的 i3 / i5 / i7 / i9
+
+2. 世代：第 1 组数字代表是第几代
+
+例如这三个 CPU ： I7-8700 、 I7-9700 ， i7-10700 第 1 个是第八代，第 2 个是第九代、第 3 个是第十代，还
+
+是比较容易理解的。
+
+3. 性能：第 2 组 (3 个数 ) 是表示性能等级
+
+例如： I5-12400 、 I5-12500 ，数字越大表示越好。
+
+4. 后缀： K → 可超频， F → 没有核显
+
+可超频 K 版 CPU 要搭配可超频的 Z 系列主板才行，才可以超频，搭载不能超频的主板也可以用，只是不能
+
+超频了而已。
+
+没有核显的 F 版 CPU 要搭配独立显卡才能开机点亮屏幕
+
+超频简单理解就是可以提升处理器性能，核显就是把一张入门级的显卡塞进处理器里。
+
+**i3** **是家用级别，** **i5** **是游戏级别，** **i7** **是生产力和游戏发烧友级别，** **i9** **是最顶级的。后缀带** **K** **可以超频，带** **F**
+
+**表示没有核显。**
+
+**AMD** **系列命名规范**
+
+和 Intel 类似：
+
+1. 系列：由低到高 APU / Althlon （速龙） / Ryzen （锐龙）系列 R3 / R5 / R7 / R9
+
+2. 世代：第 1 个数字代表第几代
+
+3. 例如这两个 CPU ： R7-2700X 、 R7-3700X ，第 1 个是第二代，第 2 个是第三代。
+
+4. 性能：第 2 组数字（ 3 个数字）表示性能等级
+
+数字越大性能越好，例如 R7 3800X 的性能大于 R7 3700X 。
+
+5 后缀：字母 G 表示有核显 字母 X 没有明确意思 一般性能强一点 如 R5 3600X 比 R5 3600 性能高一
+
+
+-----
+
+**要选** **Intel** **还是** **AMD** **，其实都可以。** 如果追求性价比， AMD 性价比高一些，如果主要玩游戏，且对价格
+
+不敏感，建议选择英特尔 Intel ，英特尔 Intel 一般主频较高，一些游戏主要依赖主频，所以高主频的 Intel 玩游
+
+戏更推荐一些。除了品牌维度的分析，目前 **主流的大模型训练硬件通常采用** **Intel + NVIDIA GPU** 。但具体
+
+情况具体分析，只能简单说：一分钱一分货，一般来说贵的好。
+
+**选购** **CPU** **误区**
+
+电子产品有一个说法是， “ 买新不买旧 ” ，一般新产品，会用更新的工艺架构，性能更强，功耗更低，比
+
+较值得购买。当然有些时候，老一代的性价比很高，也可以考虑，但如果是好几代前的老产品，就不要考虑
+
+了，有些商家会卖几年前的 i7 电脑主机，它的性能可能还不如最新的 i3 ，主要是忽悠小白的，要注意辨别。
+
+目前消费级市场，我们最常听到的 i3 i5 i7 等，是英特尔的酷睿系列产品，主要面向一般消费市场，数字
+
+大的性能更强，（注意这里只在同代产品中成立）。 AMD 与之对应的是 R3 R5 R7 。这里值得注意是，同代产
+
+品 i7 比 i5 强，如果拿老一代的 i7 和新一代的 i5 比，就未必成立，部分商家经常会营销 i5 免费升级 i7 ，其实是把
+
+最新一代的 i5 换成立了老一代的 i7 ，性能方面可能还不如没升级呢？比如 i5-8400 的性能就高于 i7-7700.
+
+## 3.3 散热选型策略
+
+CPU 不断地更新换代和性能提升，其功耗和发热量也越来越大，如果温度过高，就会出现自动关机或者
+
+是蓝屏死机等情况，所以需要单独的散热器来压制，目前 **CPU** **散热器分两种：水冷和风冷。**
+
+风冷和水冷系统都是用于 GPU 的散热解决方案。它们各有优势和不足：通常， **水冷系统在散热效率方面**
+
+**优于风冷系统。** 以 Intel 的 i9-13900KF 为例，这款 CPU 性能目前位于 CPU 性能天梯榜第二位，很多用户认为使
+
+用水冷系统是必要的。但如果这款 CPU 没有超频需求，使用高质量的风冷系统其实也能够有效地散热。只有
+
+在超频的情况下，水冷系统由于其更出色的冷却效果，才成为更佳的选择。
+
+但需要注意， **风冷和水冷与** **GPU** **无关** 。在计算机硬件中， CPU 和 GPU （显卡）的散热策略和要求各有不
+
+同。 CPU 通常需要配单独的散热器，我们可以根据需要选择并购买不同类型的散热器，例如水冷或风冷系
+
+统，并且可以根据性能要求进行升级。由于 CPU 的 **高主频和较少的核心数（通常是几个到二十几个核心）** ，
+
+高性能的 CPU 在运行时会产生较多热量，因此需要更有效的散热解决方案来维持合适的运行温度。与此相
+
+对，显卡通常采用一体化的散热设计，其散热器是显卡的重要组成部分。显卡散热器的设计已经由各厂商经
+
+过测试和优化，因此用户一般不需要担心显卡的散热问题。显卡采用的是 **多核心、低频率** 的策略，即使是高
+
+端显卡如 Nvidia 的 4090 ，其频率也相对较低，通常在 3000MHz 左右，而同代的高端 CPU （如 Intel i9 ）的频
+
+率可能是其两倍。显卡的散热器可以直接接触 GPU 核心和显存，从而高效散热。因此，在正常满载情况下，
+
+显卡的温度达到 70 多或 80 多度是正常现象，通常不会成为性能瓶颈。
+
+对于大模型部署来说，首要原则还是 **CPU** **的等级要和** **GPU** **相匹配** 。对于中低端处理器，如 Intel 的 i5 系
+
+列，以及 AMD 的 R5 和 R7 系列，一般推荐使用风冷系统。这些处理器的热设计功耗（ TDP ）通常较低，风冷系
+
+统足以提供有效的散热。而对于更高性能的处理器，如 Intel 的 i7 13700KF 及更高级别的 i7 和 i9 系列，建议至
+
+少使用 240mm 规格的水冷系统。考虑到这些处理器较高的性能和热输出，水冷系统能提供更为高效和稳定
+
+的冷却效果。因此，尽管风冷在某些情况下依然可行，但为了确保最佳性能和稳定性，对于高性能处理器，
+
+
+-----
+
+在构建大模型的系统时，低端主板通常不适用。根据所选的 CPU 和 GPU 规格，应从中端或高端主板中选
+
+择出合适的。
+
+
+
+
+
+
+
+|制造 商|系列|定 位|支持CPU超 频|支持内存超 频|适用用户|
+|---|---|---|---|---|---|
+|Intel|Z系 列|高 端|是|是|追求高性能和定制化设置的用户|
+|Intel|B系 列|中 端|否|是|需要一定性能但预算有限的用户|
+|Intel|H系 列|低 端|否|否|预算有限或对性能要求不高的基本用 途|
+|AMD|X系 列|高 端|是|是|追求最高性能和高度定制化的用户|
+|AMD|B系 列|中 端|否|是|寻求性价比的用户|
+|AMD|A系 列|低 端|否|否|有限预算或基本计算需求的用户|
+
+
+选择主板时，核心因素是 **确保它与** **CPU** **的性能和超频能力相匹配** 。以 Intel 处理器为例：对于中高端 CPU
+
+（如 i5 系列及以上），更适合选择 B660 到 Z690 系列的主板。对于如 13600KF 这样的高性能 CPU ，至少应选择
+
+B660 系列的主板作为起点。需要考虑的是 CPU 是否支持超频（如带有 “K” 后缀）。可超频的 CPU 更适合搭配
+
+支持超频的高端主板，如 Z 系列
+
+其次，需要 **检查** **CPU** **和主板型号是否匹配及合理。**
+
+通常情况下，每一种型号的 CPU 都需要搭配对应型号的主板，每代 CPU 和主板都有自己的针角及接口类
+
+型， Intel cpu 不能用于 AMD 系列主板，某些主板可能会通用几代 cpu ，但有的主板只能兼容某一代，例如
+
+intel 十代 的 i510400f ，不能用于早期的四代 b85 系列主板，而是否匹配，指的是高性能 CPU 搭配低性能主
+
+板， h610 是入门主板，虽然可以点亮，但是低端主板因为供电有限，无法发挥出 cpu 的全部性能，以及无法
+
+超频，这样就失去了 cpu 本身的性能和意义。
+
+最后， **考虑** **PCIe** **通道。**
+
+PCIe 通道是一种高速接口，用于将 GPU 连接到计算机的主板。通过这些通道， GPU 可以与 CPU 以及系统
+
+内存快速交换数据。每个 PCIe 通道（或称为 “ 通道 ” ）都提供一定的数据传输带宽。更多的通道意味着更高的
+
+总体带宽。例如， PCIe 3.0 x16 接口意味着有 16 个通道，每个通道的速度是 PCIe 3.0 标准的速度。
+
+GPU 的性能部分取决于它与主板之间的通信速度，这是由 PCIe 通道的数量和版本（如 PCIe 3.0 、 4.0 或
+
+5.0 ）决定的。更高版本的 PCIe 提供更高的传输速率，从而可能提高 GPU 的性能。以下是需要考虑的几个关键
+
+点：
+
+1. **PCIe** **版本** ：
+
+
+-----
+
+4.0 和 5.0 ）提供更高的数据传输速率，这对于高性能 GPU 和其他高速设备非常重要。
+
+2. **PCIe** **槽数量和布局** ：
+
+主板上的 PCIe 槽数量决定了可以安装多少个扩展卡。如果计划安装多个 GPU 或其他 PCIe 设备，需
+
+要确保主板有足够的槽位。
+
+槽位布局也很重要，尤其是在安装大型 GPU 时，需要确保它们之间有足够的空间，避免过热或物
+
+理干扰。
+
+3. **PCIe** **通道分配** ：
+
+主板上的 PCIe 通道是从 CPU 和芯片组分配的。不同的主板可能有不同的通道分配方式，这可能会
+
+影响到扩展卡的性能，特别是在多 GPU 配置中。
+
+确认主板是否支持您所需的 PCIe 配置，例如双向或四向 GPU 设置。
+
+4. **与** **GPU** **的兼容性** ：
+
+虽然大多数现代 GPU 兼容大多数主板的 PCIe 槽，但是为了最佳性能，最好确认 GPU 与主板的 PCIe
+
+版本相匹配。
+
+综上所述，因为需要通过 PCIe 通道连接和使用 GPU ，因此在选择主板时考虑 PCIe 通道的版本、数量、布
+
+局和通道分配非常重要。
+
+## 3.5 硬盘选型策略
+
+**首先考虑接口类型** 。主流固态硬盘主要有两种接口： SATA 和 M.2 。
+
+**SATA** **接口** 的固态硬盘体积较大，形状类似于传统的机械硬盘，主要用于升级老式电脑，因为这些电脑
+
+通常不具备 M.2 接口。 SATA 接口硬盘的最高速度为 600MB/s 。
+
+**M.2** **接口** 的硬盘则较小，可以直接安装在主板上的专用接口。它们采用新的硬盘协议，速度上可以达到
+
+4GB/s 。
+
+**推荐选择** **M.2** **接口的硬盘。**
+
+**然后考虑协议** 。 M.2 接口的固态硬盘分为 SATA 协议和 NVMe 协议两种。
+
+M.2 接口的 **SATA** **协议硬盘** 速度较慢，实际上就是标准 SATA 硬盘的形状变化，速度仍然是最高
+
+600MB/s ，这类硬盘多用于旧电脑。
+
+**NVMe** **协议硬盘** 则速度更快，适合对速度有较高要求的应用。
+
+在面对大量小文件的时候，使用 NVMe 硬盘可以一分钟扫完 1000 万文件，如果使用普通硬盘，那么就
+
+需要一天时间。 **推荐选择** **NVME** **协议的** **M.2** **接口的硬盘。**
+
+**最后考虑** **PCIe** **等级。** 当前市面上最新的是 PCIe 5.0 ，但更常见的是 PCIe 3.0 和 PCIe 4.0 。 PCIe 等级越
+
+高，硬盘的速度潜力越大。但重要的是检查主板是否支持相应的 PCIe 等级。例如，一些主板可能最高只支持
+
+到 PCIe 4.0 。一般来说，选择 PCIe 4.0 的即可。
+
+硬盘不会限制深度学习任务的运行，但如果小看了硬盘的作用，可能会让你追、悔、莫、及。想象一
+
+下，如果你从硬盘中读取的数据的速度只有 100MB/s ，那么加载一个 32 张 ImageNet 图片构成的 mini
+
+-----
+
+**建议内存容量应大于** **GPU** **的显存。** 例如，对于搭载单卡 GPU 的系统，建议配置至少 16GB 内存。如果是
+
+四卡 GPU 系统，则建议至少配置 64GB 内存。由于数据生成器（ DataLoader ）的存在，数据不需要全部加载
+
+到内存中，因此内存通常不会成为性能瓶颈。
+
+内存不用太纠结，是 GPU 显存的一到两倍。目前， 128G 就可以， 64G 也凑合。而且内存没那么贵，可
+
+以配满。
+
+内存大小不会影响深度学习性能，但是它可能会影响你执行 GPU 代码的效率。内存容量大一点， CPU 就
+
+可以不通过磁盘，直接和 GPU 交换数据。所以应该配备与 GPU 显存匹配的内存容量。
+
+在选择的时候， **注意检查主板是否支持内存的数量及型号。** 目前常见的 ddr3 ~ 5 ，每一代内存都需要对
+
+应主板的插槽类， ddr 5 代内存 是无法混插在 ddr 4 代内存上的。另外需要确定主板的内存插槽数量，如果只
+
+有两个插槽，买了四个，那么根本插不进去。
+
+其次检查 cpu 主板是否支持内存频率。内存条的频率上限 受到 cpu 和主板的控制， 例如 i5 的 10400f +
+
+b460 主板 = 2666 ，如果你买的内存是 3600 频率的，无疑发挥不出内存本身的优势。
+
+## 3.7 电源选型策略
+
+在选择电脑电源时，需要 **检查电源的瓦数是否足以支持整机的功耗。** 并非越高瓦数越好，但瓦数过低可
+
+能会导致关机或黑屏等问题。在确定合适的电源瓦数之前，应综合评估整机硬件的功耗，尤其要考虑 CPU 和
+
+显卡这两个功耗大户。通常，将 CPU 和显卡的 TDP 功耗相加后乘以 2 可以得到一个合适的电源瓦数估计。例
+
+如，对于一个 65W 的 CPU 和 125W 的显卡，合适的电源瓦数应该在 400W 或 450W 左右。
+
+双卡最好 1000W 以上，四卡最好买 1600W 的电源
+
+## 3.8 机箱选型策略
+
+最后，选择完所有上述所有配件之后，选择机箱就相对简单，只需要确保这个机箱足够宽敞，能够容纳
+
+所选的所有配件。我们需要检查以下几项内容：
+
+1. **核对主板与机箱尺寸匹配性** ：
+
+确保所选主板的大小与机箱兼容。例如， ITX 主板应与 ITX 机箱相匹配。这就像选择合适大小的鞋子
+
+一样重要。
+
+2. **确认机箱支持显卡尺寸** ：
+
+对比显卡的长度与机箱对显卡长度的限制。建议选择机箱的显卡限长至少比显卡长度长出 30 毫米
+
+以上，以确保有足够空间进行安装和通风。
+
+3. **检查散热器与机箱的兼容性** ：
+
+非常重要的一点是比较散热器的尺寸与机箱的散热限高。如果散热器太高，可能无法正常安装侧
+
+盖。
+
+考虑到许多内存条配备较高的散热马甲，需要确认散热风扇是否会受到内存条的干扰。
+
+如果选择水冷散热系统，确保机箱的水冷位能够容纳水冷冷排的尺寸。例如， 360mm 的水冷冷排
+
+无法安装在仅适用于 240mm 的位置上。
+
+
+-----
+
+常见的电源类型包括 SFX 、 ATX 和 TFX 。由于不同规格的电源在形状和大小上有所不同，必须确认
+
+机箱的电源仓是否适合所选电源的尺寸。
+
+
+-----"
+9466a5e7-4f4f-4486-85ee-d20b4f14ed0f,在线大模型课件,['Ch.2 智选 GPU 算力平台：免费与付费租赁指南'],Ch 2 智选GPU算力平台.pdf,本地部署开源大模型,Ch.2 智选 GPU 算力平台：免费与付费租赁指南,"## Ch.2 智选 GPU 算力平台：免费与付费租赁指南
+
+上一期内容中我们详细的剖析了如果想本地部署开源大模型，如何去搭配一台合适的个人计算机或者服
+
+务器。除此之外，还可以通过租用在线 GPU 算力，来更灵活的获取计算资源。
+
+GPU 云主机租用是一种云计算服务模式，用户可以通过向云服务提供商支付租金，将 GPU 云主机上的计
+
+算资源用于自己的任务中。对于初学者，或仅仅是要做短期项目研究的学生，甚至是探索 AI 应用落地尝试的
+
+企业人员，相较于直接购买高昂的硬件设备和自行搭建计算集群，使用 GPU 云服务器具有较高的性价比。其
+
+一， GPU 云服务器具有灵活的配置和租赁方式，可根据实际需求调整计算资源。其次， GPU 云服务器提供了
+
+高效、稳定、安全的计算环境。总体投入成本是很低的。
+
+市面上提供 GPU 租赁的平台不少，比如国外的谷歌， vast.ai 这种，可以薅资本主义羊毛。因为不花钱，
+
+必然多花精力和时间，看各种攻略，想各种办法突破限制。整体看来看来其实不划算，有那精力还是做点更
+
+有意义的事情，毕竟人的自由时间才是最大的财富。而国内的服务商，大厂的比如阿里、金山的都比较贵，
+
+相反，现在崛起的平价 GPU 云服务商。各种类型都有，有自己搭建的民房，有用数字币结算的，还有矿机改
+
+的，名字不提了。所以如何选择呢？
+
+各个平台，首先要保证机器的稳定性，其中包括 GPU 的分布情况，合理的分配机制，被无辜占用的风险
+
+或者是一些项目运行急停的预警等等，最怕的就是幸幸苦苦跑了半天结果被中断，功亏一篑！当然价格肯定
+
+是影响大家选择的一个很重要的因素！细水长流还是比较重要的，就 GPU 海量计算而言，阿里云是国内首
+
+选。阿里云的 GPU 云服务器是基于 GPU 应用的计算服务，最适合 AI 深度学习、视频处理、科学计算、图形可
+
+视化等应用场景。阿里云的 GPU 服务器支持周、月、年购买，支持批量支付，对于短期需求的用户来说相当
+
+方便。但是它确实是太贵。总的来说，在各个机型的价格对比都差不多，选择一个使用舒服的平台还是比较
+
+重要，如果你有心思去进行各个平台的活动比价，还是可以是有很多的选择。
+
+本文我们就从两方面：白嫖和付费两方面来剖析目前市场上主流的算力平台。但需要说明的是：对于本
+
+地化部署开源大模型的小伙伴来说，免费的 GPU 资源都不足以支撑起大模型的服务，必须要去根据 GPU 的显
+
+存要求去选择更高配置的机器。
+
+但是，我给大家薅到了一个免费、且支持大模型开发的云计算平台，就是阿里云的人工智能 PAI ，接下来
+
+我们就先来看一下。"
+b2285fad-5932-452d-995c-b4e6cefd8840,在线大模型课件,['Ch.2 智选 GPU 算力平台：免费与付费租赁指南'],Ch 2 智选GPU算力平台.pdf,一、免费 GPU 资源推荐,"1.1 阿里云人工智能 PAI, 1.2 阿里天池实验室, 1.3 Kaggle, 1.4 Colab, 1 5 其他平台","## 1.1 阿里云人工智能 PAI
+
+阿里云人工智能平台 PAI 是面向开发者和企业的 AI 工程化平台，提供了覆盖数据准备、模型开发、模型
+
+训练、模型部署的全流程服务。可以白嫖 GPU 资源的用户群体是： **阿里云认证用户且为产品的新用户。** 有 3
+
+款支持试用的产品，分别是：
+
+1. 交互式建模 PAI-DSW ：深度学习开发环境，集成 JupyterLab ，支持调试和运行 Python 代码。支持开源
+
+框架的安装，提供了阿里巴巴深度优化的 Tensorflow 框架；
+
+2. 模型在线服务 PAI-EAS ：模型在线服务平台，支持用户将模型一键部署为在线推理服务或 AI-Web 应用；
+
+3. 机器学习 PAI-DLC ：深度学习训练平台，提供灵活、稳定、易用和高性能的机器学习训练环境。支持多
+
+种算法框架，超大规模分布式深度学习任务运行及自定义算法框架；
+
+
+-----
+
+如果需要实践大模型的相关测试，闭眼选交互式建模 PAD-DSW 。从官方的教程上也可以看出，每个机型
+
+都适用于不同的应用场景。
+
+领取试用产品的方式也比较方便，每日上午 08 点开始限量领取 500 份，从实际情况上看资源并不紧张，
+
+为了制作本教程，我是下午领取的产品资源，依然还有存货。阿里还是大气。
+
+详细的试用过程如下：
+
+**Step 1.** **进入阿里云官网：** **[https://cn.aliyun.com/](https://cn.aliyun.com/)**
+
+**Step 2.** **登陆或注册**
+
+点击官网主页的右上角部分，进行登陆或者注册。
+
+**Step 3.** **进入人工智能平台** **PAI**
+
+
+-----
+
+**Step 4.** **免费试用产品**
+
+**Step 5.** **选择使用产品**
+
+这里我们选择 **交互式建模** **PAI-DSW** **。**
+
+点击试用教程，可以看到 PAI-DSW 资源支持的示例场景。
+
+
+-----
+
+教程。
+
+**Step 6.** **选择交互式建模** **PAI-DSW** **，进行试用。**
+
+交互式建模 PAI-DSW 资源 AI 机器学习；使用 Python 代码进行模型开发的场景，但需要注意的是：从说
+
+明上看，开始每日上午 08 点开始限量领取 500 份，所以如果当日显示无法试用，就说明份额已经被领取完
+
+了，需要第二天再来拼手速。
+
+试用赠送了 5000 计算时，相当于 10000 元的价值，血赚。能选择的机型为 A10 ， V100 和 G6 ，按小时计
+
+费，不同机型每小时的费用也不同，做大模型部署的话，建议选择 V100 ，其次是 A10 。
+
+
+-----
+
+**Step 7.** **成功创建实例**
+
+点击立即试用后，如果今日还有免费份额，即可成功创建实例。
+
+**Step 8.** **进入控制台**
+
+**Step 9.** **开通** **PAI** **并创建默认空间**
+
+
+-----
+
+授权页面全部默认选项，点击同意授权即可。
+
+出现此页面时，表明授权成功。
+
+**Step 11.** **确认开通并创建默认工作空间**
+
+**Step 12.** **开通成功后，进入** **PAI** **控制台**
+
+
+-----
+
+**Step 13.** **进入交互式建模（** **DSW** **）**
+
+**Step 14.** **新建一个工作空间**
+
+**Step 14.** **填名称即可，** **OOS** **相关内容可以忽略**
+
+
+-----
+
+**Step 15.** **创建完成后，进入工作空间**
+
+**Step 16.** **创建** **DSW** **实例**
+
+**Step 17.** **自行选择** **GPU** **规格，不同** **GPU** **费用不同，我这里选择** **V100** **。**
+
+这里能够使用赠送的计算点数的只有三款， V100 ， A10 和 G6 。根据自己的需求选择。注意：这里要选择
+
+支持资源包抵扣的。
+
+**Step 18.** **确认创建实例**
+
+
+-----
+
+**Step 19.** **等待创建完成，需要** **1~3** **分钟**
+
+**Step 20.** **创建完成后，可以进入运行环境**
+
+**Step 21.** **创建** **Notebook**
+
+**Step 22.** **验证实例配置**
+
+## 1.2 阿里天池实验室
+
+阿里天池实验室阿里云提供的打比赛的平台。 提供了云端的开发环境，其 notebook 集成机器学习 PAI
+
+DSW （ DataScienceWorkshop ）探索者版，是天池实验室的底座，可以提供完备的 IDE 以及丰富的计算资
+
+源。同时对于任意用户来说，有 60 个小时的 GPU 免费使用额度，同时也可以通过在天池内参加比赛、公开
+
+notebook 、上传数据集等方式活跃账号来获得积分，增加额外的免费时长。
+
+其整体的优点是：国内可直接访问，社区活跃度强，数据集丰富，且开发环境的兼容性非常好。对于
+
+GPU 的使用，分配资源的方式分为两种：
+
+GPU 独享型：即当前环境下独享 GPU 资源，但存在的问题就是很多时候会提示没有资源，所以只能碰运
+
+气。同时即使获取到了 GPU 资源，单次使用 GPU 的时长也不能超过 8 个小时，会被释放掉；
+
+
+-----
+
+现，当使用这种模型的时候， CPU 和 Mem 都是直接被拉满的。
+
+另外需要注意的是， GPU 并不能自主选择，只能让系统随机分配，比如我就分配到 A10 ， V100 ， T4 等不
+
+同的 GPU 型号。而且有一个小 Bug ，就是新环境的 notebook 上传数据后，下次会丢失，好像到目前都没有解
+
+决。
+
+但总的来说，阿里的天池实验室可以说是目前用过的非常好用的免费 GPU 资源。其具体的试用过程如
+
+下：
+
+**Step 1.** **登陆阿里天池官方，进行登陆或者注册：** **[https://tianchi.aliyun.com/](https://tianchi.aliyun.com/)**
+
+**Step 2.** **登陆后，进入天池实验室的** **NoteBook**
+
+**Step 3.** **进入后可以看到，有** **60** **小时的免费** **GPU** **使用**
+
+**Step 4.** **需要进行实名认证**
+
+**Step 5.** **进入我的实验室**
+
+
+-----
+
+**Step 7.NoteBook** **需要点击** 编辑 **按钮后，进入编辑环境才能进行操作**
+
+**Step 8.** **默认开启的是** **CPU** **，如需改为** **GPU** **，需要进行切换**
+
+**Step 9.** **最好在执行代码前切换环境，否则需要重新运行全部代码**
+
+**Step 10.** **测试当前环境是否正常加载** **GPU** **，可以看到，目前加载的是** **NVIDIA** **的** **A10**
+
+
+-----
+
+如果 60 小时的免费 GPU 时长全部用尽后，也可以通过积极参加天池的活动、比赛等，较高的活跃度会获
+
+得不同数量的积分，达到一定的积分后，阿里天池官方会自动增加免费的 GPU 使用时长。
+
+## 1.3 Kaggle
+
+Kaggle 是一个进行数据发掘和预测竞赛的在线平台。从企业的角度来讲，可以提供一些数据和实际需要
+
+解决的问题；从参赛者的角度来讲，可以组队参与项目，针对其中一个问题提出解决方案，最终由选出的最
+
+佳方案获得对应的奖金。 Kaggle 一直致力于解决业界难题，因此也创造了一种全新的劳动力市场 —— 不再以
+
+学历和工作经验作为唯一的人才评判标准，而是着眼于个人技能，为顶尖人才和公司之间搭建了一座桥梁。
+
+作为这样一个大型竞赛平台，其提供了可以免费访问并可以在云端 GPU 进行深度学习训练的资源和环
+
+境。每个用户每周有 30 个小时的 GPU 额度。其详细使用过程如下：
+
+**Step 1.** **登录** **Kaggle** **官网，如果是老用户，可以直接登录。新用户的话先进行注册**
+
+
+-----
+
+**Step 2.** **如果使用** **Google** **账号注册，需要挂梯子。如果不想挂梯子或没有梯子，可以选择邮箱注册，**
+
+**QQ** **邮箱也可以。**
+
+**Step 3.** **登录成功后，需要验证手机号才可以使用免费** **GPU** **。**
+
+**Step 4.** **支持中国手机号验证。**
+
+
+-----
+
+**Step 5.** **认证手机号后，新建一个** **NoteBook** **。**
+
+**Step 6.** **打开** **NoteBook** **之后再右侧菜单栏里的** **Notebook options——ACCELERATOR** **里就可以在几**
+
+**种** **GPU** **之间进行选择**
+
+**Step 7.** **选择** **GPU** **。这里我们选择** **P100** **。**
+
+**Step 8.** **环境验证。**
+
+
+-----
+
+**Step 8.** **注意：如果安装不上任何包，把页面右侧** **Setting** **栏中的** **Internet** **选项开启即可正常安装。**
+
+**Step 9.** **查看剩余配额情况。**
+
+## 1.4 Colab
+
+Colab 是由 Google 研发的，它免费提供 CPU 、 GPU 甚至 TPU 资源。但是，有一点要注意 : 要使用你得准备
+
+好翻墙的梯子。可以说，大名鼎鼎的谷歌的 Colab ，全世界都在薅羊毛。历史最久，用户最多，可谓部署界
+
+的大佬。谷歌 Colab 是谷歌打造的深度学习平台，为开发者和研究人员提供免费的云端笔记本运行环境。同
+
+时搭载了强大的 GPU 和 TPU 计算资源，再搭配一应俱全的深度学习框架和工具，开发者可以直接在上面运行
+
+代码或者进行模型训练。
+
+
+-----
+
+开具体的配置信息。收费版的 Colab Pro 每月 9.99 美金。在选择笔记本时，用户无法选择特定的 GPU 型号，
+
+会自动分配 K80 ， P100 ， T4 ， V100 等显卡， 16G 左右的内存， 70G 左右的存储空间，资源是临时的，每次重
+
+启项目时，都需要重新加载，
+
+对于免费用户来说， Notebook 最长可以持续运行 12 小时，限额后不知道过多久能重新恢复使用。同
+
+时， GPU 的类型只能选 Tesla T4 。除非开通 Colab Pro ，才能选择更多的 GPU 资源，但不论是免费用户还是付
+
+费用户，限制都很多：
+
+实例空间的内存和磁盘都是有限制的，如果模型训练的过程中超过了内存或磁盘的限制，那么程序运行
+
+就会中断并报错。实例空间内的文件保存不是永久的，当代码执行程序被断开时，实例空间内的所有资
+
+源都会被释放，在 ""/content"" 目录下上传的文件也会全部消失；
+
+有限的连接时间：笔记本连接到代码执行程序的时长是有限制的，这体现在三个方面：如果关闭浏览
+
+器，代码执行程序会在短时间内断开而不是在后台继续执行（这个 “ 短时间 ” 大概在几分钟左右，如果只
+
+是切换一下 wifi 之类的操作不会产生任何影响）；如果空闲状态过长（无互动操作或正在执行的代码
+
+块），则会立即断开连接；如果连接时长到达上限（免费用户最长连接 12 小时），也会立刻断开连接；
+
+有限的 GPU 运行时：无论是免费用户还是 colab pro 用户，每天所能使用的 GPU 运行时间都是有限的。
+
+到达时间上限后，使用 GPU 的代码执行程序将被立刻断开且用户将被限制在当天继续使用任何形式的
+
+GPU 。在这种情况下我们只能等待第二天重置；
+
+频繁的互动检测：当一段时间没有检测到活动时， Colab 就会进行互动检测，如果长时间不点击人机身
+
+份验证，代码执行程序就会断开。此外，如果频繁地断开和连接代码执行程序，也会出现人机身份验
+
+证；
+
+就算是一直在训练，也会时不时断线，不稳定；
+
+其加载过程如下：
+
+**Step 1.** **登录** **Colab** **官网（注意：需要挂梯子）** **[https://colab.research.google.com/](https://colab.research.google.com/)**
+
+**Step 2.** **使用** **Google** **账号登录**
+
+
+-----
+
+**Step 4.** **连接资源**
+
+**Step 5.** **更改运行环境为** **GPU**
+
+**Step 6.** **免费用户只能选择** **T4 GPU**
+
+
+-----
+
+**Step 7.** **可以看到，已正常加载** **GPU T4**
+
+但需要注意的是，这个分配的资源是临时的（相当于一台没有硬盘的电脑），所以我们还得进行一些操
+
+作。即配合 Google drive 使用。 Drive 也是免费的。普通 Google 账号中 Drive 会有 15G 的空间。
+
+**Step 8.** **挂载** **Google Driver**
+
+**Step 9.** **账号授权**
+
+全部默认选项即可。
+
+
+-----
+
+点击允许后，命令行终端会生成如下命令。
+
+此时 Colab 就用上了 Google Drive 了。在左边目录可以看到硬盘里面的文件了，把它当做当前的工作环
+
+境就可以：
+
+
+-----
+
+**Step 10.** **测试安装依赖包**
+
+**Step 11.** **上传文件**
+
+而由于需要挂梯子的原因，大文件有时上传很麻烦, 熟悉 linux 命令的同学应该知道 wget 命令，可以直接
+
+使用 wget 下载，而这里一个小技巧就是：大文件可以先传到百度云盘，然后在百度云盘里生成下载链接嘛
+
+（生成那种不需要验证码的）。百度云盘下载很慢但是上传很快。然后再用 wget 。传文件，服务器与服务器
+
+的速度真的超乎本地和服务器。
+
+
+-----
+
+## 1 5 其他平台
+
+
+-----
+
+#/home ，移动推出的集比赛、数据、训练于一体的平台，貌似不是很活跃，数据集都没多少，但是模型训
+
+练的羊毛还是要薅的。通过签到、邀请增加训练时长，按照算例豆来计算，使用过程还可以，但是算力豆消
+
+耗的很快。除此之外，百度的 AI Studio ，是百度提供的一个针对 AI 学习者的在线一体化开发实训平台，但是
+
+V100 只能用百度的框架 PaddlePaddle ，并不是很通用。"
+d51d3061-7f51-49cf-9b85-109565f8033d,在线大模型课件,['Ch.2 智选 GPU 算力平台：免费与付费租赁指南'],Ch 2 智选GPU算力平台.pdf,二、付费 GPU 资源推荐,"2.1 AutoDL, 2.2 Gpushare Cloud, 2.3 Featurize, 2.4 AnyGPU, 2.5 阿里云","相比于免费平台，付费平台就非常乱了。随着老美的制裁，高端显卡的供不应求，国内超高溢价的情况
+
+下，个人、机构由购转租，无疑是一个合适的选择。从而也带动起了显卡租赁厂商的快速增长。这也就导致
+
+目前的租赁环境非常乱。首先来看国内大厂如阿里，腾讯，其生态好，行业积累长，但是其对应的 GPU 实例
+
+价格很高，一般个人、学生很难承担的起，更多的是面向企业的采购。而平价的云服务上，鱼龙混杂，生态
+
+乱、架构乱、 GPU 质量难以保障，同时还可能搭着免费的旗号明目张胆的割韭菜。那么在选择平台的时候，
+
+如何选择呢？
+
+首先需要明确需求，对于大模型来说，先选择显卡，最低配置是 3090 ；其次是价格，这是很多人关心的
+
+一个因素，不同的提供商有不同的计费方式和折扣政策，你需要根据你的预算和使用需求来选择合适的价格
+
+方案。而关于配置，这是影响 gpu 云服务器使用体验的一个重要因素，一般平台都支持灵活扩容，不需要太
+
+担心。最后需要关注系统环境，很多系统都比较纯净，对一些依赖如 Pytorch 不兼容，这对开发人员会造成
+
+很大的困扰，尤其对小白不太友好。总体来看，需要保证机器的整体稳定性和开发环境的兼容性。
+
+推荐如下，按先后排名。
+
+## 2.1 AutoDL
+
+AutoDL 刚开始接触这个平台的时候惊艳到我了，和别的租云服务器的平台相比，价格对于学生党来说不
+
+要太友好。如果是学生，认证之后直接升级到炼金师三会员等级，可以享受平台最低价。平时活动还超多，
+
+代金券领不完的。
+
+**优惠方案**
+
+新用户注册就送炼丹会员，享受 9.5 折，一个月有效期，这一个月内通过充值提升积分来保持会员，对于
+
+学生来说，认证期间一直是会员，非常友好。
+
+**显卡种类及费用**
+
+从 1080Ti 到 A100 ，共计 16 种类型的 GPU 资源，对于大模型来说，我们仅考虑 3090 及以上级别的资源，
+
+各阶段的资费如下：
+
+|显卡型号|每小时费用|每天费用|每月费用|
+|---|---|---|---|
+|RTX 3090|1.58|36.72|805.41|
+|RTX 4090|2.48|53.20|1360.00|
+|A 100 80G|6.68（最便宜）|/|/|
+
+
+
+**实际使用情况**
+
+1. **可选地域限制** ：可选择的服务地域包括西北、北京、芜湖、西南、佛山、内蒙多个区，且每个区的资源
+
+都很多；
+
+
+-----
+
+3. **存储情况** ：提供 50GB 数据盘，不太够用，如果超出按照 0.0066/ 元 / 日 /GB 付费；
+
+4. **系统环境** ：可选择平台预测环境，也可以选择社区环境，且系统的依赖包预选安装了很多，整体环境对
+
+用户比较友好；
+
+5. **开发环境** ：只能 SSH 连接，同时提供云端的运行环境；
+
+具体的使用过程如下：
+
+**Step 1.** **进入官网：** **[https://www.autodl.com/home](https://www.autodl.com/home)**
+
+**Step 2.** **老用户可以直接登陆，新用户需要注册**
+
+**Step 3.** **登录后，需要认证相关信息，才可以进行** **GPU** **的租赁**
+
+
+-----
+
+**Step 4.** **认证完成后，进行充值，** **AutoDL** **对于新用户，目前也没有体验金活动**
+
+**Step 5.** **充值方式支持微信支付、支付宝和对公汇款**
+
+**Step 6.** **在进行实例创建前，如果不知道如何选择** **GPU** **，还可以在官网首页参考下** **GPU** **的算力排名**
+
+
+-----
+
+**Step 7.** **在算力市场，可以选择** **GPU** **资源**
+
+我们选择一个 2080Ti 来尝试一下。（为什么不选规格更高的，因为账户的钱不够）
+
+这里选择周期和地域，不同地域下的可用 GPU 资源不同。
+
+在选择镜像的时候，这里非常好的一点是可以直接拉去社区镜像。比如我们想部署 ChatGLM3 ，就可以
+
+直接在 Github 上选择一个镜像来安装。
+
+比如我们想部署 ChatGLM3 ，就可以直接在 Github 上选择一个镜像来安装。
+
+
+-----
+
+提交订单，开始创建实例。
+
+这里会显示创建过程，一般需要等到 3 min 以上。
+
+创建完成后，可以通过远程 ssh 工具连接 或者 AutoDL 提供的云端运行环境。
+
+**Step 8.** **这里我们选择在云端的** **Jupyter lab** **运行**
+
+可以看到，由于我们选择了 ChatGLM 的镜像环境，在初始化机器的时候已经帮我们创建好了， 这能省
+
+去我们非常多的时间。
+
+
+-----
+
+**Step 9.** **测试** **GPU** **资源**
+
+**Step 10.** **如果不用，释放掉资源，避免产生额外的费用**
+
+**Step 11.** **如何白嫖？**
+
+首先，如果是学生，一定要去做学生认证，可以一直享受 9.5 折会员价。
+
+
+-----
+
+其次， AutoDL 经常会搞活动，发放优惠卷和代金卷，可以常关注一下。
+
+## 2.2 Gpushare Cloud
+
+Gpushare Cloud ，即恒源云，和 AutoDL 是目前市场是最大的两家。
+
+**优惠活动**
+
+新用户注册送 50 元优惠卷，但是前提是要完成全部的新手任务才会给，其中就包含首冲 30 元的任务。所
+
+以直接白嫖测试，是没有什么机会的。
+
+学生认证，通过消费提升会员等级，学生的充值金额较少，如果要到黄金会员级别，学生账号仅需充值
+
+600 ，而非学生账号充值 30000 。
+
+
+-----
+
+**显卡种类及费用**
+
+从 2060s 到 A100 ，共计 31 种类型的 GPU 资源，对于大模型来说，我们仅考虑 3090 及以上级别的资源，
+
+各阶段的资费如下：
+
+|显卡型号|每小时费用|每天费用|每月费用|
+|---|---|---|---|
+|RTX 3090|1.29 （最便宜）|30.03 （最便宜）|835.92 （最便宜）|
+|RTX 4090|2.6|59.28 （最便宜）|1591.20 （最便宜）|
+|A 100 80G|/|/|/|
+
+
+
+**实际使用情况**
+
+1. **可选地域限制** ：可选择的服务地域包括华东、华中、东北、西北、华南和西南多个区，且每个区的资源
+
+都很多；
+
+2. **显卡资源分布** ：主流的显卡基本都有资源，相对来说 A100 80G 短缺；
+
+3. **存储情况** ：提供 50GB 数据盘，不太够用，如果超出按照 0.0004/GB 付费；
+
+4. **系统环境** ：可选择平台预设环境，同时提供镜像市场，但需要占用个人存储空间；
+
+5. **开发环境** ：支持远程工具连接，同时也提供云端的运行环境
+
+具体的使用过程如下：
+
+**Step 1.** **进入官网：** **[https://www.gpushare.com/](https://www.gpushare.com/)**
+
+**Step 2.** **新用户先注册**
+
+
+-----
+
+**Step 3.** **新用户注册后，可以领取** **50** **元的代金卷，但比较坑的是，必须做完全部新手任务才能一次性领**
+
+**取，其中就包含首冲** **30** **任务**
+
+**Step 4.** **所以在创建实例之前，需要先进行充值**
+
+
+-----
+
+同样，支持支付宝、微信和对公转账三种方式。
+
+**Step 5.** **充值成功后，创建实例**
+
+支持的 GPU 类型非常多，从 2060 ~ A800 共计 31 种 GPU 显卡类型。
+
+这里提供镜像市场 但需要占用个人的存储空间 超出后需要按照 0 0004/GB 付费
+
+
+-----
+
+选择完成后创建实例。
+
+等待创建完成，这里显示资源的创建进度。
+
+**Step 5.Gpushare cloud** **提供了远程工具连接和云端的运行环境。**
+
+这里我们选择直接使用 Jupyter lab 运行
+
+使用过程与本地 Jupyter lab 一致。
+
+
+-----
+
+**Step 6.** **验证** **GPU** **环境**
+
+**Step 7.** **释放资源**
+
+**Step 8.** **如何白嫖？**
+
+首先，如果是学生的话，一定要做学生认证。
+
+
+-----
+
+其次，还是老套路，邀请人给自己增加现金奖励。
+
+## 2.3 Featurize
+
+Featurize 也是一个比较好用的平台，主要内置了很多比赛和公开的数据集，属于比较受高校实验室青睐
+
+的，之前一直以价格为优势，但现在从各大平台上比较来看，已然成了最贵的。
+
+**优惠方案**
+
+靠充值提升会员等级，最高充值 20000 元，获取 8 折优惠，同时充值的时候也会有代金卷。
+
+**显卡种类及费用**
+
+从 1080Ti 到 A6000 ，共计 9 种类型的 GPU 资源，对于大模型来说，如果仅考虑 3090 及以上级别的资源各
+
+阶段的资费如下：
+
+|显卡型号|每小时费用|每天费用|每月费用|
+|---|---|---|---|
+|RTX 3090|2.49|55 （最贵）|1500 （最贵）|
+|RTX 4090|2.78|63 （最贵）|1700 （最贵）|
+
+
+-----
+
+|A 100 80G|/|/|/|
+|---|---|---|---|
+
+
+**实际使用情况**
+
+1. **可选地域限制** ：不可选
+
+2. **显卡资源分布** ：支持的显卡基本都能找到资源
+
+3. **存储情况** ：不同机型，配备的内存和硬盘空间都不同，且不可选择
+
+4. **系统环境** ：选择平台预设环境，只有 Pytorch 和 SD 环境
+
+5. **开发环境** ：支持 VScode 、 Pycharm 等 IDE 远程连接，并提供详细的教程，同时也提供云端的环境
+
+具体的使用过程如下：
+
+**Step 1.** **进入官网：** **[https://featurize.cn/](https://featurize.cn/)**
+
+其显卡以高性价比著称，但就目前的平台比价来看，其价格并不占优势。
+
+**Step 2.** **进入控制台**
+
+
+-----
+
+**Step 4.** **目前只支持微信扫码登录**
+
+**Step 5.** **目前该平台没有任何活动，如果需要创建实例，需要自行充值测试**
+
+**Step 6.** **主页上直接进行** **GPU** **资源的选择，这里我们可以看到，目前支持** **1080Ti** **到** **A6000** **共计** **9** **种** **GPU**
+
+**资源类型**
+
+**Step 7.** **创建实例，这里选择** **3080** **进行尝试**
+
+
+-----
+
+这里能显示服务器的详细信息。
+
+执行完创建后，可以查看资源创建的进度。一般来说需要 3min 以上。
+
+|
+
+**Step 8.** **远程连接**
+
+Featurize 提供了本地远程工具连接和云端云端运行环境两种，并且给出了详细的教程。
+
+
+-----
+
+使用云端运行环境连接，就更加简便。
+
+**Step 9.** **使用本地工具** **Xshell** **测试连接**
+
+直接复制官方给出的命令至 Xshell 的终端。
+
+
+-----
+
+需要修改一下，去掉命令行的 -p ，否则会报错。
+
+看到此页面，说明远程连接服务器成功，可以在此环境下进行相关的操作。
+
+**Step 10.** **查看** **GPU** **资源**
+
+**Step 11.** **释放资源**
+
+
+-----
+
+**Step 12.** **如何白嫖？**
+
+还是老套路，邀请别人自己得奖励。
+
+## 2.4 AnyGPU
+
+AnyGPU 主要服务 AI 深度学习、高性能计算、渲染测绘、云游戏等领域。
+
+**优惠方案**
+
+首次充值返现优惠：首次充值即享受 15% 的返现优惠。充值的金额越多，获得的返现也越多。例如，若
+
+充值 575 元，实际只需支付 500 元。
+
+会员专享折扣：成为会员后，享受所有服务 8.8 折优惠。要成为会员，需要联系客服，并支付 88 元的
+
+会员费。相当于是一种 “ 免费送 ” 的优惠，因为会员所享受的折扣将覆盖这笔费用。
+
+**显卡种类及费用**
+
+从 2080Ti 到 A100 ，共计 12 种类型的 GPU 资源，对于大模型来说，我们仅考虑 3090 及以上级别的资源，
+
+各阶段的资费如下：（目前仅支持按量付费，也就是小时。）
+
+|显卡型号|每小时费用|每天费用|每月费用|
+|---|---|---|---|
+|RTX 3090|1.33|32.00|800.00|
+|RTX 4090|2.27|54.40|1360.00|
+|A 100 80G|7.22|165.44|4180.00|
+
+
+
+**实际使用情况**
+
+
+-----
+
+创建不到
+
+2. **显卡资源分布** ：目前较为充足的显卡资源主要集中在 GeForce RTX 2080Ti 、 3080 和 3090 ， RTX 4090
+
+和 A 系列显卡基本没有，而且尽管系统上显示资源存在，实际上在创建过程中经常出现报错，导致无法
+
+成功创建实例。
+
+3. **存储和系统环境** ：提供 200GB 的数据盘，通常足够使用。但系统环境只能选择平台预设的选项，不支
+
+持自定义镜像。并且操作仅能通过 SSH 远程工具完成，不提供云端运行环境。
+
+4. **系统环境纯净但对新手不友好** ：系统环境较为 “ 纯净 ” ，许多必要的依赖包并未预装，这对于初学者来说
+
+可能不太友好，需要自行配置和安装所需软件。
+
+具体的使用过程如下：
+
+**Step 1.** **进入官网：** **[https://www.anygpu.cn/](https://www.anygpu.cn/)**
+
+**Step 2.** **新用户先进行账户注册**
+
+**Step 3.** **首次注册，关注公众号可以获得** **10** **元体验金，可用于租赁服务器**
+
+
+-----
+
+**Step 4.** **同时，参加问卷调查，可以额外获得** **10 ~ 50** **体验金，** **5~10** **个工作日到账**
+
+**Step 5.** **注册完成后进入控制台**
+
+**Step 6.** **这里可以看一下，该平台会员是** **8.8** **折优惠**
+
+
+-----
+
+我也咨询了一下客服，是需要充值 88 元到账户中，会给开通会员。其实也算白送一个月会员。
+
+同时，也有一个首冲福利。充的越多，越划算。
+
+**Step 7.** **目前该平台支持从** **2080Ti** **到** **A100** **共计** **12** **种类型的** **GPU** **资源**
+
+
+-----
+
+**Step 8.** **在创建实例前，建议完善一下账号信息，毕竟涉及财产安全**
+
+绑定手机号。
+
+**Step 9.** **完善账号信息后，创建实例**
+
+这里可以切换地域，不同地域下可创建的资源不同。
+
+
+-----
+
+只能选择系统提供的镜像。在这里选择操作系统。
+
+只能选择系统提供的镜像。在这里选择操作系统。
+
+**Step 10.** **提交订单后等待创建完成**
+
+有个问题是：尽管资源显示充足，但是经常性创建失败，我这里 3090 一直无法创建，所以最终创建一台
+
+3080.
+
+
+-----
+
+**Step 11.** **该平台目前只能** **SSH** **远程连接，并没有提供云端运行环境**
+
+点击 SSH 连接，可以查看相关的远程连接信息。
+
+**Step 12.** **使用** **Xshell** **远程工具连接服务器**
+
+输入用户名和密码。
+
+
+-----
+
+**Step 13.** **登陆成功后验证** **GPU** **资源**
+
+`nvidia-smi` 命令可以监控和管理与 NVIDIA GPU 相关的硬件和软件状态。
+
+这里出现报错，说明需要安装相应的 NVIDIA 驱动程序。在安装新的驱动程序之前，先更新系统软件包
+
+列表。在终端中运行以下命令：
+
+NVIDIA GeForce RTX 3080 显卡应该安装一个比较新的 NVIDIA 驱动程序版本，建议 510 或更高版本。
+
+安装驱动后，可以看到已经能够正常加载。
+
+
+-----
+
+**Step 14.** **如果不使用该资源后，需要进行释放，以免花费额外的费用**
+
+## 2.5 阿里云
+
+阿里云 GPU 服务器租用价格表包括包年包月价格、一个小时收费以及学生 GPU 服务器租用费用，阿里云
+
+GPU 计算卡包括 NVIDIA V100 计算卡、 T4 计算卡、 A10 计算卡和 A100 计算卡，分为多种实例规格，如 NVIDIA
+
+V100 GPU 卡的 GPU 云服务器 gn6v 实例、 GPU 云服务器 gn6i 采用 T4 计算卡、 GPU 云服务器 gn7e 实例采用
+
+A100 计算卡、 GPU 云服务器 gn7i 实例采用 A10 计算卡。 GPU 云服务器规格不同、 CPU 内存配置不同价格也不
+
+同。
+
+整体来说，服务器价格对于学生和个人来说小贵，更多的是面向企业用户。
+
+**Step 1.** **先进入阿里云官网，登陆账户：** **[https://cn.aliyun.com/](https://cn.aliyun.com/)**
+
+**Step 2** **在产品** **-** **计算中** **找到** **GPU** **云服务器入口**
+
+
+-----
+
+**Step 3.** **阿里云提供了** **V100** **、** **T4** **、** **A10** **、** **P4** **、** **P100** **共计** **5** **种显卡配置的** **GPU** **云服务器，其中如果涉及训**
+
+**练和科学计算的，一定要选择** **V100** **。**
+
+**Step 4.** **根据个人需求选择配置和操作系统。**
+
+
+-----
+
+实例价格大家都知道的。很多学生或者自由职业者想自己做做 ML 和 DL 的同学都苦于没有廉价的平台来做实
+
+验。 GPU 租赁市场很乱，大家一定要记得去甄别一些，所谓的 “ 免费 ” ！有些打折免费的口号，根本没有机器
+
+去选择，最后引导还是会指向用户去选择更贵的机器，所以拥有个性化推荐的平台是非常有优势的，根据个
+
+人的项目情况选择最具性价比的机器，避免算力浪费的同时也降低了用户的使用成本，这样的循环才是好
+
+的。站在消费者的角度来看，我觉得大家不是为了选择便宜而去选择，从接受一个新平台来说，如果有一种
+
+物超所值的感受，那么价格绝对就不是某个平台的核心竞争力，保证流畅 / 效率 / 安全，才是对一个开发者而
+
+言最重要的。
+
+
+-----"

@@ -21,6 +21,7 @@ from langchain.chains import LLMChain
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.prompts import PromptTemplate
 
+
 class History(BaseModel):
     """
     对话历史
@@ -233,7 +234,8 @@ async def get_conversation_history(conversation_id: str, limit=3) -> List[Any]:
     return chat_messages
 
 
-async def generate_user_profile_and_extract_info(chat_messages: List[str], user_profile_prompt: str, model) -> Dict[str, List[str]]:
+async def generate_user_profile_and_extract_info(chat_messages: List[str], user_profile_prompt: str, model) -> Dict[
+    str, List[str]]:
     """
     异步生成用户画像并从中提取课程和模块信息。
 
@@ -247,7 +249,7 @@ async def generate_user_profile_and_extract_info(chat_messages: List[str], user_
         ("user", user_profile_prompt),
     ])
 
-    # 创建链式模型
+    # 创建LangChain的链
     user_profile_chain = LLMChain(prompt=prompt_template, llm=model)
 
     # 异步生成用户画像
@@ -264,4 +266,3 @@ async def generate_user_profile_and_extract_info(chat_messages: List[str], user_
 
     # 提取信息并返回
     return extract_course_and_module(user_profile)
-

@@ -23,6 +23,10 @@ fufan-chat项目的后端服务，负责处理业务逻辑、数据存储和API�
 6. 实时联网 + RAG 检索开发逻辑
 ![6](https://muyu001.oss-cn-beijing.aliyuncs.com/img/%E8%81%94%E7%BD%91%E6%A3%80%E7%B4%A2.png)
 
+7. LLM推荐系统的一种思路
+![7](https://muyu001.oss-cn-beijing.aliyuncs.com/img/123.png)
+
+
 
 ## 介绍
 

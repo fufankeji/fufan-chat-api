@@ -18,9 +18,13 @@ from server.agent.callbacks import CustomAsyncIteratorCallbackHandler, Status
 from server.chat.utils import History
 from server.agent import model_container
 from server.agent.custom_template import CustomOutputParser, CustomPromptTemplate
+from server.db.repository.message_repository import add_message_to_db
 
 
 async def agent_chat(query: str = Body(..., description="用户输入", examples=["恼羞成怒"]),
+                     user_id: str = Body("", description="用户ID"),
+                     conversation_id: str = Body("", description="对话框ID"),
+                     conversation_name: str = Body("", description="对话框名称"),
                      history: List[History] = Body([],
                                                    description="历史对话",
                                                    examples=[[
@@ -35,38 +39,42 @@ async def agent_chat(query: str = Body(..., description="用户输入", examples
                      prompt_name: str = Body("default",
                                              description="使用的prompt模板名称(在configs/prompt_config.py中配置)"),
                      ):
-
     async def agent_chat_iterator(
             query: str,
             history: Optional[List[History]],
             model_name: str = LLM_MODELS[0],
             prompt_name: str = prompt_name,
     ) -> AsyncIterable[str]:
-        nonlocal max_tokens
 
         # 这里使用自定义的回调函数
         callback = CustomAsyncIteratorCallbackHandler()
-        if isinstance(max_tokens, int) and max_tokens <= 0:
-            max_tokens = None
+        callbacks = [callback]
+
+        # # 构造一个新的Message_ID记录
+        # message_id = await add_message_to_db(user_id=user_id,
+        #                                      conversation_id=conversation_id,
+        #                                      conversation_name=conversation_name,
+        #                                      prompt_name=prompt_name,
+        #                                      query=query
+        #                                      )
+        #
+        # conversation_callback = ConversationCallbackHandler(conversation_id=conversation_id,
+        #                                                     message_id=message_id,
+        #                                                     chat_type=prompt_name,
+        #                                                     query=query)
+        # callbacks.append(conversation_callback)
 
         model = get_ChatOpenAI(
             model_name=model_name,
             temperature=temperature,
             max_tokens=max_tokens,
-            callbacks=[callback],
+            callbacks=callbacks,
         )
 
         model_container.MODEL = model
 
         # 获取 AI Agents的提示模板
         prompt_template = get_prompt_template("agent_chat", prompt_name)
-
-        # 绑定工具库，并且生成提示模板
-        prompt_template_agent = CustomPromptTemplate(
-            template=prompt_template,
-            tools=tools,
-            input_variables=["input", "intermediate_steps", "history"]
-        )
 
         # langChain Docs:https://python.langchain.com/v0.1/docs/modules/memory/types/buffer_window/
         # 保存一段时间内对话交互的列表。它仅使用最后K个交互。这对于保持最近交互的滑动窗口非常有用，因此缓冲区不会变得太大。

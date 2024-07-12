@@ -120,6 +120,10 @@ class MilvusKBService(KBService):
         doc_infos = [{"id": id, "metadata": doc.metadata} for id, doc in zip(ids, docs)]
         return doc_infos
 
+    def do_add_file(self, docs: List[Document], **kwargs) -> List[Dict]:
+        self.milvus.add_texts(docs)
+        return ""
+
     async def do_delete_doc(self, kb_file: KnowledgeFile, **kwargs):
         id_list = await list_file_num_docs_id_by_kb_name_and_file_name(kb_file.kb_name, kb_file.filename)
         if self.milvus.col:

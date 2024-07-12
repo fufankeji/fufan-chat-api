@@ -16,7 +16,8 @@ from loguru import logger
 
 
 def chat(query: str = Body("", description="用户的输入"),
-         model_name: str = Body("chatglm3-6b", description="基座模型的名称"),
+         # model_name: str = Body("chatglm3-6b", description="基座模型的名称"),
+         model_name: str = Body("glm4-9b-chat", description="基座模型的名称"),
          temperature: float = Body(0.8, description="大模型参数：采样温度", ge=0.0, le=2.0),
          max_tokens: Optional[int] = Body(None, description="大模型参数：最大输入Token限制"),
          ):
@@ -33,7 +34,7 @@ def chat(query: str = Body("", description="用户的输入"),
     logger.info("Temperature: {}", temperature)
     logger.info("Max tokens: {}", max_tokens)
 
-    # 使用LangChain调用ChatGLM3-6B服务
+    # 使用LangChain调用glm4-9b-chat 或者 ChatGLM3-6B服务
     try:
         # 使用LangChain调用ChatGLM3-6B服务
         template = """{query}"""

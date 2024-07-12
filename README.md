@@ -10,7 +10,7 @@ fufan-chat项目的后端服务，负责处理业务逻辑、数据存储和API�
 
 ## 介绍
 
-基于 LangChain 加载 ChatGLM3-6b，通过 FastAPI 构建 ResfFul API，实现与本地开源大模型 ChatGLM3-6B 模型的对话交互。
+基于 LangChain 应用开发框架集成 GLM4-9B-Chat（或ChatGLM3-6b） 和GLM -4 两种形式的模型，通过 FastAPI 构建 ResfFul API，借助PostMan工具测试 ResfFul API 接口连通性，最终实现通过接口的形式与本地开源大模型 GLM4-9B-Chat（或ChatGLM3-6b） 模型的对话交互。
 
 ## 安装
 
@@ -22,9 +22,10 @@ fufan-chat项目的后端服务，负责处理业务逻辑、数据存储和API�
 
 ### 安装步骤
 
-1. 私有化启动 ChatGLM3-6B。
+1. 私有化启动 Glm4-9B-Chat或者ChatGLM3-6B。
 2. 克隆仓库并安装依赖：
     ```bash
+    git clone --branch v1.0.0 https://github.com/fufankeji/fufan-chat-api.git
     cd fufan-chat-api
     pip install -r requirements.txt
     ```

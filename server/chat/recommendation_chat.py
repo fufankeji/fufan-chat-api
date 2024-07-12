@@ -90,10 +90,8 @@ async def recommend_base_chat(query: str = Body(..., description="用户输入",
                                                             query=query)
         callbacks.append(conversation_callback)
 
-        if isinstance(max_tokens, int) and max_tokens <= 0:
-            max_tokens = None
-
-        # 为用户画像生成和聊天响应分别实例化模型
+        # 在同一个 model 实例上同时运行两个异步链（LLMChain）可能导致内部状态的混乱
+        # 所以为用户画像生成和聊天响应分别实例化模型
         model_for_profile = get_ChatOpenAI(
             model_name=model_name,
             temperature=temperature,
@@ -110,7 +108,7 @@ async def recommend_base_chat(query: str = Body(..., description="用户输入",
         from server.chat.utils import get_conversation_history
 
         # 获取当前conversation中历史的对话记录
-        chat_history = await get_conversation_history(conversation_id=conversation_id, limit=3)
+        chat_history = await get_conversation_history(conversation_id=conversation_id, limit=5)
 
         # 至少超过5轮对话，才会有概率生成推荐
         if len(chat_history) >= 5:
@@ -159,6 +157,7 @@ async def recommend_base_chat(query: str = Body(..., description="用户输入",
             callback.done),
         )
 
+        recommend_documents = recommend_documents if 'recommend_documents' in locals() else []
         if stream:
             async for token in callback.aiter():
                 # Use server-sent-events to stream the response
@@ -169,7 +168,7 @@ async def recommend_base_chat(query: str = Body(..., description="用户输入",
             answer = ""
             async for token in callback.aiter():
                 answer += token
-            yield json.dumps({"answer": answer, "recommend course": recommend_documents},
+            yield json.dumps({"answer": answer, "recommend course":  recommend_documents},
                              ensure_ascii=False)
         await task
 

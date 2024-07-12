@@ -1,3 +1,5 @@
+import os
+
 MODEL_ROOT_PATH = ""
 
 TEMPERATURE = 0.8
@@ -35,11 +37,13 @@ MODEL_PATH = {
     "embed_model": {
         "bge-large-zh-v1.5": "/home/00_rag/model/AI-ModelScope/bge-large-zh-v1___5",
 
+
         # 可扩展其他的Embedding模型
     },
 
     "reranker": {
         "bge-reranker-large": "/home/00_rag/model/Xorbits/bge-reranker-large",
+
     }
 }
 

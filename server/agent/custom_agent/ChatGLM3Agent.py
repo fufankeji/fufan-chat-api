@@ -36,14 +36,21 @@ class StructuredChatOutputParserWithRetries(AgentOutputParser):
     """The output fixing parser to use."""
 
     def parse(self, text: str) -> Union[AgentAction, AgentFinish]:
+
+        # 查找特殊标记中的最早位置，以此划分需要解析的文本范围。
         special_tokens = ["Action:", "<|observation|>"]
         first_index = min([text.find(token) if token in text else len(text) for token in special_tokens])
         text = text[:first_index]
         if "tool_call" in text:
+            # 找到行动定义结束的位置。
             action_end = text.find("```")
+            # 提取行动名称。
             action = text[:action_end].strip()
+            # 提取参数字符串起始位置。
             params_str_start = text.find("(") + 1
+            # 提取参数字符串结束位置。
             params_str_end = text.rfind(")")
+            # 获取参数字符串。
             params_str = text[params_str_start:params_str_end]
 
             params_pairs = [param.split("=") for param in params_str.split(",") if "=" in param]
@@ -54,6 +61,7 @@ class StructuredChatOutputParserWithRetries(AgentOutputParser):
                 "action_input": params
             }
         else:
+            # 如果不是工具调用，则将整个文本视为最终答案。
             action_json = {
                 "action": "Final Answer",
                 "action_input": text

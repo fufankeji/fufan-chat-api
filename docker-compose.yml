@@ -1,0 +1,39 @@
+version: '3.9'  # 指定 Docker Compose 文件格式的版本。
+
+services:  #  定义要使用的容器镜像的部署单元。
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: snowball950123
+      MYSQL_DATABASE: fufanapi
+    ports:
+      - "3306:3306"
+
+  milvus:
+    image: milvusdb/milvus:v2.3.7
+    ports:
+      - "19530:19530"
+      - "19121:19121"
+
+
+  fufan_chat_api:   # 开发的实际项目
+    build: .
+    image: fufan_chat_api:v1.0
+    ports:
+      - "8000:3000"
+    # 每一行/path/to/local:/path/to/container的格式是 Docker 的卷映射格式，左边是你的主机上的路径，右边是容器内部的路径。
+    # 这样设置后，容器内的程序就能通过相同的文件路径访问到存储在主机上的模型权重。
+    volumes:
+      - /home/00_rag/model/ZhipuAI/chatglm3-6b:/home/00_rag/model/ZhipuAI/chatglm3-6b
+      - /home/00_rag/model/AI-ModelScope/bge-large-zh-v1___5:/home/00_rag/model/AI-ModelScope/bge-large-zh-v1___5
+      - /home/00_rag/model/Xorbits/bge-reranker-large:/home/00_rag/model/Xorbits/bge-reranker-large
+    depends_on:   # 确保 fufan_chat_api 服务在 mysql 和 milvus 服务之后启动。
+      - mysql
+      - milvus
+
+    environment:
+      - MYSQL_HOST=mysql    # 使用服务名作为 host，Docker 内部 DNS 解析
+      - MYSQL_PORT=3306
+      - MILVUS_HOST=milvus
+      - MILVUS_PORT=19530

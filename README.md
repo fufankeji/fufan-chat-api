@@ -5,11 +5,11 @@ fufan-chat项目的后端服务，负责处理业务逻辑、数据存储和API�
 
 ## 业务流程
 
-1. 使用FastChat启动服务逻辑
-![1](https://muyu001.oss-cn-beijing.aliyuncs.com/img/1.png)
+1. 本地RAG知识问答开发逻辑
+![1](https://muyu001.oss-cn-beijing.aliyuncs.com/img/image-20240704144032483.png)
 
-2. FastChat请求处理逻辑
-![2](https://muyu001.oss-cn-beijing.aliyuncs.com/img/2.png)
+2. 向量数据库集成逻辑
+![2](https://muyu001.oss-cn-beijing.aliyuncs.com/img/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9B%86%E6%88%90%E9%80%BB%E8%BE%91.png)
 
 3. 通用领域知识问答开发逻辑
 ![3](https://muyu001.oss-cn-beijing.aliyuncs.com/img/3.png)
@@ -23,6 +23,7 @@ fufan-chat项目的后端服务，负责处理业务逻辑、数据存储和API�
 2. 灵活接入在线开源大模型
 3. 灵活接入在线API模型
 4. 接入Mysql数据库
+5. 接入Faiss向量数据库
 
 功能方面：
 
@@ -44,6 +45,7 @@ fufan-chat项目的后端服务，负责处理业务逻辑、数据存储和API�
 
 1. 克隆仓库并安装依赖：
     ```bash
+    git clone --branch v3.0.0 https://github.com/fufankeji/fufan-chat-api.git
     cd fufan-chat-api
     pip install -r requirements.txt
     ```
@@ -65,19 +67,20 @@ fufan-chat项目的后端服务，负责处理业务逻辑、数据存储和API�
 ### POST 请求示例
 
 ```http
-http://192.168.110.131:8000/api/chat
+http://192.168.110.131:8000/api/chat/knowledge_base_chat
 
 {
-    "query":"什么是快乐星球",
-    "model_name":"zhipu-api",
-    "conversation_id":"edcrfv33",
-    "conversation_name":"new chat 1",
+    "query":"什么是GLM4 多角色对话",
     "user_id":"admin",
-    "prompt_name":"llm_chat",
-    "history_len":3,
-    "stream":true
-
-    // "history":[]    
-
+    "conversation_id": "df221b2f-ea52-4200-82f5-fcfc011e6786", 
+    "conversation_name":"新对话",
+    "knowledge_base_name":"private",
+    "top_k":"3",
+    "score_threshold":"0.5",
+    "history":[],
+    "history_len": 3,
+    "stream": false,
+    "model_name":"chatglm3-6b",
+    "prompt_name":"default"
 }
 ```

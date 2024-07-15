@@ -87,7 +87,7 @@ SEARCH_ENGINE_TOP_K = 3
 SEARCH_RERANK_TOP_K = 3
 
 URL = "https://google.serper.dev/search"
-SERPER_API_KEY="c8da0155b57b159becfdbf4767aef63306ae4619"  # 这里替换为自己实际的Serper API Key
+SERPER_API_KEY="b3e533ff8580eb259e745184c4985d7df5667050"  # 这里替换为自己实际的Serper API Key
 
 ZILLIZ_URI = "https://in03-053b56bef5db18e.api.gcp-us-west1.zillizcloud.com"
 ZILLIZ_TOKEN = ""

@@ -1,0 +1,188 @@
+2024-07-15 18:32:10 | ERROR | stderr | Traceback (most recent call last):
+2024-07-15 18:32:10 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/startup.py", line 24, in <module>
+2024-07-15 18:32:10 | ERROR | stderr |     from server.api_router import create_app
+2024-07-15 18:32:10 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/server/api_router.py", line 8, in <module>
+2024-07-15 18:32:10 | ERROR | stderr |     from server.chat.chat import chat
+2024-07-15 18:32:10 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/server/chat/chat.py", line 10, in <module>
+2024-07-15 18:32:10 | ERROR | stderr |     from server.chat.utils import History
+2024-07-15 18:32:10 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/server/chat/utils.py", line 9, in <module>
+2024-07-15 18:32:10 | ERROR | stderr |     import html2text
+2024-07-15 18:32:10 | ERROR | stderr | ModuleNotFoundError: No module named 'html2text'
+2024-07-15 18:32:52 | ERROR | stderr | Traceback (most recent call last):
+2024-07-15 18:32:52 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/startup.py", line 24, in <module>
+2024-07-15 18:32:52 | ERROR | stderr |     from server.api_router import create_app
+2024-07-15 18:32:52 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/server/api_router.py", line 41, in <module>
+2024-07-15 18:32:52 | ERROR | stderr |     from server.chat.search_engine_chat import search_engine_chat
+2024-07-15 18:32:52 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/server/chat/search_engine_chat.py", line 17, in <module>
+2024-07-15 18:32:52 | ERROR | stderr |     from strsimpy.normalized_levenshtein import NormalizedLevenshtein
+2024-07-15 18:32:52 | ERROR | stderr | ModuleNotFoundError: No module named 'strsimpy'
+2024-07-15 18:33:52 | ERROR | stderr | Traceback (most recent call last):
+2024-07-15 18:33:52 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/startup.py", line 24, in <module>
+2024-07-15 18:33:52 | ERROR | stderr |     from server.api_router import create_app
+2024-07-15 18:33:52 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/server/api_router.py", line 41, in <module>
+2024-07-15 18:33:52 | ERROR | stderr |     from server.chat.search_engine_chat import search_engine_chat
+2024-07-15 18:33:52 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/server/chat/search_engine_chat.py", line 18, in <module>
+2024-07-15 18:33:52 | ERROR | stderr |     from markdownify import markdownify
+2024-07-15 18:33:52 | ERROR | stderr | ModuleNotFoundError: No module named 'markdownify'
+2024-07-15 18:34:38 | INFO | controller | 正在启动服务：
+2024-07-15 18:34:38 | INFO | controller | 如需查看 服务日志 日志，请前往 /home/00_rag/fufan-chat-api/logs
+2024-07-15 18:34:48 | ERROR | stderr | [32mINFO[0m:     Started server process [[36m3671528[0m]
+2024-07-15 18:34:48 | ERROR | stderr | [32mINFO[0m:     Waiting for application startup.
+2024-07-15 18:34:48 | ERROR | stderr | [32mINFO[0m:     Application startup complete.
+2024-07-15 18:34:48 | ERROR | stderr | [32mINFO[0m:     Uvicorn running on [1mhttp://192.168.110.131:20001[0m (Press CTRL+C to quit)
+2024-07-15 18:34:59 | INFO | controller | Register a new worker: http://192.168.110.131:21001
+2024-07-15 18:34:59 | INFO | controller | Register done: http://192.168.110.131:21001, {'model_names': ['zhipu-api'], 'speed': 1, 'queue_length': 0}
+2024-07-15 18:34:59 | INFO | stdout | [32mINFO[0m:     192.168.110.131:52832 - "[1mPOST /register_worker HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:35:00 | ERROR | stderr | Loading checkpoint shards:   0%|                                                                                                                                                                                                                                                          | 0/7 [00:00<?, ?it/s]
+2024-07-15 18:35:00 | ERROR | stderr | [32mINFO[0m:     Started server process [[36m3671877[0m]
+2024-07-15 18:35:00 | ERROR | stderr | [32mINFO[0m:     Waiting for application startup.
+2024-07-15 18:35:00 | ERROR | stderr | [32mINFO[0m:     Application startup complete.
+2024-07-15 18:35:00 | ERROR | stderr | [32mINFO[0m:     Uvicorn running on [1mhttp://192.168.110.131:20000[0m (Press CTRL+C to quit)
+2024-07-15 18:35:00 | ERROR | stderr | Loading checkpoint shards:  14%|██████████████████████████████████▌                                                                                                                                                                                                               | 1/7 [00:00<00:03,  1.92it/s]
+2024-07-15 18:35:01 | ERROR | stderr | Loading checkpoint shards:  29%|█████████████████████████████████████████████████████████████████████▏                                                                                                                                                                            | 2/7 [00:01<00:02,  1.98it/s]
+2024-07-15 18:35:01 | ERROR | stderr | Loading checkpoint shards:  43%|███████████████████████████████████████████████████████████████████████████████████████████████████████▋                                                                                                                                          | 3/7 [00:01<00:01,  2.07it/s]
+2024-07-15 18:35:02 | ERROR | stderr | Loading checkpoint shards:  57%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▎                                                                                                       | 4/7 [00:01<00:01,  2.13it/s]
+2024-07-15 18:35:02 | ERROR | stderr | Loading checkpoint shards:  71%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▊                                                                     | 5/7 [00:02<00:00,  2.15it/s]
+2024-07-15 18:35:03 | ERROR | stderr | Loading checkpoint shards:  86%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▍                                  | 6/7 [00:02<00:00,  2.13it/s]
+2024-07-15 18:35:03 | ERROR | stderr | Loading checkpoint shards: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 7/7 [00:03<00:00,  2.28it/s]
+2024-07-15 18:35:03 | ERROR | stderr | Loading checkpoint shards: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 7/7 [00:03<00:00,  2.17it/s]
+2024-07-15 18:35:03 | ERROR | stderr | 
+2024-07-15 18:35:09 | INFO | controller | Register a new worker: http://192.168.110.131:20002
+2024-07-15 18:35:09 | INFO | controller | Register done: http://192.168.110.131:20002, {'model_names': ['chatglm3-6b'], 'speed': 1, 'queue_length': 0}
+2024-07-15 18:35:09 | INFO | stdout | [32mINFO[0m:     192.168.110.131:37448 - "[1mPOST /register_worker HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:35:10 | ERROR | stderr | [32mINFO[0m:     Started server process [[36m3671878[0m]
+2024-07-15 18:35:10 | ERROR | stderr | [32mINFO[0m:     Waiting for application startup.
+2024-07-15 18:35:10 | ERROR | stderr | [32mINFO[0m:     Application startup complete.
+2024-07-15 18:35:10 | ERROR | stderr | [32mINFO[0m:     Uvicorn running on [1mhttp://192.168.110.131:20002[0m (Press CTRL+C to quit)
+2024-07-15 18:35:20 | ERROR | stderr | [32mINFO[0m:     Started server process [[36m3672696[0m]
+2024-07-15 18:35:20 | ERROR | stderr | [32mINFO[0m:     Waiting for application startup.
+2024-07-15 18:35:20 | ERROR | stderr | [32mINFO[0m:     Application startup complete.
+2024-07-15 18:35:20 | ERROR | stderr | [32mINFO[0m:     Uvicorn running on [1mhttp://192.168.110.131:8000[0m (Press CTRL+C to quit)
+2024-07-15 18:35:45 | INFO | controller | Receive heart beat. http://192.168.110.131:21001
+2024-07-15 18:35:45 | INFO | stdout | [32mINFO[0m:     192.168.110.131:47654 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:35:55 | INFO | controller | Receive heart beat. http://192.168.110.131:20002
+2024-07-15 18:35:55 | INFO | stdout | [32mINFO[0m:     192.168.110.131:60370 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,726 INFO sqlalchemy.engine.Engine SELECT DATABASE()
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,726 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,729 INFO sqlalchemy.engine.Engine SELECT @@sql_mode
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,729 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,730 INFO sqlalchemy.engine.Engine SELECT @@lower_case_table_names
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,731 INFO sqlalchemy.engine.Engine [raw sql] ()
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,733 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,768 INFO sqlalchemy.engine.Engine SELECT knowledge_base.id, knowledge_base.kb_name, knowledge_base.kb_info, knowledge_base.vs_type, knowledge_base.embed_model, knowledge_base.file_count, knowledge_base.create_time, knowledge_base.user_id
+2024-07-15 18:36:01 | INFO | stdout | FROM knowledge_base
+2024-07-15 18:36:01 | INFO | stdout | WHERE lower(knowledge_base.kb_name) LIKE lower(%s)
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,769 INFO sqlalchemy.engine.Engine [generated in 0.00098s] ('private',)
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,772 INFO sqlalchemy.engine.Engine COMMIT
+2024-07-15 18:36:01 | INFO | stdout | [32mINFO[0m:     192.168.110.91:55866 - "[1mPOST /api/chat/knowledge_base_chat HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,804 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,807 INFO sqlalchemy.engine.Engine SELECT conversation.id AS conversation_id, conversation.user_id AS conversation_user_id, conversation.name AS conversation_name, conversation.chat_type AS conversation_chat_type, conversation.create_time AS conversation_create_time
+2024-07-15 18:36:01 | INFO | stdout | FROM conversation
+2024-07-15 18:36:01 | INFO | stdout | WHERE conversation.id = %s
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,807 INFO sqlalchemy.engine.Engine [generated in 0.00076s] ('49aa005a-5104-45c1-8bac-adbf68de31a2',)
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,812 INFO sqlalchemy.engine.Engine INSERT INTO conversation (id, user_id, name, chat_type, create_time) VALUES (%s, %s, %s, %s, now())
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,812 INFO sqlalchemy.engine.Engine [generated in 0.00047s] ('49aa005a-5104-45c1-8bac-adbf68de31a2', 'admin', '新建会话', 'default')
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,815 INFO sqlalchemy.engine.Engine COMMIT
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,834 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,836 INFO sqlalchemy.engine.Engine INSERT INTO message (id, conversation_id, chat_type, query, response, meta_data, feedback_score, feedback_reason, create_time) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, now())
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,837 INFO sqlalchemy.engine.Engine [generated in 0.00073s] ('e428ef54-d405-41ad-aceb-702431c19c41', '49aa005a-5104-45c1-8bac-adbf68de31a2', 'default', '什么是GLM4 多角色对话', '', '{}', -1, '')
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,840 INFO sqlalchemy.engine.Engine COMMIT
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,887 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,888 INFO sqlalchemy.engine.Engine SELECT knowledge_base.id, knowledge_base.kb_name, knowledge_base.kb_info, knowledge_base.vs_type, knowledge_base.embed_model, knowledge_base.file_count, knowledge_base.create_time, knowledge_base.user_id
+2024-07-15 18:36:01 | INFO | stdout | FROM knowledge_base
+2024-07-15 18:36:01 | INFO | stdout | WHERE lower(knowledge_base.kb_name) LIKE lower(%s)
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,888 INFO sqlalchemy.engine.Engine [cached since 0.1207s ago] ('private',)
+2024-07-15 18:36:01 | INFO | stdout | 2024-07-15 18:36:01,890 INFO sqlalchemy.engine.Engine COMMIT
+2024-07-15 18:36:06 | INFO | stdout | 2024-07-15 18:36:06,787 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2024-07-15 18:36:06 | INFO | stdout | 2024-07-15 18:36:06,788 INFO sqlalchemy.engine.Engine SELECT knowledge_base.id, knowledge_base.kb_name, knowledge_base.kb_info, knowledge_base.vs_type, knowledge_base.embed_model, knowledge_base.file_count, knowledge_base.create_time, knowledge_base.user_id
+2024-07-15 18:36:06 | INFO | stdout | FROM knowledge_base
+2024-07-15 18:36:06 | INFO | stdout | WHERE lower(knowledge_base.kb_name) LIKE lower(%s)
+2024-07-15 18:36:06 | INFO | stdout | 2024-07-15 18:36:06,789 INFO sqlalchemy.engine.Engine [cached since 5.021s ago] ('private',)
+2024-07-15 18:36:06 | INFO | stdout | 2024-07-15 18:36:06,792 INFO sqlalchemy.engine.Engine COMMIT
+2024-07-15 18:36:06 | INFO | stdout | 这是查询到的load_kb_embeddings的参数：{'kb_name': 'private', 'kb_info': 'private', 'vs_type': 'faiss', 'embed_model': 'bge-large-zh-v1.5', 'file_count': 2, 'create_time': datetime.datetime(2024, 7, 15, 17, 14, 32)}
+2024-07-15 18:36:10 | ERROR | stderr | Batches:   0%|                                                                                                                                                                                                                                                                            | 0/1 [00:00<?, ?it/s]
+2024-07-15 18:36:11 | ERROR | stderr | Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:01<00:00,  1.00s/it]
+2024-07-15 18:36:11 | ERROR | stderr | Batches: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:01<00:00,  1.00s/it]
+2024-07-15 18:36:11 | ERROR | stderr | 
+2024-07-15 18:36:11 | INFO | stdout | [32mINFO[0m:     192.168.110.131:52992 - "[1mPOST /list_models HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:36:11 | INFO | controller | names: ['http://192.168.110.131:20002'], queue_lens: [0.0], ret: http://192.168.110.131:20002
+2024-07-15 18:36:11 | INFO | stdout | [32mINFO[0m:     192.168.110.131:52996 - "[1mPOST /get_worker_address HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:36:11 | INFO | stdout | [32mINFO[0m:     192.168.110.131:59490 - "[1mPOST /worker_get_conv_template HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:36:11 | INFO | stdout | [32mINFO[0m:     192.168.110.131:59506 - "[1mPOST /model_details HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:36:11 | INFO | stdout | [32mINFO[0m:     192.168.110.131:59514 - "[1mPOST /count_token HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:36:11 | INFO | stdout | [32mINFO[0m:     192.168.110.131:53030 - "[1mPOST /v1/chat/completions HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:36:11 | INFO | stdout | [32mINFO[0m:     192.168.110.131:59522 - "[1mPOST /worker_generate_stream HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:36:17 | INFO | stdout | 2024-07-15 18:36:17,188 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2024-07-15 18:36:17 | INFO | stdout | 2024-07-15 18:36:17,192 INFO sqlalchemy.engine.Engine SELECT message.id, message.conversation_id, message.chat_type, message.query, message.response, message.meta_data, message.feedback_score, message.feedback_reason, message.create_time
+2024-07-15 18:36:17 | INFO | stdout | FROM message
+2024-07-15 18:36:17 | INFO | stdout | WHERE message.id = %s
+2024-07-15 18:36:17 | INFO | stdout | 2024-07-15 18:36:17,193 INFO sqlalchemy.engine.Engine [generated in 0.00102s] ('e428ef54-d405-41ad-aceb-702431c19c41',)
+2024-07-15 18:36:17 | INFO | stdout | 2024-07-15 18:36:17,195 INFO sqlalchemy.engine.Engine COMMIT
+2024-07-15 18:36:17 | INFO | stdout | 2024-07-15 18:36:17,197 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2024-07-15 18:36:17 | INFO | stdout | 2024-07-15 18:36:17,200 INFO sqlalchemy.engine.Engine UPDATE message SET response=%s WHERE message.id = %s
+2024-07-15 18:36:17 | INFO | stdout | 2024-07-15 18:36:17,201 INFO sqlalchemy.engine.Engine [generated in 0.00060s] ('GLM4多角色对话是一种基于GLM模型的多角色对话系统，它能够非常灵活地实现各类对话需求。GLM模型是一种强大的自然语言处理模型，能够对输入的自然语言文本进行建模和推理，从而模拟人类的语言行为和思维逻辑。在多角色对话系统中，GLM4模型通过为每个角色分别建立语言模型来模拟不同角色的语言行为和逻辑，从而实现多个角色之间的自然语言交互和对话。', 'e428ef54-d405-41ad-aceb-702431c19c41')
+2024-07-15 18:36:17 | INFO | stdout | 2024-07-15 18:36:17,203 INFO sqlalchemy.engine.Engine COMMIT
+2024-07-15 18:36:30 | INFO | controller | Receive heart beat. http://192.168.110.131:21001
+2024-07-15 18:36:30 | INFO | stdout | [32mINFO[0m:     192.168.110.131:56412 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:36:40 | INFO | controller | Receive heart beat. http://192.168.110.131:20002
+2024-07-15 18:36:40 | INFO | stdout | [32mINFO[0m:     192.168.110.131:54272 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:37:15 | INFO | controller | Receive heart beat. http://192.168.110.131:21001
+2024-07-15 18:37:15 | INFO | stdout | [32mINFO[0m:     192.168.110.131:35762 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:37:25 | INFO | controller | Receive heart beat. http://192.168.110.131:20002
+2024-07-15 18:37:25 | INFO | stdout | [32mINFO[0m:     192.168.110.131:47146 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:38:00 | INFO | controller | Receive heart beat. http://192.168.110.131:21001
+2024-07-15 18:38:00 | INFO | stdout | [32mINFO[0m:     192.168.110.131:45598 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:38:10 | INFO | controller | Receive heart beat. http://192.168.110.131:20002
+2024-07-15 18:38:10 | INFO | stdout | [32mINFO[0m:     192.168.110.131:46700 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:38:45 | INFO | controller | Receive heart beat. http://192.168.110.131:21001
+2024-07-15 18:38:45 | INFO | stdout | [32mINFO[0m:     192.168.110.131:33342 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:38:55 | INFO | controller | Receive heart beat. http://192.168.110.131:20002
+2024-07-15 18:38:55 | INFO | stdout | [32mINFO[0m:     192.168.110.131:42662 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-07-15 18:39:01 | WARNING | controller | Sending SIGKILL to {'zhipu-api': <Process name='api_worker - zhipu-api (3671879)' pid=3671879 parent=3670710 started daemon>}
+2024-07-15 18:39:01 | WARNING | controller | Sending SIGKILL to {'chatglm3-6b': <Process name='model_worker - chatglm3-6b (3671878)' pid=3671878 parent=3670710 started daemon>}
+2024-07-15 18:39:01 | WARNING | controller | Sending SIGKILL to <Process name='controller (3671528)' pid=3671528 parent=3670710 started daemon>
+2024-07-15 18:39:01 | WARNING | controller | Sending SIGKILL to <Process name='openai_api (3671877)' pid=3671877 parent=3670710 started daemon>
+2024-07-15 18:39:01 | WARNING | controller | Sending SIGKILL to <Process name='API Server (3672696)' pid=3672696 parent=3670710 started daemon>
+2024-07-15 18:39:01 | INFO | controller | Process status: {'zhipu-api': <Process name='api_worker - zhipu-api (3671879)' pid=3671879 parent=3670710 started daemon>}
+2024-07-15 18:39:01 | INFO | controller | Process status: {'chatglm3-6b': <Process name='model_worker - chatglm3-6b (3671878)' pid=3671878 parent=3670710 started daemon>}
+2024-07-15 18:39:01 | INFO | controller | Process status: <Process name='controller (3671528)' pid=3671528 parent=3670710 started daemon>
+2024-07-15 18:39:01 | INFO | controller | Process status: <Process name='openai_api (3671877)' pid=3671877 parent=3670710 started daemon>
+2024-07-15 18:39:01 | INFO | controller | Process status: <Process name='API Server (3672696)' pid=3672696 parent=3670710 started daemon>
+2024-07-15 18:39:01 | ERROR | stderr | Traceback (most recent call last):
+2024-07-15 18:39:01 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/startup.py", line 584, in <module>
+2024-07-15 18:39:01 | ERROR | stderr |     loop.run_until_complete(start_main_server())
+2024-07-15 18:39:01 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/startup.py", line 495, in start_main_server
+2024-07-15 18:39:01 | ERROR | stderr |     cmd = queue.get()
+2024-07-15 18:39:01 | ERROR | stderr |   File "<string>", line 2, in get
+2024-07-15 18:39:01 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/managers.py", line 818, in _callmethod
+2024-07-15 18:39:01 | ERROR | stderr |     kind, result = conn.recv()
+2024-07-15 18:39:01 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/connection.py", line 255, in recv
+2024-07-15 18:39:01 | ERROR | stderr |     buf = self._recv_bytes()
+2024-07-15 18:39:01 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/connection.py", line 419, in _recv_bytes
+2024-07-15 18:39:01 | ERROR | stderr |     buf = self._recv(4)
+2024-07-15 18:39:01 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/connection.py", line 384, in _recv
+2024-07-15 18:39:01 | ERROR | stderr |     chunk = read(handle, remaining)
+2024-07-15 18:39:01 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/startup.py", line 368, in f
+2024-07-15 18:39:01 | ERROR | stderr |     raise KeyboardInterrupt(f"{signalname} received")
+2024-07-15 18:39:01 | ERROR | stderr | KeyboardInterrupt: SIGINT received
+2024-07-15 18:39:01 | ERROR | stderr | Exception ignored in atexit callback: <function _exit_function at 0x7f1cdd6a5750>
+2024-07-15 18:39:01 | ERROR | stderr | Traceback (most recent call last):
+2024-07-15 18:39:01 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/util.py", line 334, in _exit_function
+2024-07-15 18:39:01 | ERROR | stderr |     _run_finalizers(0)
+2024-07-15 18:39:01 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+2024-07-15 18:39:01 | ERROR | stderr |     finalizer()
+2024-07-15 18:39:01 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+2024-07-15 18:39:01 | ERROR | stderr |     res = self._callback(*self._args, **self._kwargs)
+2024-07-15 18:39:01 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/managers.py", line 674, in _finalize_manager
+2024-07-15 18:39:01 | ERROR | stderr |     process.join(timeout=1.0)
+2024-07-15 18:39:01 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/process.py", line 149, in join
+2024-07-15 18:39:01 | ERROR | stderr |     res = self._popen.wait(timeout)
+2024-07-15 18:39:01 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/popen_fork.py", line 40, in wait
+2024-07-15 18:39:01 | ERROR | stderr |     if not wait([self.sentinel], timeout):
+2024-07-15 18:39:01 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/connection.py", line 936, in wait
+2024-07-15 18:39:01 | ERROR | stderr |     ready = selector.select(timeout)
+2024-07-15 18:39:01 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/selectors.py", line 416, in select
+2024-07-15 18:39:01 | ERROR | stderr |     fd_event_list = self._selector.poll(timeout)
+2024-07-15 18:39:01 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/startup.py", line 368, in f
+2024-07-15 18:39:01 | ERROR | stderr |     raise KeyboardInterrupt(f"{signalname} received")
+2024-07-15 18:39:01 | ERROR | stderr | KeyboardInterrupt: SIGINT received

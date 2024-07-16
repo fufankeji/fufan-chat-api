@@ -10,11 +10,9 @@ from sqlalchemy.future import select
 
 @with_async_session
 async def add_message_to_db(session,
-                            user_id: str,
-                            conversation_id: str,
-                            conversation_name: str,
-                            prompt_name: str,
                             query: str,
+                            conversation_id: str,
+                            prompt_name: str,
                             response="",
                             metadata: Dict={},
                             message_id=None,
@@ -26,12 +24,10 @@ async def add_message_to_db(session,
     # 获取会话ID
     conversation = await session.get(ConversationModel, conversation_id)
 
-    # 要判断是新建的会话 还是 历史会话
-    if not conversation:
-        # 如果不存在当前会话
-        conversation = ConversationModel(id=conversation_id, user_id=user_id, name=conversation_name,
-                                         chat_type=prompt_name, )
-        session.add(conversation)
+    # 更新会话ID的名称
+    if conversation.name == "new_chat":  # 如果会话存在且名称为'new_chat'，则更新名称为query
+        conversation.name = query
+
     # 确保这里的更改被提交
     await session.commit()
 
@@ -69,7 +65,6 @@ async def filter_message(session, conversation_id: str, limit: int = 10):
         .limit(limit)
     )
 
-
     return result.scalars().all()
 
 
@@ -101,7 +96,6 @@ async def update_message(session, message_id, response: str = None, metadata: Di
         raise HTTPException(status_code=404, detail="Message not no found")
 
 
-
 # 主测试函数
 async def main():
     # 测试是否可以查询
@@ -115,11 +109,11 @@ async def main():
 
     updated_id = await update_message(message_id="041c8958055a4a62827cb39a789e3603", response="这是最新曾德")
     print(updated_id)
-   
-        
+
 
 # 这里检查是否是直接运行这个脚本
 if __name__ == '__main__':
     import asyncio
+
     # 运行主测试函数
     asyncio.run(main())

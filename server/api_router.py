@@ -35,12 +35,11 @@ def create_app(run_mode: str = None):
     return app
 
 
-from server.verify.utils import create_conversation, get_user_conversations, get_conversation_messages, \
-    ConversationResponse, MessageResponse
 from server.chat.knowledge_base_chat import knowledge_base_chat
 from server.chat.search_engine_chat import search_engine_chat
 from server.chat.recommendation_chat import recommend_base_chat
 from server.chat.agent_chat import agent_chat
+
 
 def mount_app_routes(app: FastAPI):
     """
@@ -52,26 +51,6 @@ def mount_app_routes(app: FastAPI):
              tags=["Chat"],
              summary="大模型对话交互接口",
              )(chat)
-
-    # 新建会话接口
-    app.post("/api/conversations",
-             tags=["Conversations"],
-             summary="新建会话接口",
-             )(create_conversation)
-
-    # 获取用户会话列表接口
-    app.get("/api/users/{user_id}/conversations",  # 确保路径正确表示用户ID的参数化
-            response_model=List[ConversationResponse],  # 使用正确的响应模型
-            tags=["Users"],
-            summary="获取指定用户的会话列表",
-            )(get_user_conversations)
-
-    # 获取会话消息列表接口
-    app.get("/api/conversations/{conversation_id}/messages",
-            response_model=List[MessageResponse],  # 使用正确的响应模型
-            tags=["Messages"],
-            summary="获取指定会话的消息列表",
-            )(get_conversation_messages)
 
     # # 通用知识库问答接口
     app.post("/api/chat/knowledge_base_chat",
@@ -93,6 +72,49 @@ def mount_app_routes(app: FastAPI):
              summary="Agent对话能力",
              )(agent_chat)
 
+    # 用户管理模块相关接口
+    from server.db.repository.user_repository import (
+        register_user, login_user
+    )
+
+    # 用户注册
+    app.post("/api/users/register",
+             tags=["Users"],
+             summary="用户注册",
+             )(register_user)
+
+    # 用户登录
+    app.post("/api/users/login",
+             tags=["Users"],
+             summary="用户登录",
+             )(login_user)
+
+    # 会话管理模块相关接口
+
+    from server.db.repository.conversation_repository import (
+        create_conversation, get_user_conversations, get_conversation_messages, \
+        ConversationResponse, MessageResponse
+    )
+
+    # 新建会话接口
+    app.post("/api/conversations",
+             tags=["Conversations"],
+             summary="新建会话接口",
+             )(create_conversation)
+
+    # 获取用户会话列表接口
+    app.get("/api/users/{user_id}/conversations",  # 确保路径正确表示用户ID的参数化
+            response_model=List[ConversationResponse],  # 使用正确的响应模型
+            tags=["Users"],
+            summary="获取指定用户的会话列表",
+            )(get_user_conversations)
+
+    # 获取会话消息列表接口
+    app.get("/api/conversations/{conversation_id}/messages",
+            response_model=List[MessageResponse],  # 使用正确的响应模型
+            tags=["Messages"],
+            summary="获取指定会话的消息列表",
+            )(get_conversation_messages)
 
 
 def run_api(host, port, **kwargs):

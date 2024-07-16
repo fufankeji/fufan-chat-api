@@ -19,16 +19,18 @@ import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from typing import List
 from sqlalchemy.future import select
-from sqlalchemy.orm import selectinload  # 正确导入 selectinload
+from sqlalchemy.orm import selectinload
 from fastapi import Response
 from fastapi.responses import JSONResponse
+from fastapi import Query
 
 
 # 定义 Pydantic 模型，用于请求体验证
 class CreateConversationRequest(BaseModel):
     user_id: str
-    name: str
+    name: str = Field(default="new_chat", example="new_chat")
     chat_type: str
+
 
 class ConversationResponse(BaseModel):
     id: str
@@ -36,22 +38,24 @@ class ConversationResponse(BaseModel):
     chat_type: str
     create_time: datetime
 
+
 class MessageResponse(BaseModel):
     id: str = Field(..., description="消息的唯一标识符")
     conversation_id: str = Field(..., description="关联的会话ID")
-    chat_type: str = Field(..., description="聊天类型")
+    chat_type: str = Field(..., description="对话类型（普通问答、知识库问答、AI搜索、推荐系统、Agent问答）")
     query: str = Field(..., description="用户的问题")
-    response: str = Field(..., description="模型的回答")
+    response: str = Field(..., description="大模型的回答")
     meta_data: dict = Field(..., description="其他元数据")
-    feedback_score: int = Field(..., description="用户评分")
-    feedback_reason: str = Field(..., description="评分理由")
     create_time: datetime = Field(..., description="消息创建时间")
 
-# API处理函数，用来创建新的会话
+
 async def create_conversation(
-    request: CreateConversationRequest = Body(...),
-    session: AsyncSession = Depends(get_async_db)
+        request: CreateConversationRequest = Body(...),
+        session: AsyncSession = Depends(get_async_db)
 ):
+    """
+    用来创建新的会话记录至Mysql数据库中
+    """
     try:
         # 创建新会话对象
         new_conversation = ConversationModel(
@@ -81,19 +85,19 @@ async def create_conversation(
         raise HTTPException(status_code=400, detail=f"Error creating conversation: {str(e)}")
 
 
-
 async def get_user_conversations(
-    user_id: str,
-    session: AsyncSession = Depends(get_async_db)
+        user_id: str,
+        session: AsyncSession = Depends(get_async_db)
 ):
+    """
+    用来获取指定用户名的历史对话窗口
+    """
     async with session as async_session:
         result = await async_session.execute(
             select(ConversationModel)
             .where(ConversationModel.user_id == user_id)
         )
         conversations = result.scalars().all()
-        # if not conversations:
-        #     raise HTTPException(status_code=404, detail="No conversations found for this user")
 
         return [ConversationResponse(
             id=conv.id,
@@ -103,19 +107,22 @@ async def get_user_conversations(
         ) for conv in conversations]
 
 
-
 async def get_conversation_messages(
-    conversation_id: str,
-    session: AsyncSession = Depends(get_async_db)
+        conversation_id: str,
+        chat_types: List[str] = Query(None),
+        session: AsyncSession = Depends(get_async_db)
 ):
+    """
+    使用 Query 参数接收可选的 chat_types 列表
+    """
     async with session as async_session:
-        result = await async_session.execute(
-            select(MessageModel)
-            .where(MessageModel.conversation_id == conversation_id)
-        )
+        query = select(MessageModel).where(MessageModel.conversation_id == conversation_id)
+        if chat_types:
+            query = query.where(MessageModel.chat_type.in_(chat_types))
+        result = await async_session.execute(query)
         messages = result.scalars().all()
-        # if not messages:
-        #     raise HTTPException(status_code=404, detail="No messages found for this conversation")
+        if not messages:
+            raise HTTPException(status_code=404, detail="No messages found for this conversation with the specified types")
 
         return [MessageResponse(
             id=msg.id,
@@ -124,7 +131,5 @@ async def get_conversation_messages(
             query=msg.query,
             response=msg.response,
             meta_data=msg.meta_data,
-            feedback_score=msg.feedback_score,
-            feedback_reason=msg.feedback_reason,
             create_time=msg.create_time
         ) for msg in messages]

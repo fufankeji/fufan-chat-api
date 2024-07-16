@@ -36,7 +36,7 @@ from server.db.repository.message_repository import add_message_to_db
 from server.memory.conversation_db_buffer_memory import ConversationBufferDBMemory
 from server.callback_handler.conversation_callback_handler import ConversationCallbackHandler
 from langchain.prompts import PromptTemplate
-from server.verify.check_user import check_user
+
 
 
 async def search_engine_chat(query: str = Body(..., description="用户输入", examples=["你好"]),
@@ -74,8 +74,7 @@ async def search_engine_chat(query: str = Body(..., description="用户输入", 
         if isinstance(max_tokens, int) and max_tokens <= 0:
             max_tokens = None
 
-        # 进行用户校验
-        # await check_user(user_id)
+
 
         # 构造一个新的Message_ID记录
         message_id = await add_message_to_db(user_id=user_id,

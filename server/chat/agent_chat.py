@@ -3,7 +3,7 @@ import asyncio
 
 from fastapi import Body
 from sse_starlette.sse import EventSourceResponse
-from configs import LLM_MODELS, TEMPERATURE, HISTORY_LEN, Agent_MODEL
+from configs import LLM_MODELS, TEMPERATURE
 
 from langchain.chains import LLMChain
 from langchain.memory import ConversationBufferWindowMemory

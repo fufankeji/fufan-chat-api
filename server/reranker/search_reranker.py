@@ -3,7 +3,6 @@ from llama_index.legacy.node_parser import SimpleNodeParser
 import os
 from llama_index.legacy.vector_stores import MilvusVectorStore
 from llama_index.legacy.storage import StorageContext
-from configs import SERPER_API_KEY, URL, ZILLIZ_URI, ZILLIZ_TOKEN, ZILLIZ_DIM, ZILLIZ_COLLECTION
 import hashlib
 import uuid
 from langchain.docstore.document import Document

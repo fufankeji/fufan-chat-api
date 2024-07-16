@@ -145,7 +145,7 @@ if __name__ == '__main__':
     # 利用大模型做推荐系统数据的特征工程
     from zhipuai import ZhipuAI
     # 这里的API Key需要替换成自己的，当然，也可以采用其他在线模型或者本地部署的开源模型
-    client = ZhipuAI(api_key='cdb940ef70b0a194c92f91c88da3b21e.Thck467xWlxl7703')
+    client = ZhipuAI(api_key='4b3e2d01ed43db2d40bf06ac87cf6fab.QhvSBwQ1DVx9ak7b')
 
     # 加载 CSV 文件
     df = pd.read_csv("/home/00_rag/fufan-chat-api/scripts/course_data/course_metadata.csv")

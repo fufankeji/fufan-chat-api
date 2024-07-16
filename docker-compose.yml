@@ -21,7 +21,7 @@ services:  #  定义要使用的容器镜像的部署单元。
     build: .
     image: fufan_chat_api:v1.0
     ports:
-      - "8000:3000"
+      - "8000:8000"
     # 每一行/path/to/local:/path/to/container的格式是 Docker 的卷映射格式，左边是你的主机上的路径，右边是容器内部的路径。
     # 这样设置后，容器内的程序就能通过相同的文件路径访问到存储在主机上的模型权重。
     volumes:

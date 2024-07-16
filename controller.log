@@ -1391,3 +1391,91 @@
 2024-07-11 21:29:39 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/startup.py", line 368, in f
 2024-07-11 21:29:39 | ERROR | stderr |     raise KeyboardInterrupt(f"{signalname} received")
 2024-07-11 21:29:39 | ERROR | stderr | KeyboardInterrupt: SIGINT received
+2024-07-16 10:30:42 | INFO | controller | 正在启动服务：
+2024-07-16 10:30:42 | INFO | controller | 如需查看 服务日志 日志，请前往 /home/00_rag/fufan-chat-api/logs
+2024-07-16 10:30:52 | ERROR | stderr | [32mINFO[0m:     Started server process [[36m525647[0m]
+2024-07-16 10:30:52 | ERROR | stderr | [32mINFO[0m:     Waiting for application startup.
+2024-07-16 10:30:52 | ERROR | stderr | [32mINFO[0m:     Application startup complete.
+2024-07-16 10:30:52 | ERROR | stderr | [32mINFO[0m:     Uvicorn running on [1mhttp://192.168.110.131:20001[0m (Press CTRL+C to quit)
+2024-07-16 10:31:04 | ERROR | stderr | [32mINFO[0m:     Started server process [[36m525884[0m]
+2024-07-16 10:31:04 | ERROR | stderr | [32mINFO[0m:     Waiting for application startup.
+2024-07-16 10:31:04 | ERROR | stderr | [32mINFO[0m:     Application startup complete.
+2024-07-16 10:31:04 | ERROR | stderr | [32mINFO[0m:     Uvicorn running on [1mhttp://192.168.110.131:20000[0m (Press CTRL+C to quit)
+2024-07-16 10:31:04 | INFO | controller | Register a new worker: http://192.168.110.131:21001
+2024-07-16 10:31:04 | INFO | controller | Register done: http://192.168.110.131:21001, {'model_names': ['zhipu-api'], 'speed': 1, 'queue_length': 0}
+2024-07-16 10:31:04 | INFO | stdout | [32mINFO[0m:     192.168.110.131:45136 - "[1mPOST /register_worker HTTP/1.1[0m" [32m200 OK[0m
+2024-07-16 10:31:04 | ERROR | stderr | Loading checkpoint shards:   0%|                                                                                                                                                                                                                                                          | 0/7 [00:00<?, ?it/s]
+2024-07-16 10:31:05 | ERROR | stderr | Loading checkpoint shards:  14%|██████████████████████████████████▌                                                                                                                                                                                                               | 1/7 [00:00<00:03,  1.80it/s]
+2024-07-16 10:31:05 | ERROR | stderr | Loading checkpoint shards:  29%|█████████████████████████████████████████████████████████████████████▏                                                                                                                                                                            | 2/7 [00:01<00:02,  1.90it/s]
+2024-07-16 10:31:06 | ERROR | stderr | Loading checkpoint shards:  43%|███████████████████████████████████████████████████████████████████████████████████████████████████████▋                                                                                                                                          | 3/7 [00:01<00:02,  1.99it/s]
+2024-07-16 10:31:06 | ERROR | stderr | Loading checkpoint shards:  57%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▎                                                                                                       | 4/7 [00:01<00:01,  2.06it/s]
+2024-07-16 10:31:07 | ERROR | stderr | Loading checkpoint shards:  71%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▊                                                                     | 5/7 [00:02<00:00,  2.03it/s]
+2024-07-16 10:31:07 | ERROR | stderr | Loading checkpoint shards:  86%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▍                                  | 6/7 [00:02<00:00,  2.06it/s]
+2024-07-16 10:31:08 | ERROR | stderr | Loading checkpoint shards: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 7/7 [00:03<00:00,  2.21it/s]
+2024-07-16 10:31:08 | ERROR | stderr | Loading checkpoint shards: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 7/7 [00:03<00:00,  2.09it/s]
+2024-07-16 10:31:08 | ERROR | stderr | 
+2024-07-16 10:31:15 | INFO | controller | Register a new worker: http://192.168.110.131:20002
+2024-07-16 10:31:15 | INFO | controller | Register done: http://192.168.110.131:20002, {'model_names': ['chatglm3-6b'], 'speed': 1, 'queue_length': 0}
+2024-07-16 10:31:15 | INFO | stdout | [32mINFO[0m:     192.168.110.131:41968 - "[1mPOST /register_worker HTTP/1.1[0m" [32m200 OK[0m
+2024-07-16 10:31:15 | ERROR | stderr | [32mINFO[0m:     Started server process [[36m525885[0m]
+2024-07-16 10:31:15 | ERROR | stderr | [32mINFO[0m:     Waiting for application startup.
+2024-07-16 10:31:15 | ERROR | stderr | [32mINFO[0m:     Application startup complete.
+2024-07-16 10:31:15 | ERROR | stderr | [32mINFO[0m:     Uvicorn running on [1mhttp://192.168.110.131:20002[0m (Press CTRL+C to quit)
+2024-07-16 10:31:26 | ERROR | stderr | [32mINFO[0m:     Started server process [[36m526910[0m]
+2024-07-16 10:31:26 | ERROR | stderr | [32mINFO[0m:     Waiting for application startup.
+2024-07-16 10:31:26 | ERROR | stderr | [32mINFO[0m:     Application startup complete.
+2024-07-16 10:31:26 | ERROR | stderr | [32mINFO[0m:     Uvicorn running on [1mhttp://192.168.110.131:8000[0m (Press CTRL+C to quit)
+2024-07-16 10:31:49 | INFO | controller | Receive heart beat. http://192.168.110.131:21001
+2024-07-16 10:31:49 | INFO | stdout | [32mINFO[0m:     192.168.110.131:37764 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-07-16 10:32:00 | INFO | controller | Receive heart beat. http://192.168.110.131:20002
+2024-07-16 10:32:00 | INFO | stdout | [32mINFO[0m:     192.168.110.131:57952 - "[1mPOST /receive_heart_beat HTTP/1.1[0m" [32m200 OK[0m
+2024-07-16 10:32:19 | WARNING | controller | Sending SIGKILL to {'zhipu-api': <Process name='api_worker - zhipu-api (525886)' pid=525886 parent=524980 started daemon>}
+2024-07-16 10:32:19 | ERROR | stderr | [32mINFO[0m:     Shutting down
+2024-07-16 10:32:19 | ERROR | stderr | [32mINFO[0m:     Shutting down
+2024-07-16 10:32:19 | WARNING | controller | Sending SIGKILL to {'chatglm3-6b': <Process name='model_worker - chatglm3-6b (525885)' pid=525885 parent=524980 started daemon>}
+2024-07-16 10:32:19 | WARNING | controller | Sending SIGKILL to <Process name='controller (525647)' pid=525647 parent=524980 started daemon>
+2024-07-16 10:32:19 | WARNING | controller | Sending SIGKILL to <Process name='openai_api (525884)' pid=525884 parent=524980 started daemon>
+2024-07-16 10:32:19 | WARNING | controller | Sending SIGKILL to <Process name='API Server (526910)' pid=526910 parent=524980 started daemon>
+2024-07-16 10:32:19 | INFO | controller | Process status: {'zhipu-api': <Process name='api_worker - zhipu-api (525886)' pid=525886 parent=524980 started daemon>}
+2024-07-16 10:32:19 | INFO | controller | Process status: {'chatglm3-6b': <Process name='model_worker - chatglm3-6b (525885)' pid=525885 parent=524980 started daemon>}
+2024-07-16 10:32:19 | INFO | controller | Process status: <Process name='controller (525647)' pid=525647 parent=524980 started daemon>
+2024-07-16 10:32:19 | INFO | controller | Process status: <Process name='openai_api (525884)' pid=525884 parent=524980 started daemon>
+2024-07-16 10:32:19 | INFO | controller | Process status: <Process name='API Server (526910)' pid=526910 parent=524980 started daemon>
+2024-07-16 10:32:19 | ERROR | stderr | Traceback (most recent call last):
+2024-07-16 10:32:19 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/startup.py", line 584, in <module>
+2024-07-16 10:32:19 | ERROR | stderr |     loop.run_until_complete(start_main_server())
+2024-07-16 10:32:19 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/startup.py", line 495, in start_main_server
+2024-07-16 10:32:19 | ERROR | stderr |     cmd = queue.get()
+2024-07-16 10:32:19 | ERROR | stderr |   File "<string>", line 2, in get
+2024-07-16 10:32:19 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/managers.py", line 818, in _callmethod
+2024-07-16 10:32:19 | ERROR | stderr |     kind, result = conn.recv()
+2024-07-16 10:32:19 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/connection.py", line 255, in recv
+2024-07-16 10:32:19 | ERROR | stderr |     buf = self._recv_bytes()
+2024-07-16 10:32:19 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/connection.py", line 419, in _recv_bytes
+2024-07-16 10:32:19 | ERROR | stderr |     buf = self._recv(4)
+2024-07-16 10:32:19 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/connection.py", line 384, in _recv
+2024-07-16 10:32:19 | ERROR | stderr |     chunk = read(handle, remaining)
+2024-07-16 10:32:19 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/startup.py", line 368, in f
+2024-07-16 10:32:19 | ERROR | stderr |     raise KeyboardInterrupt(f"{signalname} received")
+2024-07-16 10:32:19 | ERROR | stderr | KeyboardInterrupt: SIGINT received
+2024-07-16 10:32:20 | ERROR | stderr | Exception ignored in atexit callback: <function _exit_function at 0x7f7931049630>
+2024-07-16 10:32:20 | ERROR | stderr | Traceback (most recent call last):
+2024-07-16 10:32:20 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/util.py", line 334, in _exit_function
+2024-07-16 10:32:20 | ERROR | stderr |     _run_finalizers(0)
+2024-07-16 10:32:20 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/util.py", line 300, in _run_finalizers
+2024-07-16 10:32:20 | ERROR | stderr |     finalizer()
+2024-07-16 10:32:20 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/util.py", line 224, in __call__
+2024-07-16 10:32:20 | ERROR | stderr |     res = self._callback(*self._args, **self._kwargs)
+2024-07-16 10:32:20 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/managers.py", line 674, in _finalize_manager
+2024-07-16 10:32:20 | ERROR | stderr |     process.join(timeout=1.0)
+2024-07-16 10:32:20 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/process.py", line 149, in join
+2024-07-16 10:32:20 | ERROR | stderr |     res = self._popen.wait(timeout)
+2024-07-16 10:32:20 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/popen_fork.py", line 40, in wait
+2024-07-16 10:32:20 | ERROR | stderr |     if not wait([self.sentinel], timeout):
+2024-07-16 10:32:20 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/multiprocessing/connection.py", line 936, in wait
+2024-07-16 10:32:20 | ERROR | stderr |     ready = selector.select(timeout)
+2024-07-16 10:32:20 | ERROR | stderr |   File "/home/util/anaconda3/envs/fufan_chat_api/lib/python3.10/selectors.py", line 416, in select
+2024-07-16 10:32:20 | ERROR | stderr |     fd_event_list = self._selector.poll(timeout)
+2024-07-16 10:32:20 | ERROR | stderr |   File "/home/00_rag/fufan-chat-api/startup.py", line 368, in f
+2024-07-16 10:32:20 | ERROR | stderr |     raise KeyboardInterrupt(f"{signalname} received")
+2024-07-16 10:32:20 | ERROR | stderr | KeyboardInterrupt: SIGINT received

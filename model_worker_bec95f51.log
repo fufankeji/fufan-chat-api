@@ -1,4 +1,0 @@
-2024-07-16 18:58:54 | INFO | model_worker | Loading the model ['glm-4-9b-chat'] on worker bec95f51 ...
-2024-07-16 18:59:09 | INFO | model_worker | Register to controller
-2024-07-16 18:59:54 | INFO | model_worker | Send heart beat. Models: ['glm-4-9b-chat']. Semaphore: Semaphore(value=4, locked=False). call_ct: 1. worker_id: bec95f51. 
-2024-07-16 19:00:39 | INFO | model_worker | Send heart beat. Models: ['glm-4-9b-chat']. Semaphore: Semaphore(value=3, locked=False). call_ct: 2. worker_id: bec95f51. 

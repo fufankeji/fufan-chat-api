@@ -1,30 +1,12 @@
 # fufan-chat-api
 fufan-chat项目的后端服务，负责处理业务逻辑、数据存储和API接口的提供。采用稳健的后端技术，确保服务的稳定性和可扩展性。
 
-## 版本：v4.0
+## 版本：v5.0
 
 ## 业务流程
 
-1. 使用FastChat启动服务逻辑
-![1](https://muyu001.oss-cn-beijing.aliyuncs.com/img/1.png)
-
-2. FastChat请求处理逻辑
-![2](https://muyu001.oss-cn-beijing.aliyuncs.com/img/2.png)
-
-3. 通用领域知识问答开发逻辑
-![3](https://muyu001.oss-cn-beijing.aliyuncs.com/img/3.png)
-
-4. 本地RAG知识问答开发逻辑
-![4](https://muyu001.oss-cn-beijing.aliyuncs.com/img/image-20240704144032483.png)
-
-5. 向量数据库集成逻辑
-![5](https://muyu001.oss-cn-beijing.aliyuncs.com/img/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9B%86%E6%88%90%E9%80%BB%E8%BE%91.png)
-
-6. 实时联网 + RAG 检索开发逻辑
-![6](https://muyu001.oss-cn-beijing.aliyuncs.com/img/%E8%81%94%E7%BD%91%E6%A3%80%E7%B4%A2.png)
-
-7. LLM推荐系统的一种思路
-![7](https://muyu001.oss-cn-beijing.aliyuncs.com/img/123.png)
+1. LLM推荐系统的一种思路
+![1](https://muyu001.oss-cn-beijing.aliyuncs.com/img/123.png)
 
 
 
@@ -62,6 +44,7 @@ fufan-chat项目的后端服务，负责处理业务逻辑、数据存储和API�
 
 1. 克隆仓库并安装依赖：
     ```bash
+    git clone --branch v5.0.0 https://github.com/fufankeji/fufan-chat-api.git
     cd fufan-chat-api
     pip install -r requirements.txt
     ```
@@ -86,19 +69,13 @@ fufan-chat项目的后端服务，负责处理业务逻辑、数据存储和API�
 ### POST 请求示例
 
 ```http
-http://192.168.110.131:8000/api/chat  # 替换为自己实际启动的服务 IP + 端口
+http://192.168.110.131:8000/api/chat/recommend_chat  # 替换为自己实际启动的服务 IP + 端口
 
 {
-    "query":"什么是快乐星球",
-    "model_name":"zhipu-api",
-    "conversation_id":"edcrfv33",
-    "conversation_name":"new chat 1",
+    "query":"有哪些云平台可以租用GPU部署ChatGLM3-6b模型？",
+    "model_name":"chatglm3-6b",
     "user_id":"admin",
-    "prompt_name":"llm_chat",
-    "history_len":3,
-    "stream":true
-
-    // "history":[]    
-
+    "conversation_id":"576cf4f4-caef-457e-93c4-0234ada7c056", # 这里需要替换为自己数据库中已有的id
+    "knowledge_base_name":"recommend_test"
 }
 ```

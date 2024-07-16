@@ -10,13 +10,6 @@ services:  #  定义要使用的容器镜像的部署单元。
     ports:
       - "3306:3306"
 
-  milvus:
-    image: milvusdb/milvus:v2.3.7
-    ports:
-      - "19530:19530"
-      - "19121:19121"
-
-
   fufan_chat_api:   # 开发的实际项目
     build: .
     image: fufan_chat_api:v1.0
@@ -28,12 +21,18 @@ services:  #  定义要使用的容器镜像的部署单元。
       - /home/00_rag/model/ZhipuAI/chatglm3-6b:/home/00_rag/model/ZhipuAI/chatglm3-6b
       - /home/00_rag/model/AI-ModelScope/bge-large-zh-v1___5:/home/00_rag/model/AI-ModelScope/bge-large-zh-v1___5
       - /home/00_rag/model/Xorbits/bge-reranker-large:/home/00_rag/model/Xorbits/bge-reranker-large
-    depends_on:   # 确保 fufan_chat_api 服务在 mysql 和 milvus 服务之后启动。
+    depends_on:   # 确保 fufan_chat_api 服务在 mysql 服务之后启动。
       - mysql
-      - milvus
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
     environment:
+      - NVIDIA_VISIBLE_DEVICES=all
       - MYSQL_HOST=mysql    # 使用服务名作为 host，Docker 内部 DNS 解析
       - MYSQL_PORT=3306
-      - MILVUS_HOST=milvus
-      - MILVUS_PORT=19530

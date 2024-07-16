@@ -49,4 +49,3 @@ html2text==2024.2.26
 strsimpy==0.2.1
 markdownify==0.13.1
 pymilvus==2.4.4
-langchain_milvus==0.1.1

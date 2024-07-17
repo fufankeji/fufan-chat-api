@@ -129,7 +129,7 @@ async def add_file_to_db(session,
     stmt = select(KnowledgeBaseModel).where(KnowledgeBaseModel.kb_name == kb_file.kb_name)
     kb_result = await session.execute(stmt)
     kb = kb_result.scalars().first()
-    print(f"查询 KnowledgeBase 完成: {kb}")
+
 
     if kb:
         print("KnowledgeBase 存在，开始查询 KnowledgeFile...")

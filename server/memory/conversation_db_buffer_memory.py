@@ -7,9 +7,6 @@ from langchain.schema.language_model import BaseLanguageModel
 from server.db.repository.message_repository import filter_message
 from server.db.models.message_model import MessageModel
 
-
-
-
 from abc import ABC
 from typing import Any, Dict, Optional, Tuple
 
@@ -30,7 +27,7 @@ class BaseChatMemory(BaseMemory, ABC):
     return_messages: bool = False
 
     def _get_input_output(
-        self, inputs: Dict[str, Any], outputs: Dict[str, str]
+            self, inputs: Dict[str, Any], outputs: Dict[str, str]
     ) -> Tuple[str, str]:
         if self.input_key is None:
             # 重写
@@ -58,12 +55,6 @@ class BaseChatMemory(BaseMemory, ABC):
         self.chat_memory.clear()
 
 
-
-
-
-
-
-
 class ConversationBufferDBMemory(BaseChatMemory):
     conversation_id: str
     human_prefix: str = "Human"
@@ -72,12 +63,13 @@ class ConversationBufferDBMemory(BaseChatMemory):
     memory_key: str = "history"
     max_token_limit: int = 2000
     message_limit: int = 10
+    chat_type: str
 
     async def buffer(self) -> List[BaseMessage]:
         """String buffer of memory."""
         # fetch limited messages desc, and return reversed
 
-        messages = await filter_message(conversation_id=self.conversation_id, limit=self.message_limit)
+        messages = await filter_message(conversation_id=self.conversation_id, limit=self.message_limit, chat_type=self.chat_type)
         # 返回的记录按时间倒序，转为正序
         messages = list(reversed(messages))
 
@@ -99,7 +91,6 @@ class ConversationBufferDBMemory(BaseChatMemory):
 
         return chat_messages
 
-
     def memory_variables(self) -> List[str]:
         """Will always return list of memory variables.
 
@@ -107,7 +98,6 @@ class ConversationBufferDBMemory(BaseChatMemory):
         """
         print("现在开始加载memory_variables了")
         return [self.memory_key]
-
 
     def load_memory_variables(self, inputs: Dict[str, Any]) -> Dict[str, Any]:
         """Return key-value pairs given the text input to the chain."""

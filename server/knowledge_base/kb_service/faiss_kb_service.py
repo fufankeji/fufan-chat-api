@@ -143,7 +143,6 @@ class FaissKBService(KBService):
         返回：
         List[Dict]: 添加的文档信息。
         """
-
         data = self._docs_to_embeddings(docs)  # 将向量化单独出来可以减少向量库的锁定时间
 
         # 使用 await 来获取异步函数的结果
@@ -152,6 +151,7 @@ class FaissKBService(KBService):
         # 用于安全地访问缓存的对象，确保在对象被多个线程访问时不会发生冲突。
         with vector_store.acquire() as vs:
             # https://api.python.langchain.com/en/latest/_modules/langchain_community/vectorstores/faiss.html#FAISS
+
             # 接收文本和嵌入向量的对，并将它们存储在一个向量存储中，并返回添加文本后的唯一 ID 列表
             ids = vs.add_embeddings(text_embeddings=zip(data["texts"], data["embeddings"]),
                                     metadatas=data["metadatas"],
@@ -250,4 +250,6 @@ async def main():
 
 if __name__ == '__main__':
     import asyncio
+
+    # 注意：需要提前在User表中创建一个admin账户
     asyncio.run(main())

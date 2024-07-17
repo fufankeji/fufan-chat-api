@@ -39,6 +39,7 @@ from server.chat.knowledge_base_chat import knowledge_base_chat
 from server.chat.search_engine_chat import search_engine_chat
 from server.chat.recommendation_chat import recommend_base_chat
 from server.chat.agent_chat import agent_chat
+from server.utils import BaseResponse
 
 
 def mount_app_routes(app: FastAPI):
@@ -90,10 +91,10 @@ def mount_app_routes(app: FastAPI):
              )(login_user)
 
     # 会话管理模块相关接口
-
     from server.db.repository.conversation_repository import (
-        create_conversation, get_user_conversations, get_conversation_messages, \
-        ConversationResponse, MessageResponse
+        create_conversation, get_user_conversations, get_conversation_messages,
+        ConversationResponse, MessageResponse, delete_conversation_and_messages,
+        update_conversation_name
     )
 
     # 新建会话接口
@@ -105,9 +106,23 @@ def mount_app_routes(app: FastAPI):
     # 获取用户会话列表接口
     app.get("/api/users/{user_id}/conversations",  # 确保路径正确表示用户ID的参数化
             response_model=List[ConversationResponse],  # 使用正确的响应模型
-            tags=["Users"],
+            tags=["Conversations"],
             summary="获取指定用户的会话列表",
             )(get_user_conversations)
+
+    # 删除用户会话列表及对应的消息接口
+    app.delete("/api/conversations/{conversation_id}",
+               tags=["Conversations"],
+               summary="删除指定会话及其所有消息",
+               status_code=204,  # 明确设置状态码为204
+               )(delete_conversation_and_messages)
+
+    # 更新会话名称接口
+    app.put("/api/conversations/{conversation_id}/update_name",
+            tags=["Conversations"],
+            summary="更新指定会话的名称",
+            status_code=200,  # 明确指定成功时返回的状态码
+            )(update_conversation_name)
 
     # 获取会话消息列表接口
     app.get("/api/conversations/{conversation_id}/messages",
@@ -115,6 +130,47 @@ def mount_app_routes(app: FastAPI):
             tags=["Messages"],
             summary="获取指定会话的消息列表",
             )(get_conversation_messages)
+
+    from server.db.repository.utils import list_running_models
+
+    # 获取加载的模型名称接口
+    app.get("/api/llm_model/list_running_models",
+            tags=["Models"],
+            summary="列出当前已加载的模型",
+            response_model=BaseResponse,
+            )(list_running_models)
+
+    from server.db.repository.knowledge_base_repository import (
+        list_knowledge_bases, create_knowledge_base, CreateKnowledgeBaseRequest,
+        delete_knowledge_base, DeleteKnowledgeBaseRequest,
+        list_knowledge_base_files, KnowledgeBaseFilesRequest
+    )
+
+    # 获取指定用户可以访问的知识库列表
+    app.get("/api/knowledge-bases/{user_id}",
+            tags=["Knowledge Management"],
+            summary="获取知识库列表")(list_knowledge_bases)
+
+    # 新建一个知识库
+    app.post("/api/knowledge_base/create_knowledge_base",
+             tags=["Knowledge Management"],
+             response_model=List[CreateKnowledgeBaseRequest],
+             summary="创建知识库"
+             )(create_knowledge_base)
+
+    # 删除数据库
+    app.delete("/api/knowledge_base/delete_knowledge_base",
+             tags=["Knowledge Management"],
+             response_model=List[DeleteKnowledgeBaseRequest],
+             summary="删除知识库"
+             )(delete_knowledge_base)
+
+    # 获取知识库内文件列表
+    app.get("/api/knowledge_base/list_files",
+            tags=["Knowledge Management"],
+            response_model=List[KnowledgeBaseFilesRequest],
+            summary="获取知识库内的文件列表"
+            )(list_knowledge_base_files)
 
 
 def run_api(host, port, **kwargs):

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, JSON, func, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, JSON, func, ForeignKey, CHAR
 
 from sqlalchemy.orm import relationship
 from server.db.base import Base
@@ -16,7 +16,7 @@ class KnowledgeBaseModel(Base):
     embed_model = Column(String(50), comment='嵌入模型名称')
     file_count = Column(Integer, default=0, comment='文件数量')
     create_time = Column(DateTime, default=func.now(), comment='创建时间')
-    user_id = Column(String(32), ForeignKey('user.id'), nullable=False, comment='用户ID')  # 新增的外键字段
+    user_id = Column(CHAR(36), ForeignKey('user.id'), nullable=False, comment='用户ID')  # 新增的外键字段
 
     user = relationship('UserModel', back_populates='knowledge_bases')  # 新增的关系
 

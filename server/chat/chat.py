@@ -74,6 +74,7 @@ async def chat(query: str = Body(..., description="用户输入", examples=["你
             # 根据conversation_id 获取message 列表进而拼凑 memory
             memory = ConversationBufferDBMemory(conversation_id=conversation_id,
                                                 llm=model,
+                                                chat_type=prompt_name,
                                                 message_limit=10)
 
         chain = LLMChain(prompt=chat_prompt, llm=model, memory=memory)

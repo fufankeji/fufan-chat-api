@@ -14,12 +14,17 @@ LLM_MODELS = ["chatglm3-6b", "zhipu-api"]
 RERANKER_MODEL = "bge-reranker-large"
 RERANKER_MAX_LENGTH = 1024
 # 是否启用reranker模型
-USE_RERANKER = False
+USE_RERANKER = True
 
 # 知识库匹配向量数量
-VECTOR_SEARCH_TOP_K = 3
+VECTOR_SEARCH_TOP_K = 5
 # 知识库匹配的距离阈值，一般取值范围在0-1之间，SCORE越小，距离越小从而相关度越高。
 SCORE_THRESHOLD = 1.0
+# 如果使用ReRank模型
+RERANKER_TOP_K = 3
+
+
+
 # 搜索引擎匹配结题数量
 SEARCH_ENGINE_TOP_K = 3
 
@@ -52,7 +57,7 @@ ONLINE_LLM_MODEL = {
 
     # 智谱清言的在线API服务
     "zhipu-api": {
-        "api_key": "4b3e2d01ed43db2d40bf06ac87cf6fab.QhvSBwQ1DVx9ak7b",
+        "api_key": "",
         "version": "glm-4",
         "provider": "ChatGLMWorker",
     },

@@ -15,6 +15,7 @@ from server.db.models.knowledge_base_model import KnowledgeBaseModel
 from server.db.models.knowledge_file_model import KnowledgeFileModel
 from server.db.models.knowledge_file_model import FileDocModel
 from fastapi import Body
+from sqlalchemy import delete
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from typing import List
@@ -47,6 +48,10 @@ class MessageResponse(BaseModel):
     response: str = Field(..., description="大模型的回答")
     meta_data: dict = Field(..., description="其他元数据")
     create_time: datetime = Field(..., description="消息创建时间")
+
+
+class UpdateConversationRequest(BaseModel):
+    name: str = Field(..., example="更新会话框的名称", description="新的会话名称")
 
 
 async def create_conversation(
@@ -122,7 +127,8 @@ async def get_conversation_messages(
         result = await async_session.execute(query)
         messages = result.scalars().all()
         if not messages:
-            raise HTTPException(status_code=404, detail="No messages found for this conversation with the specified types")
+            raise HTTPException(status_code=404,
+                                detail="No messages found for this conversation with the specified types")
 
         return [MessageResponse(
             id=msg.id,
@@ -133,3 +139,55 @@ async def get_conversation_messages(
             meta_data=msg.meta_data,
             create_time=msg.create_time
         ) for msg in messages]
+
+
+async def delete_conversation_and_messages(
+        conversation_id: str,
+        session: AsyncSession = Depends(get_async_db)
+):
+    """
+    删除指定的会话及其所有关联的消息记录。
+    """
+    async with session.begin():
+        # 检查是否存在指定的会话
+        conversation = await session.get(ConversationModel, conversation_id)
+        if not conversation:
+            # 如果会话不存在，返回404错误
+            raise HTTPException(status_code=404, detail="Conversation not found")
+
+        # 删除与会话关联的所有消息
+        await session.execute(
+            delete(MessageModel).where(MessageModel.conversation_id == conversation_id)
+        )
+
+        # 删除会话本身
+        await session.delete(conversation)
+
+        # 提交事务，确保所有操作都能一起完成
+        await session.commit()
+
+    # 返回204 No Content状态码，因为没有实体内容返回
+    return Response(status_code=204)
+
+
+async def update_conversation_name(
+        conversation_id: str,
+        request: UpdateConversationRequest,
+        session: AsyncSession = Depends(get_async_db)
+):
+    """
+    更新会话框的显示名称
+    """
+    async with session.begin():
+        # 查询对应的会话
+        conversation = await session.get(ConversationModel, conversation_id)
+        if not conversation:
+            raise HTTPException(status_code=404, detail="Conversation not found")
+
+        # 更新会话名称
+        conversation.name = request.name
+        session.add(conversation)
+        await session.commit()
+
+    # 返回200 OK状态码和确认消息
+    return JSONResponse(status_code=200, content={"message": "Conversation name updated successfully"})

@@ -21,14 +21,14 @@ import pydantic
 from pydantic import BaseModel
 
 # 加载模型配置信息
-from configs import (LLM_MODELS, LLM_DEVICE,MODEL_PATH,MODEL_ROOT_PATH,
-                        HTTPX_DEFAULT_TIMEOUT,
+from configs import (LLM_MODELS, LLM_DEVICE, MODEL_PATH, MODEL_ROOT_PATH,
+                     HTTPX_DEFAULT_TIMEOUT,
                      MODEL_PATH, ONLINE_LLM_MODEL, logger, log_verbose,
                      FSCHAT_MODEL_WORKERS, EMBEDDING_DEVICE)
 
-
 # 获取Embedding 模型
 from server.minx_chat_openai import MinxChatOpenAI
+
 
 def fschat_openai_api_address() -> str:
     """
@@ -61,7 +61,6 @@ def fschat_controller_address() -> str:
         host = "127.0.0.1"
     port = FSCHAT_CONTROLLER["port"]
     return f"http://{host}:{port}"
-
 
 
 def get_ChatOpenAI(
@@ -98,7 +97,6 @@ def get_ChatOpenAI(
         **kwargs
     )
     return model
-    
 
 
 def get_model_worker_config(model_name: str = None) -> dict:
@@ -110,7 +108,7 @@ def get_model_worker_config(model_name: str = None) -> dict:
     """
 
     from server import model_workers
-    
+
     config = FSCHAT_MODEL_WORKERS.get("default", {}).copy()
     config.update(ONLINE_LLM_MODEL.get(model_name, {}).copy())
     config.update(FSCHAT_MODEL_WORKERS.get(model_name, {}).copy())
@@ -147,7 +145,6 @@ def get_prompt_template(type: str, name: str) -> Optional[str]:
     import importlib
     importlib.reload(prompt_config)
     return prompt_config.PROMPT_TEMPLATES[type].get(name)
-
 
 
 def set_httpx_config(
@@ -205,6 +202,7 @@ def set_httpx_config(
 
     import urllib.request
     urllib.request.getproxies = _get_proxies
+
 
 async def wrap_done(fn: Awaitable, event: asyncio.Event):
     """Wrap an awaitable with a event to signal when it's done or an exception is raised."""
@@ -283,8 +281,6 @@ def get_httpx_client(
         return httpx.Client(**kwargs)
 
 
-
-
 def get_model_path(model_name: str, type: str = None) -> Optional[str]:
     if type in MODEL_PATH:
         paths = MODEL_PATH[type]
@@ -312,7 +308,6 @@ def get_model_path(model_name: str, type: str = None) -> Optional[str]:
             if path.is_dir():  # use value split by "/", {MODEL_ROOT_PATH}/chatglm-6b-new
                 return str(path)
         return path_str  # THUDM/chatglm06b
-
 
 
 class BaseResponse(BaseModel):
@@ -353,6 +348,7 @@ def list_embed_models() -> List[str]:
     '''
     return list(MODEL_PATH["embed_model"])
 
+
 def list_online_embed_models() -> List[str]:
     from server import model_workers
 
@@ -363,6 +359,7 @@ def list_online_embed_models() -> List[str]:
             if worker_class is not None and worker_class.can_embedding():
                 ret.append(k)
     return ret
+
 
 def list_config_llm_models() -> Dict[str, Dict]:
     '''
@@ -377,6 +374,7 @@ def list_config_llm_models() -> Dict[str, Dict]:
         "online": ONLINE_LLM_MODEL.copy(),
         "worker": workers,
     }
+
 
 class ListResponse(BaseResponse):
     data: List[str] = pydantic.Field(..., description="List of names")

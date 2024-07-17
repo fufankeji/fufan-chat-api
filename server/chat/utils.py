@@ -40,6 +40,7 @@ class History(BaseModel):
         role_maps = {
             "ai": "assistant",
             "human": "user",
+            "system": "system"  # 添加system角色的映射
         }
         role = role_maps.get(self.role, self.role)
         if is_raw:  # 当前默认历史消息都是没有input_variable的文本。

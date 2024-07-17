@@ -53,13 +53,13 @@ async def add_message_to_db(session,
 
 
 @with_async_session
-async def filter_message(session, conversation_id: str, limit: int = 10):
+async def filter_message(session, conversation_id: str, chat_type: str, limit: int = 10):
     """
     Asynchronously filter messages by conversation_id with a limit on the number of records
     """
     result = await session.execute(
         select(MessageModel)
-        .filter_by(conversation_id=conversation_id)
+        .filter_by(conversation_id=conversation_id, chat_type=chat_type)
         .filter(MessageModel.response != '')
         .order_by(MessageModel.create_time.desc())
         .limit(limit)

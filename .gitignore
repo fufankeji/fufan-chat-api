@@ -1,0 +1,4 @@
+# 忽略该文件夹下的内容上传
+knowledge_base/private/vector_store
+knowledge_base/wiki/vector_store
+knowledge_base/test/vector_store

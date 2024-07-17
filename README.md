@@ -67,8 +67,10 @@
     ```
    
 ## API接口示例
+<div align="center">
+<img src="https://muyu001.oss-cn-beijing.aliyuncs.com/img/image-20240717192132838.png" alt="image-20240713010710534" width="1000"/>
+</div>
 
-![1](https://muyu001.oss-cn-beijing.aliyuncs.com/img/image-20240717192132838.png)
 
 ## 使用示例
 

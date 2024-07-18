@@ -2,3 +2,6 @@
 knowledge_base/private/vector_store
 knowledge_base/wiki/vector_store
 knowledge_base/test/vector_store
+
+# 忽略所有__pycache__目录
+__pycache__/

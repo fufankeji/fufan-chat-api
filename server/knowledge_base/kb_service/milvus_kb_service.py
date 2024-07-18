@@ -113,7 +113,8 @@ class MilvusKBService(KBService):
             #     doc.metadata.setdefault(field, "")
             # doc.metadata.pop(self.milvus._text_field, None)
             # doc.metadata.pop(self.milvus._vector_field, None)
-
+        print("-----------------------------")
+        print(docs)
         # 这里是 milvus 实例继承自 LangChain的 VectorStore 基类 中的 add_documents 方法
         # https://api.python.langchain.com/en/v0.1/_modules/langchain_core/vectorstores.html#VectorStore
         ids = self.milvus.add_documents(docs)
@@ -160,7 +161,7 @@ async def main():
                            kb_info="milvus",
                            vs_type="milvus",
                            embed_model="bge-large-zh-v1.5",
-                           user_id="admin")
+                           user_id="ff4f9954-da8c-492f-965d-dc18224b1176")
 
     # 调用 add_doc 方法添加一个名为 "README.md" 的文桗，确保使用 await
     await milvusService.add_doc(KnowledgeFile("README.md", "milvus_test"))

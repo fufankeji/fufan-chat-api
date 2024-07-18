@@ -23,8 +23,6 @@ SCORE_THRESHOLD = 1.0
 # 如果使用ReRank模型
 RERANKER_TOP_K = 3
 
-
-
 # 搜索引擎匹配结题数量
 SEARCH_ENGINE_TOP_K = 3
 
@@ -44,6 +42,7 @@ MODEL_PATH = {
     "embed_model": {
         "bge-large-zh-v1.5": "/home/00_rag/model/AI-ModelScope/bge-large-zh-v1___5",
 
+        "m3e-base": "/home/00_rag/model/m3e-base",
         # 可扩展其他的Embedding模型
     },
 
@@ -98,4 +97,3 @@ SEARCH_RERANK_TOP_K = 3
 
 URL = "https://google.serper.dev/search"
 SERPER_API_KEY = ""  # 这里替换为自己实际的Serper API Key
-

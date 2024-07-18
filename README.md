@@ -79,7 +79,7 @@
     python /fufan-chat-api/server/knowledge_base/init_vs.py
     ```
 5. 本地部署milvus向量数据库并启动（如需使用）
-   - [**Ubuntu 系统安装部署Milvus向量数据库**](/docs/02_Ubuntu 系统安装部署Milvus向量数据库.md) 
+   - [**Ubuntu系统安装部署Milvus向量数据库**](/docs/02_Ubuntu 系统安装部署Milvus向量数据库.md) 
 6. 启动后端服务：
     ```bash
     python startup.py
@@ -107,7 +107,7 @@ http://192.168.110.131:8000/api/chat  # 替换为自己实际启动的服务 IP 
 }
 ```
 ## 技术交流
-**fufan_chat_api目前上线了v1.0版本，将持续迭代更新，感兴趣的小伙伴欢迎加入技术交流群。如有其他任何问题，<span style="color:red;">扫码添加客服小可爱(微信：littlelion_1215)，回复“RAG”详询哦👇</span>**
+**fufan_chat_api目前上线了v1.0版本，将持续迭代更新，感兴趣的小伙伴欢迎加入技术交流群。如有其他任何问题，<span style="color:red;">扫码添加小可爱(微信：littlelion_1215)，回复“RAG”详询哦👇</span>**
 
 <div align="center">
 <img src="https://ml2022.oss-cn-hangzhou.aliyuncs.com/img/image-20240713010710534.png" alt="image-20240713010710534" width="200"/>

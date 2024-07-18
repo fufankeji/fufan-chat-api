@@ -79,7 +79,8 @@
     python /fufan-chat-api/server/knowledge_base/init_vs.py
     ```
 5. 本地部署milvus向量数据库并启动（如需使用）
-   - [**Ubuntu系统上安装Milvus**](/docs/02_Ubuntu 系统安装部署Milvus向量数据库.md) 
+   - [**Ubuntu系统上安装Milvus**](/docs/02_Ubuntu系统安装部署Milvus向量数据库.md) 
+   
 6. 启动后端服务：
     ```bash
     python startup.py

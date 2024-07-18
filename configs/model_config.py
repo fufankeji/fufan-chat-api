@@ -56,7 +56,7 @@ ONLINE_LLM_MODEL = {
 
     # 智谱清言的在线API服务
     "zhipu-api": {
-        "api_key": "",
+        "api_key": "1ba8c4d78a12c320f72f54bc38bbb073.txdi9OxWN9HjpuGw",
         "version": "glm-4",
         "provider": "ChatGLMWorker",
     },

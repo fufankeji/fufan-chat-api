@@ -44,7 +44,7 @@ PROMPT_TEMPLATES = {
     },
 
     "recommend_base_chat": {
-        "default":
+        "chat_with_recommend":
             '{{ input }}',
     },
 

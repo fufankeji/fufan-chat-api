@@ -36,7 +36,7 @@ if __name__ == '__main__':
     from server.knowledge_base.kb_service.milvus_kb_service import MilvusKBService
 
     # 获取向量数据库的实例，用于接下来的数据存储。
-    milvusService = MilvusKBService("recommend_test")
+    milvusService = MilvusKBService("recommend_system")
 
     # 添加文档到 milvus 服务
     milvusService.do_add_file(docs=embedding_info_list)

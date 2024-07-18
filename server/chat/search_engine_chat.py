@@ -40,7 +40,7 @@ from langchain.prompts import PromptTemplate
 
 async def search_engine_chat(query: str = Body(..., description="用户输入", examples=["你好"]),
                              conversation_id: str = Body("", description="对话框ID"),
-                             knowledge_base_name: str = Body(..., description="知识库名称", examples=["samples"]),
+                             knowledge_base_name: str = Body("real_time_search", description="知识库名称", examples=["samples"]),
                              retrival_top_k: int = Body(VECTOR_SEARCH_TOP_K, description="匹配向量数"),
                              search_top_k: int = Body(SEARCH_ENGINE_TOP_K, description="检索结果数量"),
                              model_name: str = Body(LLM_MODELS[0], description="LLM 模型名称。"),

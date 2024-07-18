@@ -1,0 +1,4 @@
+2024-07-18 17:45:08,530 - controller.py[line:83] - INFO: Register a new worker: http://127.0.0.1:21001
+2024-07-18 17:45:08,531 - controller.py[line:101] - INFO: Register done: http://127.0.0.1:21001, {'model_names': ['zhipu-api'], 'speed': 1, 'queue_length': 0}
+2024-07-18 17:45:17,750 - controller.py[line:83] - INFO: Register a new worker: http://127.0.0.1:20002
+2024-07-18 17:45:17,750 - controller.py[line:101] - INFO: Register done: http://127.0.0.1:20002, {'model_names': ['chatglm3-6b'], 'speed': 1, 'queue_length': 0}

@@ -95,5 +95,8 @@ SEARCH_ENGINE_TOP_K = 3
 # 原始网页搜索结果筛选后保留的有效数量
 SEARCH_RERANK_TOP_K = 3
 
+# 历史对话窗口长度
+HISTORY_LEN = 5
+
 URL = "https://google.serper.dev/search"
-SERPER_API_KEY = ""  # 这里替换为自己实际的Serper API Key
+SERPER_API_KEY = "2dea528861b3a5ff96a180be5547319fd23a3f5a"  # 这里替换为自己实际的Serper API Key

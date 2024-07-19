@@ -24,7 +24,7 @@ This project is a secondary development based on the 👉[LangChain-chatchat v0.
 - **User Permission Management**: Implements fine-grained user access control to efficiently ensure data security and privacy.
 - **Flexible Integration with Base Large Models**: Supports integration with mainstream online and open-source large models, ensuring system adaptability and forward-thinking capabilities.
 - **Database Integration**: Integrates relational databases and vector databases to optimize data access efficiency and query response times.
-- **Efficient and Complete RAG Evaluation System**: Features a complete RAG evaluation pipeline that provides robust support for model assessment and optimization. See [FlashRAG](https://github.com/RUC-NLPIR/FlashRAG) for reference.
+- **Efficient and Complete RAG Evaluation System**: Features a complete RAG evaluation pipeline that provides robust support for model assessment and optimization. See 👉 [FlashRAG](https://github.com/RUC-NLPIR/FlashRAG) for reference.
 - **Docker Container Deployment**: Supports Docker container deployment, simplifying the deployment process and enhancing the system's portability and maintainability.
 
 ## 👀 System Demonstration

@@ -46,7 +46,6 @@ FuFan-chat-api provides a comprehensive user registration and login mechanism, e
 
 
 ### 二、Model Integration
-### II. Model Integration
 FuFan-chat-api is compatible with a variety of high-performance open-source large models and online large model APIs as base models. This system version primarily uses ChatGLM3-6b, glm-4-9b-chat, and the online GLM-4 API interface. It allows users to flexibly integrate other models according to their actual needs, supporting mainstream models such as OpenAI GPT, Qwen2, as well as integration frameworks like Vllm and Ollama.
 
 #### Underlying Technical Support:

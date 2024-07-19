@@ -220,6 +220,6 @@ http://192.168.110.131:8000/api/chat  # 替换为自己实际启动的服务 IP 
 <img src="https://ml2022.oss-cn-hangzhou.aliyuncs.com/img/image-20240713010710534.png" alt="image-20240713010710534" width="200"/>
 </div>
 
-#### [课程详情页👉](https://appze9inzwc2314.h5.xiaoeknow.com/v1/goods/goods_detail/p_66540df1e4b0694c9816e922?entry=2&entry_type=2002&share_type=5&share_user_id=u_6219ad9e8014c_HOpokbsTov&type=3)：该项目提供详细的源码讲解，可进入课程目录详细了解。
+#### [课程详情页👉](https://whakv.xetslk.com/s/1lSCCD)：该项目提供详细的源码讲解，可进入课程目录详细了解。
 #### [BiliBili公开课视频 @木羽Cheney👉](https://space.bilibili.com/3537113897241540?spm_id_from=333.337.0.0)：实时追踪大模型前言发展与应用。
 

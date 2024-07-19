@@ -222,6 +222,6 @@ We welcome contributions to the project via GitHub pull requests or issues. Any 
 <img src="https://ml2022.oss-cn-hangzhou.aliyuncs.com/img/image-20240713010710534.png" alt="image-20240713010710534" width="200"/>
 </div>
 
-#### [Course Details Page👉](https://appze9inzwc2314.h5.xiaoeknow.com/v1/goods/goods_detail/p_66540df1e4b0694c9816e922?entry=2&entry_type=2002&share_type=5&share_user_id=u_6219ad9e8014c_HOpokbsTov&type=3): This project provides detailed source code explanations. You can enter the course directory for more information.
+#### [Course Details Page👉](https://whakv.xetslk.com/s/1lSCCD): This project provides detailed source code explanations. You can enter the course directory for more information.
 #### [BiliBili Public Lecture Video @Muyu Cheney👉](https://space.bilibili.com/3537113897241540?spm_id_from=333.337.0.0): Stay up-to-date with the latest developments and applications of large models.
 

@@ -5,11 +5,11 @@ MODEL_ROOT_PATH = ""
 TEMPERATURE = 1.0
 MAX_TOKENS = 4096
 # 默认让大模型采用流式输出
-STREAM = False
+STREAM = True
 
 # 默认启动的模型，如果使用的是glm3-6b，请替换模型名称
-# LLM_MODELS = ["chatglm4-9b-chat", "zhipu-api"]
-LLM_MODELS = ["chatglm3-6b", "zhipu-api"]
+LLM_MODELS = ["glm4-9b-chat", "zhipu-api"]
+# LLM_MODELS = ["chatglm3-6b", "zhipu-api"]
 
 RERANKER_MODEL = "bge-reranker-large"
 RERANKER_MAX_LENGTH = 1024
@@ -30,7 +30,7 @@ MODEL_PATH = {
     # 这里定义 本机服务器上存储的大模型权重存储路径
     "local_model": {
         # 默认使用glm4-9b-chat
-        "chatglm4-9b-chat": "/home/00_rag/model/ZhipuAI/chatglm4-9b-chat",
+        "glm4-9b-chat": "/home/00_rag/model/ZhipuAI/chatglm4-9b-chat",
 
         "chatglm3-6b": "/home/00_rag/model/ZhipuAI/chatglm3-6b/",
 

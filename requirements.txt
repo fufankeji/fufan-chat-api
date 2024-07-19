@@ -15,7 +15,7 @@ langchainhub==0.1.20
 chromadb==0.5.3
 loguru==0.7.2
 zhipuai==2.1.2
-fastchat==0.1.0
+# fastchat==0.1.0
 asyncmy==0.2.9
 torch==2.3.0
 torchvision==0.18.0
@@ -23,7 +23,7 @@ torchaudio==2.3.0
 sse_starlette==2.1.2
 charset-normalizer==3.1.0
 shortuuid==1.0.13
-fschat==0.2.36
+fschat==0.2.35
 transformers==4.37.2
 psutil==6.0.0
 accelerate==0.32.1

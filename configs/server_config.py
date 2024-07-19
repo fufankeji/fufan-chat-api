@@ -24,7 +24,7 @@ FSCHAT_MODEL_WORKERS = {
     },
 
     # 本地模型 需要配置启动的设备，cpu还是gpu
-    "chatglm4-9b-chat": {
+    "glm4-9b-chat": {
         "device": "cuda",
     },
 

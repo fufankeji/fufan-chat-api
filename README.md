@@ -192,7 +192,7 @@ Ensure the following software or services are installed and properly configured:
     ```
    
 ## 🐉 API Endpoint Example
-Request URL:：http://{server_ip}:8000/docs
+Request URL: http://{server_ip}:8000/docs
 <div align="center">
 <img src="https://muyu001.oss-cn-beijing.aliyuncs.com/img/image-20240717192132838.png" alt="image-20240713010710534" width="1000"/>
 </div>

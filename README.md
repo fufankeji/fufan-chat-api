@@ -18,7 +18,6 @@ Fufan-chat-api is an intelligent Q&A system for local knowledge bases developed 
 This project is a secondary development based on the 👉[LangChain-chatchat v0.2](https://github.com/chatchat-space/Langchain-Chatchat) version, where the original architecture was optimized using a frontend-backend separation design. The backend is developed entirely in Python, while the frontend utilizes the modern Vue3 framework. The frontend repository that this project interfaces with is👉 [fufan-chat-web](https://github.com/fufankeji/fufan-chat-web) , which is expected to be open-sourced before August 2024.
 
 ### Key Features
-### Key Features
 - **Comprehensive Functionality**: Includes general domain knowledge Q&A with large models, local private knowledge base Q&A, real-time internet search Q&A, AI Agents Q&A, and large model recommendation systems.
 - **Data Preprocessing**: Processes from zero to one and refines millions of public Wiki corpora, Markdown, PDF, and other types of private corpora.
 - **User Permission Management**: Implements fine-grained user access control to efficiently ensure data security and privacy.

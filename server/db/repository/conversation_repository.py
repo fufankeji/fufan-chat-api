@@ -80,7 +80,7 @@ async def create_conversation(
 
         # 返回带有创建会话 id 的 JSONResponse
         return JSONResponse(
-            status_code=201,
+            status_code=200,
             content={"id": new_conversation.id}
         )
 
@@ -127,8 +127,9 @@ async def get_conversation_messages(
         result = await async_session.execute(query)
         messages = result.scalars().all()
         if not messages:
-            raise HTTPException(status_code=404,
-                                detail="No messages found for this conversation with the specified types")
+            return []
+            # raise HTTPException(status_code=404,
+            #                     detail="No messages found for this conversation with the specified types")
 
         return [MessageResponse(
             id=msg.id,

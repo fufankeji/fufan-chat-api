@@ -8,8 +8,8 @@ MAX_TOKENS = 4096
 STREAM = True
 
 # 默认启动的模型，如果使用的是glm3-6b，请替换模型名称
-LLM_MODELS = ["glm4-9b-chat", "zhipu-api"]
-# LLM_MODELS = ["chatglm3-6b", "zhipu-api"]
+# LLM_MODELS = ["glm4-9b-chat", "zhipu-api"]
+LLM_MODELS = ["chatglm3-6b", "zhipu-api"]
 
 RERANKER_MODEL = "bge-reranker-large"
 RERANKER_MAX_LENGTH = 1024
@@ -56,7 +56,7 @@ ONLINE_LLM_MODEL = {
 
     # 智谱清言的在线API服务
     "zhipu-api": {
-        "api_key": "1ba8c4d78a12c320f72f54bc38bbb073.txdi9OxWN9HjpuGw",
+        "api_key": "8e1482DbZShksjPO",
         "version": "glm-4",
         "provider": "ChatGLMWorker",
     },
@@ -99,4 +99,4 @@ SEARCH_RERANK_TOP_K = 3
 HISTORY_LEN = 5
 
 URL = "https://google.serper.dev/search"
-SERPER_API_KEY = "2dea528861b3a5ff96a180be5547319fd23a3f5a"  # 这里替换为自己实际的Serper API Key
+SERPER_API_KEY = "c4a98403f3dc82a1aee"  # 这里替换为自己实际的Serper API Key

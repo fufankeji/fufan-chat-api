@@ -35,6 +35,7 @@ async def register_user(
     """
     用户注册逻辑
     """
+    print(f"request: {request}")
     hashed_password = bcrypt.hash(request.password)
     new_user = UserModel(
         id=str(uuid.uuid4()),

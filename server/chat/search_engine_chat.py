@@ -84,27 +84,29 @@ async def search_engine_chat(query: str = Body(..., description="用户输入", 
 
         # 对经过rerank 的 网站，提取主体内容。
         detail_results = await fetch_details(rerank_results)
-
-        # 提取向量数据库的实例,联网检索，统一进入同一个默认向量库中检索
-        milvusService = MilvusKBService(knowledge_base_name)
-
-        # 添加文档到 milvus 服务
-        await milvusService.do_add_doc(docs=detail_results)
-
-        search_retriever = await milvusService.search_docs(query, top_k=retrival_top_k)
-
-        context = "\n".join([doc[0].page_content for doc in search_retriever])
-
-        if len(search_retriever) == 0:  # 如果没有找到相关文档，使用empty模板
+        if detail_results == []:
             prompt_template = get_prompt_template(prompt_name, "empty")
         else:
-            prompt_template = get_prompt_template(prompt_name, "chat_with_search")
+            # 提取向量数据库的实例,联网检索，统一进入同一个默认向量库中检索
+            milvusService = MilvusKBService(knowledge_base_name)
 
-            # 这里需要根据会话ID中的对话类型，选择匹配的历史对话信息
-            memory = ConversationBufferDBMemory(conversation_id=conversation_id,
-                                                llm=model,
-                                                chat_type=prompt_name,
-                                                message_limit=10)
+            # 添加文档到 milvus 服务
+            await milvusService.do_add_doc(docs=detail_results)
+
+            search_retriever = await milvusService.search_docs(query, top_k=retrival_top_k)
+
+            context = "\n".join([doc[0].page_content for doc in search_retriever])
+
+            if len(search_retriever) == 0:  # 如果没有找到相关文档，使用empty模板
+                prompt_template = get_prompt_template(prompt_name, "empty")
+            else:
+                prompt_template = get_prompt_template(prompt_name, "chat_with_search")
+
+        # 这里需要根据会话ID中的对话类型，选择匹配的历史对话信息
+        memory = ConversationBufferDBMemory(conversation_id=conversation_id,
+                                            llm=model,
+                                            chat_type=prompt_name,
+                                            message_limit=10)
 
         system_msg = History(role="system", content="你现在得到的上下文是基于实时联网检索信息后提取得到的，你需要从中提取关键信息，并基于这些关键信息回答用户提出的问题。").to_msg_template(is_raw=False)
 
@@ -121,14 +123,19 @@ async def search_engine_chat(query: str = Body(..., description="用户输入", 
         retriever_documents = []
         for inum, doc_tuple in enumerate(search_retriever):
             doc, _ = doc_tuple  # 每个元组的结构是 (Document对象, 相似度得分)
-            text = f"""向量检索 [{inum + 1}] \n\n{doc.page_content}\n\n"""
+            page_content = doc.page_content.replace('__', '').replace('__', '').replace('__', '').replace('__',
+                                                                                                             '').replace(
+                '__', '').replace('__', '')
+
+            text = f"""向量检索 [{inum + 1}]\n\n{page_content}\n\n"""
             retriever_documents.append(text)
 
         search_documents = []
         for inum, doc in enumerate(search_results):
             url = doc['link']
             snippet = doc['snippet']
-            text = f"""联网检索 [{inum + 1}] ({url})\n\n{snippet}\n\n"""
+            # text = f"""联网检索 [{inum + 1}] ({url})\n\n{snippet}\n\n"""
+            text = f"**实时联网检索 [{inum + 1}]** - [{snippet}]({url}) <sup>{inum + 1}</sup>"
             search_documents.append(text)
 
         if STREAM:

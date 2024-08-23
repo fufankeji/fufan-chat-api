@@ -71,7 +71,8 @@ async def search(query, num, locale=''):
     # 初始化参数字典，包含搜索查询词和返回结果的数量
     params = {
         "q": query,  # 搜索查询词
-        "num": num  # 请求返回的结果数量
+        "num": num,  # 请求返回的结果数量
+        "hl": "zh-cn"
     }
 
     # 如果提供了地区设置，则添加到参数字典中

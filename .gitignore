@@ -5,3 +5,10 @@ knowledge_base/test/vector_store
 
 # 忽略所有__pycache__目录
 __pycache__/
+
+
+# Ignore environment files
+.env
+
+# Ignore log files
+*.log

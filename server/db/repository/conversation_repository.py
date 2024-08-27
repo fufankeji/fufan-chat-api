@@ -24,6 +24,7 @@ from sqlalchemy.orm import selectinload
 from fastapi import Response
 from fastapi.responses import JSONResponse
 from fastapi import Query
+from sqlalchemy import desc
 
 
 # 定义 Pydantic 模型，用于请求体验证
@@ -92,6 +93,7 @@ async def create_conversation(
 
 async def get_user_conversations(
         user_id: str,
+        chat_types: str = Query(...),
         session: AsyncSession = Depends(get_async_db)
 ):
     """
@@ -100,7 +102,9 @@ async def get_user_conversations(
     async with session as async_session:
         result = await async_session.execute(
             select(ConversationModel)
-            .where(ConversationModel.user_id == user_id)
+            .where(ConversationModel.user_id == user_id,
+                   ConversationModel.chat_type == chat_types)
+            .order_by(desc(ConversationModel.create_time))
         )
         conversations = result.scalars().all()
 
@@ -128,7 +132,8 @@ async def get_conversation_messages(
     async with (session as async_session):
         query = select(MessageModel).where(MessageModel.conversation_id == conversation_id)
         if chat_types:
-            query = query.where(MessageModel.chat_type.in_(chat_types))
+            query = query.where(MessageModel.chat_type)
+
         result = await async_session.execute(query)
         messages = result.scalars().all()
         if not messages:
@@ -176,7 +181,10 @@ async def delete_conversation_and_messages(
         await session.commit()
 
     # 返回204 No Content状态码，因为没有实体内容返回
-    return Response(status_code=204)
+    return JSONResponse(
+            status_code=200,
+            content={"status": 200}
+        )
 
 
 async def update_conversation_name(

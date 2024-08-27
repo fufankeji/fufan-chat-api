@@ -25,7 +25,7 @@ async def add_message_to_db(session,
     conversation = await session.get(ConversationModel, conversation_id)
 
     # 更新会话ID的名称
-    if conversation.name == "new_chat":  # 如果会话存在且名称为'new_chat'，则更新名称为query
+    if conversation.name == "新对话":  # 如果会话存在且名称为'new_chat'，则更新名称为query
         conversation.name = query
 
     # 确保这里的更改被提交

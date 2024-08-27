@@ -84,6 +84,7 @@ async def search_engine_chat(query: str = Body(..., description="用户输入", 
 
         # 对经过rerank 的 网站，提取主体内容。
         detail_results = await fetch_details(rerank_results)
+        context = " "
         if detail_results == []:
             prompt_template = get_prompt_template(prompt_name, "empty")
         else:
@@ -115,28 +116,33 @@ async def search_engine_chat(query: str = Body(..., description="用户输入", 
 
         chain = LLMChain(prompt=chat_prompt, llm=model, memory=memory)
 
+
         task = asyncio.create_task(wrap_done(
             chain.acall({"context": context, "question": query}),
             callback.done),
         )
 
-        retriever_documents = []
-        for inum, doc_tuple in enumerate(search_retriever):
-            doc, _ = doc_tuple  # 每个元组的结构是 (Document对象, 相似度得分)
-            page_content = doc.page_content.replace('__', '').replace('__', '').replace('__', '').replace('__',
-                                                                                                             '').replace(
-                '__', '').replace('__', '')
+        if detail_results == []:
+            retriever_documents = []
+            search_documents = []
+        else:
+            retriever_documents = []
+            search_documents = []
+            for inum, doc_tuple in enumerate(search_retriever):
+                doc, _ = doc_tuple  # 每个元组的结构是 (Document对象, 相似度得分)
+                page_content = doc.page_content.replace('__', '').replace('__', '').replace('__', '').replace('__',
+                                                                                                                 '').replace(
+                    '__', '').replace('__', '')
 
-            text = f"""向量检索 [{inum + 1}]\n\n{page_content}\n\n"""
-            retriever_documents.append(text)
+                text = f"""向量检索 [{inum + 1}]\n\n{page_content}\n\n"""
+                retriever_documents.append(text)
 
-        search_documents = []
-        for inum, doc in enumerate(search_results):
-            url = doc['link']
-            snippet = doc['snippet']
-            # text = f"""联网检索 [{inum + 1}] ({url})\n\n{snippet}\n\n"""
-            text = f"**实时联网检索 [{inum + 1}]** - [{snippet}]({url}) <sup>{inum + 1}</sup>"
-            search_documents.append(text)
+            for inum, doc in enumerate(search_results):
+                url = doc['link']
+                snippet = doc['snippet']
+                # text = f"""联网检索 [{inum + 1}] ({url})\n\n{snippet}\n\n"""
+                text = f"**实时联网检索 [{inum + 1}]** - [{snippet}]({url}) <sup>{inum + 1}</sup>"
+                search_documents.append(text)
 
         if STREAM:
             async for token in callback.aiter():

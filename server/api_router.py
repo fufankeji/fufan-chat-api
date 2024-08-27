@@ -105,7 +105,7 @@ def mount_app_routes(app: FastAPI):
 
     # 获取用户会话列表接口
     app.get("/api/users/{user_id}/conversations",  # 确保路径正确表示用户ID的参数化
-            response_model=List[ConversationResponse],  # 使用正确的响应模型
+            # response_model=List[ConversationResponse],  # 使用正确的响应模型
             tags=["Conversations"],
             summary="获取指定用户的会话列表",
             )(get_user_conversations)
@@ -126,7 +126,7 @@ def mount_app_routes(app: FastAPI):
 
     # 获取会话消息列表接口
     app.get("/api/conversations/{conversation_id}/messages",
-            response_model=List[MessageResponse],  # 使用正确的响应模型
+            # response_model=List[MessageResponse],  # 使用正确的响应模型
             tags=["Messages"],
             summary="获取指定会话的消息列表",
             )(get_conversation_messages)
@@ -137,7 +137,7 @@ def mount_app_routes(app: FastAPI):
     app.get("/api/llm_model/list_running_models",
             tags=["Models"],
             summary="列出当前已加载的模型",
-            response_model=BaseResponse,
+            # response_model=BaseResponse,
             )(list_running_models)
 
     from server.db.repository.knowledge_base_repository import (
@@ -154,21 +154,21 @@ def mount_app_routes(app: FastAPI):
     # 新建一个知识库
     app.post("/api/knowledge_base/create_knowledge_base",
              tags=["Knowledge Management"],
-             response_model=List[CreateKnowledgeBaseRequest],
+             # response_model=List[CreateKnowledgeBaseRequest],
              summary="创建知识库"
              )(create_knowledge_base)
 
     # 删除数据库
     app.delete("/api/knowledge_base/delete_knowledge_base",
              tags=["Knowledge Management"],
-             response_model=List[DeleteKnowledgeBaseRequest],
+             # response_model=List[DeleteKnowledgeBaseRequest],
              summary="删除知识库"
              )(delete_knowledge_base)
 
     # 获取知识库内文件列表
     app.get("/api/knowledge_base/list_files",
             tags=["Knowledge Management"],
-            response_model=List[KnowledgeBaseFilesRequest],
+            # response_model=List[KnowledgeBaseFilesRequest],
             summary="获取知识库内的文件列表"
             )(list_knowledge_base_files)
 

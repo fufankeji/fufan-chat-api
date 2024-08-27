@@ -46,9 +46,10 @@ async def register_user(
         session.add(new_user)
         await session.commit()
         await session.refresh(new_user)
+
         return JSONResponse(
             status_code=201,
-            content={"id": new_user.id, "username": new_user.username}
+            content={"status": 200, "id": new_user.id, "username": new_user.username}
         )
     except IntegrityError:
         await session.rollback()
@@ -68,13 +69,15 @@ async def login_user(
         return JSONResponse(
             status_code=200,
             content={
+                "status": 200,
                 "id": user.id,
                 "username": user.username,
                 "message": "Login successful"
             }
         )
     else:
-        raise HTTPException(status_code=401, detail="Invalid username or password")
+        return {"status": 401, "message": "用户名或密码错误。"}
+        # raise HTTPException(status_code=401, detail="Invalid username or password")
 
 
 @with_async_session

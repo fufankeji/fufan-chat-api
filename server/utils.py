@@ -318,7 +318,7 @@ class BaseResponse(BaseModel):
     class Config:
         schema_extra = {
             "example": {
-                "code": 200,
+                "status": 200,
                 "msg": "success",
             }
         }

@@ -81,7 +81,7 @@ async def create_conversation(
         # 返回带有创建会话 id 的 JSONResponse
         return JSONResponse(
             status_code=200,
-            content={"id": new_conversation.id}
+            content={"status": 200, "id": new_conversation.id}
         )
 
     except Exception as e:
@@ -104,12 +104,17 @@ async def get_user_conversations(
         )
         conversations = result.scalars().all()
 
-        return [ConversationResponse(
-            id=conv.id,
-            name=conv.name,
-            chat_type=conv.chat_type,
-            create_time=conv.create_time
-        ) for conv in conversations]
+        if conversations == []:
+            return {"status": 200, "msg": "success", "data": []}
+        else:
+            data = [ConversationResponse(
+                id=conv.id,
+                name=conv.name,
+                chat_type=conv.chat_type,
+                create_time=conv.create_time
+            ) for conv in conversations]
+
+            return {"status": 200, "msg": "success", "data": data}
 
 
 async def get_conversation_messages(
@@ -120,26 +125,29 @@ async def get_conversation_messages(
     """
     使用 Query 参数接收可选的 chat_types 列表
     """
-    async with session as async_session:
+    async with (session as async_session):
         query = select(MessageModel).where(MessageModel.conversation_id == conversation_id)
         if chat_types:
             query = query.where(MessageModel.chat_type.in_(chat_types))
         result = await async_session.execute(query)
         messages = result.scalars().all()
         if not messages:
-            return []
+            return {"status": 200, "msg": "success", "data": []}
             # raise HTTPException(status_code=404,
             #                     detail="No messages found for this conversation with the specified types")
 
-        return [MessageResponse(
-            id=msg.id,
-            conversation_id=msg.conversation_id,
-            chat_type=msg.chat_type,
-            query=msg.query,
-            response=msg.response,
-            meta_data=msg.meta_data,
-            create_time=msg.create_time
-        ) for msg in messages]
+        else:
+            data = [MessageResponse(
+                id=msg.id,
+                conversation_id=msg.conversation_id,
+                chat_type=msg.chat_type,
+                query=msg.query,
+                response=msg.response,
+                meta_data=msg.meta_data,
+                create_time=msg.create_time
+            ) for msg in messages]
+
+            return {"status": 200, "msg": "success", "data": data}
 
 
 async def delete_conversation_and_messages(
@@ -191,4 +199,4 @@ async def update_conversation_name(
         await session.commit()
 
     # 返回200 OK状态码和确认消息
-    return JSONResponse(status_code=200, content={"message": "Conversation name updated successfully"})
+    return JSONResponse(status_code=200, content={"status": 200, "message": "Conversation name updated successfully"})

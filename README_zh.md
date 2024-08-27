@@ -1,5 +1,5 @@
 <div align="center">
-  <img alt="FuFan Chat Logo" width="120" height="120" src="https://muyu001.oss-cn-beijing.aliyuncs.com/img/logo.png">
+  <img alt="FuFan Chat Logo" width="120" height="120" src="https://muyu001.oss-cn-beijing.aliyuncs.com/img/20240823192944.jpg">
   <h1>FuFan Chat Api</h1>
   <span>中文 | <a href="./README.md">English</a></span>
 </div>

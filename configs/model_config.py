@@ -56,7 +56,7 @@ ONLINE_LLM_MODEL = {
 
     # 智谱清言的在线API服务
     "zhipu-api": {
-        "api_key": "8e1482DbZShksjPO",
+        "api_key": "8e1482448c5924ea98bc483b4846009d.bViRUeDbZShksjPO",
         "version": "glm-4",
         "provider": "ChatGLMWorker",
     },
@@ -99,4 +99,4 @@ SEARCH_RERANK_TOP_K = 3
 HISTORY_LEN = 5
 
 URL = "https://google.serper.dev/search"
-SERPER_API_KEY = "c4a98403f3dc82a1aee"  # 这里替换为自己实际的Serper API Key
+SERPER_API_KEY = "c4a95d2be3eb2337a373a308c8403f3dc82a1aee"  # 这里替换为自己实际的Serper API Key

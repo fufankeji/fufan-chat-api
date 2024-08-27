@@ -15,7 +15,7 @@ Fufan-chat-api 是一个基于大模型技术开发的本地知识库智能问�
   </div>
 
 ### 技术架构
-本项目是在👉[LangChain-chatchat v0.2](https://github.com/chatchat-space/Langchain-Chatchat) 版本的基础上进行的二次开发，优化了原有的架构，使用了前后端分离的设计方案。后端全部使用Python开发语言，前端则采用了现代的Vue3框架。 该项目对接的前端开源仓库👉 [fufan-chat-web](https://github.com/fufankeji/fufan-chat-web) （预计2024年8月份之前开源）。
+本项目是在👉[LangChain-chatchat v0.2](https://github.com/chatchat-space/Langchain-Chatchat) 版本的基础上进行的二次开发，优化了原有的架构，使用了前后端分离的设计方案。后端全部使用Python开发语言，前端则采用了现代的Vue3框架。 该项目对接的前端开源仓库👉 [fufan-chat-web](https://github.com/fufankeji/fufan-chat-web) 
 
 ### 主要特点
 - **主流功能覆盖**：涵盖大模型通用知识问答、本地私有知识库问答、实时联网检索问答、AI Agents问答及大模型推荐系统。

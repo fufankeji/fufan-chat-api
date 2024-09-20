@@ -184,15 +184,8 @@ class KBService(ABC):
                     score_threshold: float = SCORE_THRESHOLD,
                     ) ->List[Document]:
 
-        # docs = await self.do_search(query, top_k, score_threshold)
-        # return docs
-
-        if kb is not None:
-            if query:
-                docs = await self.do_search(query, top_k, score_threshold)
-                data = [DocumentWithVSId(**x[0].dict(), score=x[1]) for x in docs]
-            return data
-        return None
+        docs = await self.do_search(query, top_k, score_threshold)
+        return docs
 
     def get_doc_by_ids(self, ids: List[str]) -> List[Document]:
         return []

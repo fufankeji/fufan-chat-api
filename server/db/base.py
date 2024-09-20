@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from configs import SQLALCHEMY_DATABASE_URI
 import json
 
+
 async_engine = create_async_engine(
     SQLALCHEMY_DATABASE_URI,
     echo=True,

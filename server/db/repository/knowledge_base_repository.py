@@ -113,10 +113,11 @@ async def list_knowledge_bases(
         )
         kbs = result.scalars().all()
         # 使用 JSONResponse 返回筛选后的知识库名称列表
-        return JSONResponse(
-            status_code=200,
-            content={"knowledge_bases": kbs}
-        )
+        # return JSONResponse(
+        #     status_code=200,
+        #     content={"knowledge_bases": kbs}
+        # )
+        return {"status": 200, "msg": "success", "data": {"knowledge_bases": kbs}}
     except SQLAlchemyError as e:
         await session.rollback()
         raise HTTPException(status_code=500, detail=str(e))

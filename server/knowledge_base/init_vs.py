@@ -151,6 +151,7 @@ async def wiki_main(user_id):
     print("Added documents:", added_docs_info)
 
 
+
 async def sequential_execution():
     # 检查用户是否存在
     admin_user = await get_user_by_username(username="admin")
@@ -162,7 +163,7 @@ async def sequential_execution():
     else:
         user_id = admin_user.id
     await private_main(user_id)
-    await wiki_main(user_id)
+    # await wiki_main(user_id)
 
 
 async def test_query():

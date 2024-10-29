@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import os
+import re
 from fastapi import Body, Request
 from sse_starlette.sse import EventSourceResponse
 from fastapi.concurrency import run_in_threadpool
@@ -107,11 +108,11 @@ async def knowledge_base_chat(query: str = Body(..., description="用户输入",
         else:
             prompt_template = get_prompt_template(prompt_name, "chat_with_retrieval")
 
-            # 这里需要根据会话ID中的对话类型，选择匹配的历史对话信息
-            memory = ConversationBufferDBMemory(conversation_id=conversation_id,
-                                                llm=model,
-                                                chat_type=prompt_name,
-                                                message_limit=10)
+        # 这里需要根据会话ID中的对话类型，选择匹配的历史对话信息
+        memory = ConversationBufferDBMemory(conversation_id=conversation_id,
+                                            llm=model,
+                                            chat_type=prompt_name,
+                                            message_limit=10)
 
         system_msg = History(role="system", content="你是一位善于结合历史对话信息，以及相关文档分析并回答问题的高智商人才").to_msg_template(is_raw=False)
 
@@ -130,24 +131,30 @@ async def knowledge_base_chat(query: str = Body(..., description="用户输入",
             filename = os.path.basename(doc.metadata.get("source"))
             parameters = urlencode({"knowledge_base_name": knowledge_base_name, "file_name": filename})
             base_url = request.base_url
-            url = f"{base_url}knowledge_base/download_doc?" + parameters
+            # url = f"{base_url}knowledge_base/download_doc?" + parameters
+   
+            # 确保 doc.page_content 是字符串，并清洗内容
+            page_content = doc.page_content if isinstance(doc.page_content, str) else ""
+            cleaned_content = re.sub(r'\s+', ' ', page_content).strip()  # 替换多个空白字符为一个空格并去掉首尾空格
 
-            text = f"""出处 [{inum + 1}] [{filename}]({url}) \n\n{doc.page_content}\n\n"""
+            text = f"""<font color='red'>检索到文档 {inum + 1} ：{cleaned_content} 源文档出处：{filename}</font>"""
+
             source_documents.append(text)
 
         if len(source_documents) == 0:  # 没有找到相关文档
-            source_documents.append(f"<span style='color:red'>未找到相关文档,该回答为大模型自身能力解答！</span>")
+            source_documents.append(f"<font color='red'>未检索到与问题相关的文档片段,由大模型直接进行回答</font>")
+
 
         if STREAM:
             async for token in callback.aiter():
                 # Use server-sent-events to stream the response
-                yield json.dumps({"answer": token}, ensure_ascii=False)
-            yield json.dumps({"docs": source_documents}, ensure_ascii=False)
+                yield json.dumps({"text": token, "message_id": message_id}, ensure_ascii=False)
+            yield json.dumps({"docs": source_documents, "message_id": message_id,}, ensure_ascii=False)
         else:
             answer = ""
             async for token in callback.aiter():
                 answer += token
-            yield json.dumps({"answer": answer,
+            yield json.dumps({"text": answer, "message_id": message_id,
                               "docs": source_documents},
                              ensure_ascii=False)
         await task

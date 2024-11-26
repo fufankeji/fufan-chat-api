@@ -99,4 +99,4 @@ SEARCH_RERANK_TOP_K = 3
 HISTORY_LEN = 5
 
 URL = "https://google.serper.dev/search"
-SERPER_API_KEY = "81536d46336f424ed20e5071288a478eafb1dbca"  # 这里替换为自己实际的Serper API Key
+SERPER_API_KEY = "d59c7338ae72d4d4fdd3e39ead6fa9092f3c84f8"  # 这里替换为自己实际的Serper API Key

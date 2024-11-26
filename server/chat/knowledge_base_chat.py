@@ -132,7 +132,7 @@ async def knowledge_base_chat(query: str = Body(..., description="用户输入",
             parameters = urlencode({"knowledge_base_name": knowledge_base_name, "file_name": filename})
             base_url = request.base_url
             # url = f"{base_url}knowledge_base/download_doc?" + parameters
-   
+
             # 确保 doc.page_content 是字符串，并清洗内容
             page_content = doc.page_content if isinstance(doc.page_content, str) else ""
             cleaned_content = re.sub(r'\s+', ' ', page_content).strip()  # 替换多个空白字符为一个空格并去掉首尾空格
